@@ -1,0 +1,686 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to Nimfa &mdash; Nimfa 1.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Nimfa 1.3.1 documentation" href="#" />
+    <link rel="next" title="Models (models)" href="nimfa.models.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="welcome-to-nimfa">
+<h1>Welcome to Nimfa<a class="headerlink" href="#welcome-to-nimfa" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="http://jmlr.csail.mit.edu/papers/v13/zitnik12a.html">Nimfa</a> is a Python library for nonnegative matrix factorization. It includes implementations of several factorization methods, initialization approaches, and quality scoring.
+Both dense and sparse matrix representation are supported.</p>
+<p>Nimfa is distributed under the BSD license.</p>
+<hr class="docutils" />
+<p>The sample script using Nimfa on medulloblastoma gene expression data is given below. It uses alternating least squares nonnegative matrix
+factorization with projected gradient method for subproblems <a class="reference internal" href="#lin2007" id="id1">[Lin2007]</a> and Random Vcol <a class="reference internal" href="#albright2006" id="id2">[Albright2006]</a> initialization algorithm. The returned object is
+fitted factorization model through which user can access matrix factors and estimate quality measures.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">nimfa</span>
+
+<span class="n">V</span> <span class="o">=</span> <span class="n">nimfa</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">medulloblastoma</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">lsnmf</span> <span class="o">=</span> <span class="n">nimfa</span><span class="o">.</span><span class="n">Lsnmf</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="s">&#39;random_vcol&#39;</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">lsnmf_fit</span> <span class="o">=</span> <span class="n">lsnmf</span><span class="p">()</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Rss: </span><span class="si">%5.4f</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">lsnmf_fit</span><span class="o">.</span><span class="n">fit</span><span class="o">.</span><span class="n">rss</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Evar: </span><span class="si">%5.4f</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">lsnmf_fit</span><span class="o">.</span><span class="n">fit</span><span class="o">.</span><span class="n">evar</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;K-L divergence: </span><span class="si">%5.4f</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">lsnmf_fit</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="s">&#39;kl&#39;</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Sparseness, W: </span><span class="si">%5.4f</span><span class="s">, H: </span><span class="si">%5.4f</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">lsnmf_fit</span><span class="o">.</span><span class="n">fit</span><span class="o">.</span><span class="n">sparseness</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>Running this script produces the following output, where slight differences in reported scores across different
+runs can be attributed to randomness of the Random Vcol initialization method:</p>
+<div class="highlight-python"><div class="highlight"><pre>Rss: 0.2668
+Evar: 0.9997
+K-L divergence: 38.8744
+Sparseness, W: 0.7297, H: 0.8796
+</pre></div>
+</div>
+<hr class="docutils" />
+<p>An IPython notebook shows how to <a class="reference external" href="http://nbviewer.ipython.org/github/marinkaz/nimfa-ipynb/blob/master/ICGC%20and%20Nimfa.ipynb">use Nimfa to analyze breast cancer transcriptome
+data sets</a> from The International Cancer Genome Consortium (<a class="reference external" href="https://dcc.icgc.org">ICGC</a>). The analysis of cancer data was highlighted in the <a class="reference external" href="http://dl.acm.org/citation.cfm?id=2809623.2788526&amp;coll=portal&amp;dl=ACM">ACM XRDS magazine</a>.</p>
+<div class="section" id="scripting-reference">
+<h2>Scripting Reference<a class="headerlink" href="#scripting-reference" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.models.html">Models (<tt class="docutils literal"><span class="pre">models</span></tt>)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.nmf.html">Nmf (<tt class="docutils literal"><span class="pre">models.nmf</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.nmf_std.html">Nmf_std (<tt class="docutils literal"><span class="pre">models.nmf_std</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.nmf_ns.html">Nmf_ns (<tt class="docutils literal"><span class="pre">models.nmf_ns</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.nmf_mm.html">Nmf_mm (<tt class="docutils literal"><span class="pre">models.nmf_mm</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.smf.html">Smf (<tt class="docutils literal"><span class="pre">models.smf</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.mf_fit.html">Mf_fit (<tt class="docutils literal"><span class="pre">models.mf_fit</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.mf_track.html">Mf_track (<tt class="docutils literal"><span class="pre">models.mf_track</span></tt>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.methods.html">Methods (<tt class="docutils literal"><span class="pre">methods</span></tt>)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.methods.factorization.html">Factorization (<tt class="docutils literal"><span class="pre">methods.factorization</span></tt>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.bd.html">Bd (<tt class="docutils literal"><span class="pre">methods.factorization.bd</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.bmf.html">Bmf (<tt class="docutils literal"><span class="pre">methods.factorization.bmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.icm.html">Icm (<tt class="docutils literal"><span class="pre">methods.factorization.icm</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.lfnmf.html">Lfnmf (<tt class="docutils literal"><span class="pre">methods.factorization.lfnmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.lsnmf.html">Lsnmf (<tt class="docutils literal"><span class="pre">methods.factorization.lsnmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.nmf.html">Nmf (<tt class="docutils literal"><span class="pre">methods.factorization.nmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.nsnmf.html">Nsnmf (<tt class="docutils literal"><span class="pre">methods.factorization.nsnmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.pmf.html">Pmf (<tt class="docutils literal"><span class="pre">methods.factorization.pmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.psmf.html">Psmf (<tt class="docutils literal"><span class="pre">methods.factorization.psmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.snmf.html">Snmf (<tt class="docutils literal"><span class="pre">methods.factorization.snmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.snmnmf.html">Snmnmf (<tt class="docutils literal"><span class="pre">methods.factorization.snmnmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.pmfcc.html">Pmfcc (<tt class="docutils literal"><span class="pre">methods.factorization.pmfcc</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.sepnmf.html">SepNmf (<tt class="docutils literal"><span class="pre">methods.factorization.sepnmf</span></tt>)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.methods.seeding.html">Seeding (<tt class="docutils literal"><span class="pre">methods.seeding</span></tt>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.seeding.nndsvd.html">Nndsvd (<tt class="docutils literal"><span class="pre">methods.seeding.nndsvd</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.seeding.random_c.html">Random_c (<tt class="docutils literal"><span class="pre">methods.seeding.random_c</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.seeding.random_vcol.html">Random_vcol (<tt class="docutils literal"><span class="pre">methods.seeding.random_vcol</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.seeding.random.html">Random (<tt class="docutils literal"><span class="pre">methods.seeding.random</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.seeding.fixed.html">Fixed (<tt class="docutils literal"><span class="pre">methods.seeding.fixed</span></tt>)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.utils.html">Utils (<tt class="docutils literal"><span class="pre">utils</span></tt>)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.utils.utils.html">Utils (<tt class="docutils literal"><span class="pre">utils.utils</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.utils.linalg.html">Linalg (<tt class="docutils literal"><span class="pre">utils.linalg</span></tt>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.examples.html">Examples (<tt class="docutils literal"><span class="pre">examples</span></tt>)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.synthetic.html">Simulated studies (<tt class="docutils literal"><span class="pre">examples.synthetic</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.all_aml.html">ALL AML Leukemia (<tt class="docutils literal"><span class="pre">examples.aml_all</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.medulloblastoma.html">Medulloblastoma (<tt class="docutils literal"><span class="pre">examples.medulloblastoma</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.cbcl_images.html">CBCL Images (<tt class="docutils literal"><span class="pre">examples.cbcl_images</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.documents.html">Documents (<tt class="docutils literal"><span class="pre">examples.documents</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.orl_images.html">ORL Images (<tt class="docutils literal"><span class="pre">examples.orl_images</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.recommendations.html">Recommendations (<tt class="docutils literal"><span class="pre">examples.recommendations</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.gene_func_prediction.html">Gene Function Prediction (<tt class="docutils literal"><span class="pre">examples.gene_func_prediction</span></tt>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.datasets.html">Datasets (<tt class="docutils literal"><span class="pre">datasets</span></tt>)</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="content">
+<h2>Content<a class="headerlink" href="#content" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="factorization-algorithms">
+<h3>Factorization Algorithms<a class="headerlink" href="#factorization-algorithms" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>BD</strong> - Bayesian nonnegative matrix factorization Gibbs sampler <a class="reference internal" href="#schmidt2009" id="id3">[Schmidt2009]</a></li>
+<li><strong>BMF</strong> - Binary matrix factorization <a class="reference internal" href="#zhang2007" id="id4">[Zhang2007]</a></li>
+<li><strong>ICM</strong> - Iterated conditional modes nonnegative matrix factorization <a class="reference internal" href="#schmidt2009" id="id5">[Schmidt2009]</a></li>
+<li><strong>LFNMF</strong> - Fisher nonnegative matrix factorization for learning local features <a class="reference internal" href="#wang2004" id="id6">[Wang2004]</a>, <a class="reference internal" href="#li2001" id="id7">[Li2001]</a></li>
+<li><strong>LSNMF</strong> - Alternating nonnegative least squares matrix factorization using projected gradient method for subproblems <a class="reference internal" href="#lin2007" id="id8">[Lin2007]</a></li>
+<li><strong>NMF</strong> - Standard nonnegative matrix factorization with Euclidean / Kullback-Leibler update equations and Frobenius / divergence / connectivity cost functions <a class="reference internal" href="#lee2001" id="id9">[Lee2001]</a>, <a class="reference internal" href="#brunet2004" id="id10">[Brunet2004]</a></li>
+<li><strong>NSNMF</strong> - Nonsmooth nonnegative matrix factorization <a class="reference internal" href="#montano2006" id="id11">[Montano2006]</a></li>
+<li><strong>PMF</strong> - Probabilistic nonnegative matrix factorization <a class="reference internal" href="#laurberg2008" id="id12">[Laurberg2008]</a>, <a class="reference internal" href="#hansen2008" id="id13">[Hansen2008]</a></li>
+<li><strong>PSMF</strong> - Probabilistic sparse matrix factorization <a class="reference internal" href="#dueck2005" id="id14">[Dueck2005]</a>, <a class="reference internal" href="#dueck2004" id="id15">[Dueck2004]</a>, <a class="reference internal" href="#srebro2001" id="id16">[Srebro2001]</a>, <a class="reference internal" href="#li2007" id="id17">[Li2007]</a></li>
+<li><strong>SNMF</strong> - Sparse nonnegative matrix factorization based on alternating nonnegativity constrained least squares <a class="reference internal" href="#park2007" id="id18">[Park2007]</a></li>
+<li><strong>SNMNMF</strong> - Sparse network-regularized multiple nonnegative matrix factorization <a class="reference internal" href="#zhang2011" id="id19">[Zhang2011]</a></li>
+<li><strong>PMFCC</strong> - Penalized matrix factorization for constrained clustering <a class="reference internal" href="#fwang2008" id="id20">[FWang2008]</a></li>
+<li><strong>SepNMF</strong> - Separable nonnegative matrix factorization <a class="reference internal" href="#gillis2014" id="id21">[Gillis2014]</a>, <a class="reference internal" href="#kumar2013" id="id22">[Kumar2013]</a>, <a class="reference internal" href="#tepper2015" id="id23">[Tepper2015]</a>, <a class="reference internal" href="#kapralov2016" id="id24">[Kapralov2016]</a></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="initialization-algorithms">
+<h3>Initialization Algorithms<a class="headerlink" href="#initialization-algorithms" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Random</strong></li>
+<li><strong>Fixed</strong></li>
+<li><strong>NNDSVD</strong> <a class="reference internal" href="#boutsidis2007" id="id25">[Boutsidis2007]</a></li>
+<li><strong>Random C</strong> <a class="reference internal" href="#albright2006" id="id26">[Albright2006]</a></li>
+<li><strong>Random VCol</strong> <a class="reference internal" href="#albright2006" id="id27">[Albright2006]</a></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="quality-measures">
+<h3>Quality Measures<a class="headerlink" href="#quality-measures" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li>Distance</li>
+<li>Residuals</li>
+<li>Connectivity matrix</li>
+<li>Consensus matrix</li>
+<li>Entropy of the fitted NMF model <a class="reference internal" href="#park2007" id="id28">[Park2007]</a></li>
+<li>Dominant basis components computation</li>
+<li>Explained variance</li>
+<li>Feature score computation representing its specificity to basis vectors <a class="reference internal" href="#park2007" id="id29">[Park2007]</a></li>
+<li>Computation of most basis specific features for basis vectors <a class="reference internal" href="#park2007" id="id30">[Park2007]</a></li>
+<li>Purity <a class="reference internal" href="#park2007" id="id31">[Park2007]</a></li>
+<li>Residual sum of squares (rank estimation) <a class="reference internal" href="#hutchins2008" id="id32">[Hutchins2008]</a>, <a class="reference internal" href="#frigyesi2008" id="id33">[Frigyesi2008]</a></li>
+<li>Sparseness <a class="reference internal" href="#hoyer2004" id="id34">[Hoyer2004]</a></li>
+<li>Cophenetic correlation coefficient of consensus matrix (rank estimation) <a class="reference internal" href="#brunet2004" id="id35">[Brunet2004]</a></li>
+<li>Dispersion <a class="reference internal" href="#park2007" id="id36">[Park2007]</a></li>
+<li>Factorization rank estimation</li>
+<li>Selected matrix factorization method specific</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="utils">
+<h3>Utils<a class="headerlink" href="#utils" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li>Fitted factorization model tracker across multiple runs</li>
+<li>Residuals tracker across multiple factorizations / runs</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>Nimfa is compatible with Python 2 and Python 3 versions.
+The recommended way to install Nimfa is by issuing:</p>
+<div class="highlight-python"><div class="highlight"><pre>pip install nimfa
+</pre></div>
+</div>
+<p>from the command line.</p>
+<p>Nimfa makes extensive use of <a class="reference external" href="http://www.scipy.org/">SciPy</a> and <a class="reference external" href="http://numpy.scipy.org/">NumPy</a>
+libraries for fast and convenient dense and sparse matrix manipulation and some linear
+algebra operations. There are not any additional prerequisites.</p>
+<p>Alternatively, you can download source code from <a class="reference external" href="http://github.com/marinkaz/mf">Github</a>.</p>
+<p>Unzip the archive. To build and install run:</p>
+<div class="highlight-python"><div class="highlight"><pre>python setup.py install
+</pre></div>
+</div>
+</div>
+<div class="section" id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>Methods configuration goes through:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>runtime specific options (e. g. tracking fitted model across multiple runs, tracking residuals across iterations, etc.);</li>
+<li>algorithm specific options (e. g. prior information with PSMF, type of update equations with NMF, initial value for noise variance with ICM, etc.).</li>
+</ol>
+</div></blockquote>
+<p>For details and descriptions on algorithm specific options see specific algorithm documentation.</p>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>Following are basic usage examples that employ different implemented factorization algorithms.</p>
+<p>Standard NMF - Divergence on <tt class="docutils literal"><span class="pre">scipy.sparse</span></tt> matrix with matrix factors estimation.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="kn">as</span> <span class="nn">spr</span>
+
+<span class="kn">import</span> <span class="nn">nimfa</span>
+
+<span class="n">V</span> <span class="o">=</span> <span class="n">spr</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Target:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">V</span><span class="o">.</span><span class="n">todense</span><span class="p">())</span>
+
+<span class="n">nmf</span> <span class="o">=</span> <span class="n">nimfa</span><span class="o">.</span><span class="n">Nmf</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">update</span><span class="o">=</span><span class="s">&#39;euclidean&#39;</span><span class="p">,</span> <span class="n">objective</span><span class="o">=</span><span class="s">&#39;fro&#39;</span><span class="p">)</span>
+<span class="n">nmf_fit</span> <span class="o">=</span> <span class="n">nmf</span><span class="p">()</span>
+
+<span class="n">W</span> <span class="o">=</span> <span class="n">nmf_fit</span><span class="o">.</span><span class="n">basis</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Basis matrix:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">W</span><span class="o">.</span><span class="n">todense</span><span class="p">())</span>
+
+<span class="n">H</span> <span class="o">=</span> <span class="n">nmf_fit</span><span class="o">.</span><span class="n">coef</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Mixture matrix:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">H</span><span class="o">.</span><span class="n">todense</span><span class="p">())</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Euclidean distance: </span><span class="si">%5.3f</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">nmf_fit</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="s">&#39;euclidean&#39;</span><span class="p">))</span>
+
+<span class="n">sm</span> <span class="o">=</span> <span class="n">nmf_fit</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Sparseness Basis: </span><span class="si">%5.3f</span><span class="s">  Mixture: </span><span class="si">%5.3f</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sm</span><span class="p">[</span><span class="s">&#39;sparseness&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">sm</span><span class="p">[</span><span class="s">&#39;sparseness&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Iterations: </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">sm</span><span class="p">[</span><span class="s">&#39;n_iter&#39;</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Target estimate:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">W</span><span class="o">.</span><span class="n">todense</span><span class="p">(),</span> <span class="n">H</span><span class="o">.</span><span class="n">todense</span><span class="p">()))</span>
+</pre></div>
+</div>
+<p>LSNMF on <tt class="docutils literal"><span class="pre">numpy</span></tt> dense matrix with quality and performance measures.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">nimfa</span>
+
+<span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">]])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Target:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">V</span><span class="p">)</span>
+
+<span class="n">lsnmf</span> <span class="o">=</span> <span class="n">nimfa</span><span class="o">.</span><span class="n">Lsnmf</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">lsnmf_fit</span> <span class="o">=</span> <span class="n">lsnmf</span><span class="p">()</span>
+
+<span class="n">W</span> <span class="o">=</span> <span class="n">lsnmf_fit</span><span class="o">.</span><span class="n">basis</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Basis matrix:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">W</span><span class="p">)</span>
+
+<span class="n">H</span> <span class="o">=</span> <span class="n">lsnmf_fit</span><span class="o">.</span><span class="n">coef</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Mixture matrix:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">H</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;K-L divergence: </span><span class="si">%5.3f</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">lsnmf_fit</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="s">&#39;kl&#39;</span><span class="p">))</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Rss: </span><span class="si">%5.3f</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">lsnmf_fit</span><span class="o">.</span><span class="n">fit</span><span class="o">.</span><span class="n">rss</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Evar: </span><span class="si">%5.3f</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">lsnmf_fit</span><span class="o">.</span><span class="n">fit</span><span class="o">.</span><span class="n">evar</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Iterations: </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">lsnmf_fit</span><span class="o">.</span><span class="n">n_iter</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Target estimate:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">H</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>LSNMF with Random VCol initialization and error tracking.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">nimfa</span>
+
+<span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">]])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Target:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">V</span><span class="p">)</span>
+
+<span class="n">lsnmf</span> <span class="o">=</span> <span class="n">nimfa</span><span class="o">.</span><span class="n">Lsnmf</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="s">&#39;random_vcol&#39;</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">track_error</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">lsnmf_fit</span> <span class="o">=</span> <span class="n">lsnmf</span><span class="p">()</span>
+
+<span class="n">W</span> <span class="o">=</span> <span class="n">lsnmf_fit</span><span class="o">.</span><span class="n">basis</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Basis matrix:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">W</span><span class="p">)</span>
+
+<span class="n">H</span> <span class="o">=</span> <span class="n">lsnmf_fit</span><span class="o">.</span><span class="n">coef</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Mixture matrix:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">H</span><span class="p">)</span>
+
+<span class="c"># Objective function value for each iteration</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Error tracking:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">lsnmf_fit</span><span class="o">.</span><span class="n">fit</span><span class="o">.</span><span class="n">tracker</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+
+<span class="n">sm</span> <span class="o">=</span> <span class="n">lsnmf_fit</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Rss: </span><span class="si">%5.3f</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">sm</span><span class="p">[</span><span class="s">&#39;rss&#39;</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Evar: </span><span class="si">%5.3f</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">sm</span><span class="p">[</span><span class="s">&#39;evar&#39;</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Iterations: </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">sm</span><span class="p">[</span><span class="s">&#39;n_iter&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>LSNMF with Random VCol initialization and rank estimation.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">nimfa</span>
+
+<span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">],</span> <span class="p">[</span><span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">]])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Target:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">V</span><span class="p">)</span>
+
+<span class="n">lsnmf</span> <span class="o">=</span> <span class="n">nimfa</span><span class="o">.</span><span class="n">Lsnmf</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="s">&#39;random_vcol&#39;</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">track_error</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">lsnmf_fit</span> <span class="o">=</span> <span class="n">lsnmf</span><span class="p">()</span>
+
+<span class="n">W</span> <span class="o">=</span> <span class="n">lsnmf_fit</span><span class="o">.</span><span class="n">basis</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Basis matrix:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">W</span><span class="p">)</span>
+
+<span class="n">H</span> <span class="o">=</span> <span class="n">lsnmf_fit</span><span class="o">.</span><span class="n">coef</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Mixture matrix:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">H</span><span class="p">)</span>
+
+<span class="n">r</span> <span class="o">=</span> <span class="n">lsnmf</span><span class="o">.</span><span class="n">estimate_rank</span><span class="p">(</span><span class="n">rank_range</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="n">what</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;rss&#39;</span><span class="p">])</span>
+<span class="n">pp_r</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%d</span><span class="s">: </span><span class="si">%5.3f</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">rank</span><span class="p">,</span> <span class="n">vals</span><span class="p">[</span><span class="s">&#39;rss&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">rank</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Rank estimate:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">pp_r</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>ICM with Random C initialization and passed callback initialization function.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">nimfa</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">]])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Target:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">V</span><span class="p">)</span>
+
+<span class="c"># Initialization callback function</span>
+<span class="k">def</span> <span class="nf">init_info</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;Initialized basis matrix:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">model</span><span class="o">.</span><span class="n">basis</span><span class="p">())</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;Initialized  mixture matrix:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">model</span><span class="o">.</span><span class="n">coef</span><span class="p">())</span>
+
+<span class="c"># Callback is called after initialization and prior to factorization in each run</span>
+<span class="n">icm</span> <span class="o">=</span> <span class="n">nimfa</span><span class="o">.</span><span class="n">Icm</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="s">&#39;random_c&#39;</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">callback_init</span><span class="o">=</span><span class="n">init_info</span><span class="p">)</span>
+<span class="n">icm_fit</span> <span class="o">=</span> <span class="n">icm</span><span class="p">()</span>
+
+<span class="n">W</span> <span class="o">=</span> <span class="n">icm_fit</span><span class="o">.</span><span class="n">basis</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Basis matrix:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">W</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">W</span><span class="p">)</span>
+
+<span class="n">H</span> <span class="o">=</span> <span class="n">icm_fit</span><span class="o">.</span><span class="n">coef</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Mixture matrix:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">H</span><span class="p">)</span>
+
+<span class="n">sm</span> <span class="o">=</span> <span class="n">icm_fit</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Rss: </span><span class="si">%5.3f</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">sm</span><span class="p">[</span><span class="s">&#39;rss&#39;</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Evar: </span><span class="si">%5.3f</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">sm</span><span class="p">[</span><span class="s">&#39;evar&#39;</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Iterations: </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">sm</span><span class="p">[</span><span class="s">&#39;n_iter&#39;</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;KL divergence: </span><span class="si">%5.3f</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">sm</span><span class="p">[</span><span class="s">&#39;kl&#39;</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Euclidean distance: </span><span class="si">%5.3f</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">sm</span><span class="p">[</span><span class="s">&#39;euclidean&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>BMF with default parameters, multiple runs and factor tracking for consensus matrix computation.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">nimfa</span>
+
+<span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">23</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+
+<span class="c"># Factorization will be run 3 times (n_run) and factors will be tracked for computing</span>
+<span class="c"># cophenetic correlation. Note increased time and space complexity</span>
+<span class="n">bmf</span> <span class="o">=</span> <span class="n">nimfa</span><span class="o">.</span><span class="n">Bmf</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">n_run</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">track_factor</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">bmf_fit</span> <span class="o">=</span> <span class="n">bmf</span><span class="p">()</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;K-L divergence: </span><span class="si">%5.3f</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">bmf_fit</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="s">&#39;kl&#39;</span><span class="p">))</span>
+
+<span class="n">sm</span> <span class="o">=</span> <span class="n">bmf_fit</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Rss: </span><span class="si">%5.3f</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">sm</span><span class="p">[</span><span class="s">&#39;rss&#39;</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Evar: </span><span class="si">%5.3f</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">sm</span><span class="p">[</span><span class="s">&#39;evar&#39;</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Iterations: </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">sm</span><span class="p">[</span><span class="s">&#39;n_iter&#39;</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Cophenetic correlation: </span><span class="si">%5.3f</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">sm</span><span class="p">[</span><span class="s">&#39;cophenetic&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Standard NMF - Euclidean update equations and fixed initialization (passed matrix factors).</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">nimfa</span>
+
+<span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+
+<span class="n">init_W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">init_H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+
+<span class="c"># Fixed initialization of latent matrices</span>
+<span class="n">nmf</span> <span class="o">=</span> <span class="n">nimfa</span><span class="o">.</span><span class="n">Nmf</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="s">&quot;fixed&quot;</span><span class="p">,</span> <span class="n">W</span><span class="o">=</span><span class="n">init_W</span><span class="p">,</span> <span class="n">H</span><span class="o">=</span><span class="n">init_H</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">nmf_fit</span> <span class="o">=</span> <span class="n">nmf</span><span class="p">()</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">&quot;Euclidean distance: </span><span class="si">%5.3f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">nmf_fit</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="s">&quot;euclidean&quot;</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Initialization type: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">nmf_fit</span><span class="o">.</span><span class="n">seeding</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Iterations: </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">nmf_fit</span><span class="o">.</span><span class="n">n_iter</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<table class="docutils citation" frame="void" id="schmidt2009" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Schmidt2009]</td><td><em>(<a class="fn-backref" href="#id3">1</a>, <a class="fn-backref" href="#id5">2</a>)</em> Mikkel N. Schmidt, Ole Winther, and Lars K. Hansen. Bayesian non-negative matrix factorization. In Proceedings of the 9th International Conference on Independent Component Analysis and Signal Separation, pages 540-547, Paraty, Brazil, 2009.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="zhang2007" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[Zhang2007]</a></td><td>Zhongyuan Zhang, Tao Li, Chris H. Q. Ding and Xiangsun Zhang. Binary Matrix Factorization with applications. In Proceedings of 7th IEEE International Conference on Data Mining, pages 391-400, Omaha, USA, 2007.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="wang2004" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id6">[Wang2004]</a></td><td>Yuan Wang, Yunde Jia, Changbo Hu and Matthew Turk. Fisher non-negative matrix factorization for learning local features. In Proceedings of the 6th Asian Conference on Computer Vision, pages 27-30, Jeju, Korea, 2004.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="li2001" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id7">[Li2001]</a></td><td>Stan Z. Li, Xinwen Huo, Hongjiang Zhang and Qian S. Cheng. Learning spatially localized, parts-based representation. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pages 207-212, Kauai, USA, 2001.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="lin2007" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Lin2007]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id8">2</a>)</em> Chin J. Lin. Projected gradient methods for nonnegative matrix factorization. Neural Computation, 19(10): 2756-2779, 2007.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="lee2001" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id9">[Lee2001]</a></td><td>Daniel D. Lee and H. Sebastian Seung. Algorithms for non-negative matrix factorization. In Proceedings of the Neural Information Processing Systems, pages 556-562, Vancouver, Canada, 2001.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="lee1999" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Lee1999]</td><td>Daniel D. Lee and H. Sebastian Seung. Learning the parts of objects by non-negative matrix factorization. Nature, 401(6755): 788-791, 1999.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="brunet2004" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Brunet2004]</td><td><em>(<a class="fn-backref" href="#id10">1</a>, <a class="fn-backref" href="#id35">2</a>)</em> Jean-P. Brunet, Pablo Tamayo, Todd R. Golub and Jill P. Mesirov. Metagenes and molecular pattern discovery using matrix factorization. In Proceedings of the National Academy of Sciences of the USA, 101(12): 4164-4169, 2004.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="montano2006" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id11">[Montano2006]</a></td><td>Alberto Pascual-Montano, J. M. Carazo, Kieko Kochi, Dietrich Lehmann and Roberto D. Pascual-Marqui. Nonsmooth nonnegative matrix factorization (nsnmf). In IEEE Transactions on Pattern Analysis and Machine Intelligence, 28(3): 403-415, 2006.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="laurberg2008" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id12">[Laurberg2008]</a></td><td>Hans Laurberg, Mads G. Christensen, Mark D. Plumbley, Lars K. Hansen and Soren H. Jensen. Theorems on positive data: on the uniqueness of NMF. Computational Intelligence and Neuroscience, doi: 10.1155/2008/764206, 2008.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="hansen2008" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id13">[Hansen2008]</a></td><td>Lars K. Hansen. Generalization in high-dimensional factor models. Web: <a class="reference external" href="http://www.stanford.edu/group/mmds/slides2008/hansen.pdf">http://www.stanford.edu/group/mmds/slides2008/hansen.pdf</a>, 2008.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="dueck2005" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id14">[Dueck2005]</a></td><td>Delbert Dueck, Quaid D. Morris and Brendan J. Frey. Multi-way clustering of microarray data using probabilistic sparse matrix factorization. Bioinformatics, 21(Suppl 1): 144-151, 2005.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="dueck2004" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id15">[Dueck2004]</a></td><td>Delbert Dueck and Brendan J. Frey. Probabilistic sparse matrix factorization. University of Toronto Technical Report PSI-2004-23, Probabilistic and Statistical Inference Group, University of Toronto, 2004.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="srebro2001" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id16">[Srebro2001]</a></td><td>Nathan Srebro and Tommi Jaakkola. Sparse matrix Factorization of gene expression data. Artificial Intelligence Laboratory, Massachusetts Institute of Technology, 2001.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="li2007" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id17">[Li2007]</a></td><td>Huan Li, Yu Sun and Ming Zhan. The discovery of transcriptional modules by a two-stage matrix decomposition approach. Bioinformatics, 23(4): 473-479, 2007.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="park2007" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Park2007]</td><td><em>(<a class="fn-backref" href="#id18">1</a>, <a class="fn-backref" href="#id28">2</a>, <a class="fn-backref" href="#id29">3</a>, <a class="fn-backref" href="#id30">4</a>, <a class="fn-backref" href="#id31">5</a>, <a class="fn-backref" href="#id36">6</a>)</em> Hyuonsoo Kim and Haesun Park. Sparse non-negative matrix factorizations via alternating non-negativity-constrained least squares for microarray data analysis. Bioinformatics, 23(12): 1495-1502, 2007.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="zhang2011" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id19">[Zhang2011]</a></td><td>Shihua Zhang, Qingjiao Li and Xianghong J. Zhou. A novel computational framework for simultaneous integration of multiple types of genomic data to identify microRNA-gene regulatory modules. Bioinformatics, 27(13): 401-409, 2011.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="boutsidis2007" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id25">[Boutsidis2007]</a></td><td>Christos Boutsidis and Efstratios Gallopoulos. SVD-based initialization: A head start for nonnegative matrix factorization. Pattern Recognition, 41(4): 1350-1362, 2008.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="albright2006" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Albright2006]</td><td><em>(<a class="fn-backref" href="#id2">1</a>, <a class="fn-backref" href="#id26">2</a>, <a class="fn-backref" href="#id27">3</a>)</em> Russell Albright, Carl D. Meyer and Amy N. Langville. Algorithms, initializations, and convergence for the nonnegative matrix factorization. NCSU Technical Report Math 81706, NC State University, Releigh, USA, 2006.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="hoyer2004" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id34">[Hoyer2004]</a></td><td>Patrik O. Hoyer. Non-negative matrix factorization with sparseness constraints. Journal of Machine Learning Research, 5: 1457-1469, 2004.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="hutchins2008" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id32">[Hutchins2008]</a></td><td>Lucie N. Hutchins, Sean P. Murphy, Priyam Singh and Joel H. Graber. Position-dependent motif characterization using non-negative matrix factorization. Bioinformatics, 24(23): 2684-2690, 2008.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="frigyesi2008" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id33">[Frigyesi2008]</a></td><td>Attila Frigyesi and Mattias Hoglund. Non-negative matrix factorization for the analysis of complex gene expression data: identification of clinically relevant tumor subtypes. Cancer Informatics, 6: 275-292, 2008.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="fwang2008" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id20">[FWang2008]</a></td><td>Fei Wang, Tao Li, Changshui Zhang. Semi-Supervised Clustering via Matrix Factorization. SDM 2008, 1-12, 2008.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="schietgat2010" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Schietgat2010]</td><td>Leander Schietgat, Celine Vens, Jan Struyf, Hendrik Blockeel, Dragi Kocev and Saso Dzeroski. Predicting gene function using hierarchical multi-label decision tree ensembles. BMC Bioinformatics, 11(2), 2010.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="schachtner2008" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Schachtner2008]</td><td><ol class="first last upperalpha simple" start="18">
+<li>Schachtner, D. Lutter, P. Knollmueller, A. M. Tome, F. J. Theis, G. Schmitz, M. Stetter, P. Gomez Vilda and E. W. Lang. Knowledge-based gene expression classification via matrix factorization. Bioinformatics, 24(15): 1688-1697, 2008.</li>
+</ol>
+</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="damle2014" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Damle2014]</td><td>Anil Damle, Sun Yuekai . A geometric approach to archetypal analysis and non-negative matrix factorization. arXiv preprint arXiv:1405.4275, 2014.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="benson2014" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Benson2014]</td><td>Austin R. Benson, Jason D. Lee, Bartek Rajwa, David F. Gleich. Scalable methods for nonnegative matrix factorizations of near-separable tall-and-skinny matrices. NIPS, 945-953, 2014.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="kumar2013" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id22">[Kumar2013]</a></td><td>Abhishek Kumar, Vikas Sindhwani, Prabhanjan Kambadur. Fast conical hull algorithms for near-separable non-negative matrix factorization. ICML, 231-239, 2013.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="gillis2014" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id21">[Gillis2014]</a></td><td>Gillis, Nicolas, and Stephen A. Vavasis. Fast and robust recursive algorithms for separable nonnegative matrix factorization. IEEE TPAMI, 36(4): 698-714, 2014.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="tepper2015" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id23">[Tepper2015]</a></td><td>Mariano Tepper, Guillermo Sapiro. Compressed nonnegative matrix factorization is fast and accurate. IEEE TSP, 64(9): 2269-2283, 2016</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="kapralov2016" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id24">[Kapralov2016]</a></td><td>Michael, Kapralov, Vamsi Potluru, David Woodruff. How to fake multiply by a Gaussian Matrix. ICML, 2101-2110. 2016.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="citation">
+<h2>Citation<a class="headerlink" href="#citation" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-none"><div class="highlight"><pre> @article{Zitnik2012,
+  title     = {Nimfa: A Python Library for Nonnegative Matrix Factorization},
+  author    = {Zitnik, Marinka and Zupan, Blaz},
+  journal   = {Journal of Machine Learning Research},
+  volume    = {13},
+  pages     = {849-853},
+  year      = {2012}
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="disclaimer">
+<h2>Disclaimer<a class="headerlink" href="#disclaimer" title="Permalink to this headline">¶</a></h2>
+<p>This software and data is provided as-is, and there are no guarantees
+that it fits your purposes or that it is bug-free. Use it at your own
+risk!</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">Nimfa</a></h1>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=marinkaz&repo=nimfa&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.models.html">Models (<tt class="docutils literal"><span class="pre">models</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.methods.html">Methods (<tt class="docutils literal"><span class="pre">methods</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.utils.html">Utils (<tt class="docutils literal"><span class="pre">utils</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.examples.html">Examples (<tt class="docutils literal"><span class="pre">examples</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.datasets.html">Datasets (<tt class="docutils literal"><span class="pre">datasets</span></tt>)</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="nimfa.models.html" title="next chapter">Models (<tt class="docutils literal"><span class="pre">models</span></tt>)</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, The Nimfa developers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/marinkaz/nimfa" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

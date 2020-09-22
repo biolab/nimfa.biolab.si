@@ -1,0 +1,230 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>utilities (sa.utilities) &mdash; Yeast Screen Data Analysis 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Yeast Screen Data Analysis 1.0 documentation" href="index.html" />
+    <link rel="up" title="SA (sa)" href="sa.html" />
+    <link rel="prev" title="plotting (sa.plotting)" href="sa.plotting.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sa.plotting.html" title="plotting (sa.plotting)"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Yeast Screen Data Analysis 1.0 documentation</a> &raquo;</li>
+          <li><a href="sa.html" accesskey="U">SA (<tt class="docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal"><span class="pre">sa</span></tt>)</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-sa.utilities"></span><div class="section" id="utilities-sa-utilities">
+<h1>utilities (<tt class="docutils literal"><span class="pre">sa.utilities</span></tt>)<a class="headerlink" href="#utilities-sa-utilities" title="Permalink to this headline">¶</a></h1>
+<p>This script reads CSV files with extracted data.</p>
+<dl class="docutils">
+<dt>Assumed file format: </dt>
+<dd><ul class="first last simple">
+<li>sequence number</li>
+<li>plate</li>
+<li>date</li>
+<li>row</li>
+<li>column</li>
+<li>... (computational features &#8211; those that can be interpreted as countable real numbers)</li>
+<li>ORF</li>
+</ul>
+</dd>
+</dl>
+<dl class="function">
+<dt id="sa.utilities.combine">
+<tt class="descclassname">sa.utilities.</tt><tt class="descname">combine</tt><big>(</big><em>meta</em>, <em>dataL</em><big>)</big><a class="reference internal" href="_modules/sa/utilities.html#combine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.utilities.combine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine strains data from different plates into one set, add attribute explaining plate membership for observation.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.utilities.data2np">
+<tt class="descclassname">sa.utilities.</tt><tt class="descname">data2np</tt><big>(</big><em>data</em>, <em>skip_first=5</em>, <em>skip_last=1</em><big>)</big><a class="reference internal" href="_modules/sa/utilities.html#data2np"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.utilities.data2np" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert data to numpy array for further analysis skipping some non-computational features.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.utilities.filter_attribute">
+<tt class="descclassname">sa.utilities.</tt><tt class="descname">filter_attribute</tt><big>(</big><em>attrs, data, attr_name='ORF', attr_values=['YOR202W']</em><big>)</big><a class="reference internal" href="_modules/sa/utilities.html#filter_attribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.utilities.filter_attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter data by selecting only rows whose column specified in <a href="#id1"><span class="problematic" id="id2">:param:`fname`</span></a> match values in <a href="#id3"><span class="problematic" id="id4">:param:`fvalues`</span></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.utilities.plates2dict">
+<tt class="descclassname">sa.utilities.</tt><tt class="descname">plates2dict</tt><big>(</big><em>plate</em>, <em>dnp</em><big>)</big><a class="reference internal" href="_modules/sa/utilities.html#plates2dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.utilities.plates2dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dictionary from <a href="#id5"><span class="problematic" id="id6">:param:`plate`</span></a> indexed by plate identifier, row and column number.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.utilities.pp_plate_info">
+<tt class="descclassname">sa.utilities.</tt><tt class="descname">pp_plate_info</tt><big>(</big><em>meta</em>, <em>plate</em><big>)</big><a class="reference internal" href="_modules/sa/utilities.html#pp_plate_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.utilities.pp_plate_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="sa.utilities.read">
+<tt class="descclassname">sa.utilities.</tt><tt class="descname">read</tt><big>(</big><em>dir_path=None</em>, <em>*files</em><big>)</big><a class="reference internal" href="_modules/sa/utilities.html#read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.utilities.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read files and return for each file a list of data. Header incl.</p>
+<p>Return a list with entries describing files. Each entry is a of format ((file_name, attr_names), plate_data).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.utilities.read_repl">
+<tt class="descclassname">sa.utilities.</tt><tt class="descname">read_repl</tt><big>(</big><em>file_path, keys=['RT', '37']</em><big>)</big><a class="reference internal" href="_modules/sa/utilities.html#read_repl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.utilities.read_repl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read file with repeating mutants in csv format with attributes [ORF, plate, row, column]. Header incl.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>file_path</strong> (<cite>str</cite>) &#8211; Full file path to CSV file with information on replicates.</li>
+<li><strong>keys</strong> (<cite>list</cite>) &#8211; Names of TS (temperature sensitive mutants) plates&#8217; extensions. By default, these are RT and 37.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Return a list where each entry is one repeating mutant.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.utilities.split_WT_MT">
+<tt class="descclassname">sa.utilities.</tt><tt class="descname">split_WT_MT</tt><big>(</big><em>meta, data, wt_mt_name='ORF', wt_name=['YOR202W']</em><big>)</big><a class="reference internal" href="_modules/sa/utilities.html#split_WT_MT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.utilities.split_WT_MT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split plate data to two groups: (i) wild-type, (ii) mutants. Wild-type strains are in entire border.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.utilities.std_prep">
+<tt class="descclassname">sa.utilities.</tt><tt class="descname">std_prep</tt><big>(</big><em>data_del, data_ts, data_sg, out_dir, wt_attr_name='ORF', wt_name=['YOR202W']</em><big>)</big><a class="reference internal" href="_modules/sa/utilities.html#std_prep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.utilities.std_prep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Standard preprocessing; (1) standardize WT strains in each plate and remove outiers,
+(2) standardize mutant strains, (3) combine computational and
+non-computational features from all plates.</p>
+<p>Save preprocessed data in Orange format to directory <a href="#id7"><span class="problematic" id="id8">:param:`out_dir`</span></a> named <cite>preprocessed_del_ts_sg.tab</cite>.
+Save preprocessed data in CSV to directory <a href="#id9"><span class="problematic" id="id10">:param:`out_dir`</span></a> named <cite>preprocessed_del_ts_sg.csv</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data_del</strong> (<cite>tuple</cite> (meta_data, plates_data)) &#8211; Deletion collection plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>data_ts</strong> (<cite>tuple</cite> (meta_data, plates_data)) &#8211; TS collection plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>data_sg</strong> (<cite>tuple</cite> (meta_data, plates_data)) &#8211; SG collection plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>out_dir</strong> (<cite>str</cite>) &#8211; Full path to directory where data in Orange format is saved.</li>
+<li><strong>wt_attr_name</strong> (<cite>str</cite>) &#8211; Identifier of attribute that contains ORFs.</li>
+<li><strong>wt_name</strong> (<cite>list</cite>) &#8211; Names of the wild-type ORFs.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Return preprocessed computational profiles and plates data.</p>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">See also functions <a class="reference internal" href="sa.methods.html#sa.methods.standardize" title="sa.methods.standardize"><tt class="xref py py-func docutils literal"><span class="pre">sa.methods.standardize()</span></tt></a> and <a class="reference internal" href="sa.methods.html#sa.methods.detect_outliers" title="sa.methods.detect_outliers"><tt class="xref py py-func docutils literal"><span class="pre">sa.methods.detect_outliers()</span></tt></a>.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.utilities.to_csv">
+<tt class="descclassname">sa.utilities.</tt><tt class="descname">to_csv</tt><big>(</big><em>names</em>, <em>data_org</em>, <em>dnp</em>, <em>out_name</em>, <em>noncomp_first=5</em>, <em>noncomp_last=1</em><big>)</big><a class="reference internal" href="_modules/sa/utilities.html#to_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.utilities.to_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save data in CSV format.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.utilities.to_orange">
+<tt class="descclassname">sa.utilities.</tt><tt class="descname">to_orange</tt><big>(</big><em>names</em>, <em>data_org</em>, <em>dnp</em>, <em>out_name</em>, <em>noncomp_first=5</em>, <em>noncomp_last=1</em><big>)</big><a class="reference internal" href="_modules/sa/utilities.html#to_orange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.utilities.to_orange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save data in Orange format. Non-computational features are stored as meta attributes.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="sa.plotting.html"
+                        title="previous chapter">plotting (<tt class="docutils literal docutils literal docutils literal"><span class="pre">sa.plotting</span></tt>)</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sa.plotting.html" title="plotting (sa.plotting)"
+             >previous</a> |</li>
+        <li><a href="index.html">Yeast Screen Data Analysis 1.0 documentation</a> &raquo;</li>
+          <li><a href="sa.html" >SA (<tt class="docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal"><span class="pre">sa</span></tt>)</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Marinka Zitnik.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,310 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>sa.utilities &mdash; Yeast Screen Data Analysis 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Yeast Screen Data Analysis 1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Yeast Screen Data Analysis 1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for sa.utilities</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">############################</span>
+<span class="sd">utilities (``sa.utilities``)</span>
+<span class="sd">############################</span>
+
+<span class="sd">This script reads CSV files with extracted data.</span>
+
+<span class="sd">Assumed file format: </span>
+<span class="sd">    * sequence number</span>
+<span class="sd">    * plate</span>
+<span class="sd">    * date</span>
+<span class="sd">    * row </span>
+<span class="sd">    * column </span>
+<span class="sd">    * ... (computational features -- those that can be interpreted as countable real numbers)</span>
+<span class="sd">    * ORF</span>
+<span class="sd">        </span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">methods</span>
+
+<div class="viewcode-block" id="read"><a class="viewcode-back" href="../../sa.utilities.html#sa.utilities.read">[docs]</a><span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">dir_path</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">files</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read files and return for each file a list of data. Header incl.</span>
+<span class="sd">    </span>
+<span class="sd">    Return a list with entries describing files. Each entry is a of format ((file_name, attr_names), plate_data).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">dir_path</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span> 
+        <span class="n">files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s">&quot;Reading data files from path: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">dir_path</span>
+    <span class="n">meta</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">plates</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">dir_path</span> <span class="o">+</span> <span class="n">fname</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">)</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">]</span>
+        <span class="n">meta</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">fname</span><span class="p">,</span> <span class="n">names</span><span class="p">))</span>
+        <span class="n">plates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;Read files: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;</span><span class="se">\n\t</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">meta</span><span class="p">,</span> <span class="n">plates</span>
+</div>
+<div class="viewcode-block" id="read_repl"><a class="viewcode-back" href="../../sa.utilities.html#sa.utilities.read_repl">[docs]</a><span class="k">def</span> <span class="nf">read_repl</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;RT&quot;</span><span class="p">,</span> <span class="s">&quot;37&quot;</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read file with repeating mutants in csv format with attributes [ORF, plate, row, column]. Header incl.</span>
+<span class="sd">    </span>
+<span class="sd">    :param file_path: Full file path to CSV file with information on replicates.</span>
+<span class="sd">    :type file_path: `str`</span>
+<span class="sd">    :param keys: Names of TS (temperature sensitive mutants) plates&#39; extensions. By default, these are RT and 37.</span>
+<span class="sd">    :type keys: `list`</span>
+<span class="sd">    </span>
+<span class="sd">    Return a list where each entry is one repeating mutant.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">)</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">]</span>
+    <span class="n">data_k</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">orf</span><span class="p">,</span> <span class="n">pn</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s">&quot;TS&quot;</span> <span class="ow">in</span> <span class="n">pn</span><span class="p">:</span>
+            <span class="n">data_k</span><span class="o">.</span><span class="n">extend</span><span class="p">([(</span><span class="n">orf</span><span class="p">,</span> <span class="n">pn</span> <span class="o">+</span> <span class="s">&quot;-&quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data_k</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">orf</span><span class="p">,</span> <span class="n">pn</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">))</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">names</span><span class="p">,</span> <span class="n">data_k</span>
+</div>
+<div class="viewcode-block" id="std_prep"><a class="viewcode-back" href="../../sa.utilities.html#sa.utilities.std_prep">[docs]</a><span class="k">def</span> <span class="nf">std_prep</span><span class="p">(</span><span class="n">data_del</span><span class="p">,</span> <span class="n">data_ts</span><span class="p">,</span> <span class="n">data_sg</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">wt_attr_name</span> <span class="o">=</span> <span class="s">&quot;ORF&quot;</span><span class="p">,</span> <span class="n">wt_name</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;YOR202W&quot;</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Standard preprocessing; (1) standardize WT strains in each plate and remove outiers,</span>
+<span class="sd">    (2) standardize mutant strains, (3) combine computational and</span>
+<span class="sd">    non-computational features from all plates.</span>
+<span class="sd">    </span>
+<span class="sd">    Save preprocessed data in Orange format to directory :param:`out_dir` named `preprocessed_del_ts_sg.tab`.</span>
+<span class="sd">    Save preprocessed data in CSV to directory :param:`out_dir` named `preprocessed_del_ts_sg.csv`.</span>
+<span class="sd">    </span>
+<span class="sd">    :param data_del: Deletion collection plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type data_del: `tuple` (meta_data, plates_data)</span>
+<span class="sd">    :param data_ts: TS collection plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type data_ts: `tuple` (meta_data, plates_data)</span>
+<span class="sd">    :param data_sg: SG collection plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type data_sg: `tuple` (meta_data, plates_data)</span>
+<span class="sd">    :param out_dir: Full path to directory where data in Orange format is saved.</span>
+<span class="sd">    :type out_dir: `str`</span>
+<span class="sd">    :param wt_attr_name: Identifier of attribute that contains ORFs.</span>
+<span class="sd">    :type wt_attr_name: `str`</span>
+<span class="sd">    :param wt_name: Names of the wild-type ORFs.</span>
+<span class="sd">    :type wt_name: `list`</span>
+<span class="sd">    </span>
+<span class="sd">    Return preprocessed computational profiles and plates data.</span>
+<span class="sd">    </span>
+<span class="sd">    .. seealso:: See also functions :func:`sa.methods.standardize` and :func:`sa.methods.detect_outliers`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plates_wt</span><span class="p">,</span> <span class="n">dnp_wtc</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="n">plates_mt</span><span class="p">,</span> <span class="n">dnp_mtc</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">coll</span> <span class="ow">in</span> <span class="p">[</span><span class="n">data_del</span><span class="p">,</span> <span class="n">data_ts</span><span class="p">,</span> <span class="n">data_sg</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">meta</span><span class="p">,</span> <span class="n">plate</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">coll</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">coll</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">wt</span><span class="p">,</span> <span class="n">mt</span> <span class="o">=</span> <span class="n">split_WT_MT</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">plate</span><span class="p">,</span> <span class="n">wt_attr_name</span><span class="p">,</span> <span class="n">wt_name</span><span class="p">)</span>
+            <span class="c">#WT</span>
+            <span class="n">dnp_wt</span> <span class="o">=</span> <span class="n">data2np</span><span class="p">(</span><span class="n">wt</span><span class="p">,</span> <span class="n">skip_first</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">skip_last</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">dnp_wt</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">standardize</span><span class="p">(</span><span class="n">dnp_wt</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">plate_wtr</span><span class="p">,</span> <span class="n">dnp_wtr</span><span class="p">)</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">detect_outliers</span><span class="p">(</span><span class="n">dnp_wt</span><span class="p">,</span> <span class="n">wt</span><span class="p">,</span> <span class="n">out_name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">save</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+            <span class="c">#MUTANTS</span>
+            <span class="n">dnp_mt</span> <span class="o">=</span> <span class="n">data2np</span><span class="p">(</span><span class="n">mt</span><span class="p">,</span> <span class="n">skip_first</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">skip_last</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">dnp_mt</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">standardize</span><span class="p">(</span><span class="n">dnp_mt</span><span class="p">)</span>
+            <span class="c">#save</span>
+            <span class="n">plates_wt</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">plate_wtr</span><span class="p">)</span>
+            <span class="n">dnp_wtc</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">dnp_wtr</span><span class="p">)</span>
+            <span class="n">plates_mt</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">mt</span><span class="p">)</span>
+            <span class="n">dnp_mtc</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">dnp_mt</span><span class="p">)</span>     
+    
+    <span class="n">dnp_mtc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dnp_mtc</span><span class="p">)</span>
+    <span class="n">dnp_wtc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dnp_wtc</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;No. observations of mutant strains: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">plates_mt</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;No. observations of wild-type strains: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">plates_wt</span><span class="p">)</span>
+    <span class="n">dnp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">dnp_wtc</span><span class="p">,</span> <span class="n">dnp_mtc</span><span class="p">))</span>
+    <span class="n">plates</span> <span class="o">=</span> <span class="n">plates_wt</span> <span class="o">+</span> <span class="n">plates_mt</span>
+    <span class="k">assert</span> <span class="n">dnp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">plates</span><span class="p">),</span> <span class="s">&quot;The number of observations in computational and plate data do not match.&quot;</span>
+    <span class="c">#save to Orange format data used in analysis</span>
+    <span class="n">attrs</span> <span class="o">=</span> <span class="n">data_del</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">to_orange</span><span class="p">(</span><span class="n">attrs</span><span class="p">,</span> <span class="n">plates</span><span class="p">,</span> <span class="n">dnp</span><span class="p">,</span> <span class="n">out_name</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">+</span> <span class="s">&quot;preprocessed_del_ts_sg&quot;</span><span class="p">,</span> <span class="n">noncomp_first</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">noncomp_last</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">to_csv</span><span class="p">(</span><span class="n">attrs</span><span class="p">,</span> <span class="n">plates</span><span class="p">,</span> <span class="n">dnp</span><span class="p">,</span> <span class="n">out_name</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">+</span> <span class="s">&quot;preprocessed_del_ts_sg&quot;</span><span class="p">,</span> <span class="n">noncomp_first</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">noncomp_last</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dnp</span><span class="p">,</span> <span class="n">plates</span>
+</div>
+<div class="viewcode-block" id="data2np"><a class="viewcode-back" href="../../sa.utilities.html#sa.utilities.data2np">[docs]</a><span class="k">def</span> <span class="nf">data2np</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">skip_first</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">skip_last</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert data to numpy array for further analysis skipping some non-computational features.&quot;&quot;&quot;</span>
+    <span class="n">dnp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="n">skip_first</span> <span class="o">-</span> <span class="n">skip_last</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">):</span> 
+        <span class="n">dnp</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="s">&quot;&quot;</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="n">skip_first</span><span class="p">:</span><span class="o">-</span><span class="n">skip_last</span><span class="p">])</span>
+    <span class="k">print</span> <span class="s">&quot;Converted plate data to numpy array of computational features of shape: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">dnp</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dnp</span>
+</div>
+<div class="viewcode-block" id="filter_attribute"><a class="viewcode-back" href="../../sa.utilities.html#sa.utilities.filter_attribute">[docs]</a><span class="k">def</span> <span class="nf">filter_attribute</span><span class="p">(</span><span class="n">attrs</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">attr_name</span> <span class="o">=</span> <span class="s">&quot;ORF&quot;</span><span class="p">,</span> <span class="n">attr_values</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;YOR202W&quot;</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Filter data by selecting only rows whose column specified in :param:`fname` match values in :param:`fvalues`.&quot;&quot;&quot;</span>
+    <span class="n">nidx</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">attr_name</span><span class="p">)</span>
+    <span class="n">filtered</span> <span class="o">=</span> <span class="p">[</span><span class="n">row</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="n">nidx</span><span class="p">]</span> <span class="ow">in</span> <span class="n">attr_values</span><span class="p">]</span>
+    <span class="k">print</span> <span class="s">&quot;No. filtered observations: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">filtered</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">filtered</span>
+</div>
+<div class="viewcode-block" id="split_WT_MT"><a class="viewcode-back" href="../../sa.utilities.html#sa.utilities.split_WT_MT">[docs]</a><span class="k">def</span> <span class="nf">split_WT_MT</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">wt_mt_name</span> <span class="o">=</span> <span class="s">&quot;ORF&quot;</span><span class="p">,</span> <span class="n">wt_name</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;YOR202W&quot;</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Split plate data to two groups: (i) wild-type, (ii) mutants. Wild-type strains are in entire border.&quot;&quot;&quot;</span>
+    <span class="n">fname</span><span class="p">,</span> <span class="n">attrs</span> <span class="o">=</span> <span class="n">meta</span>
+    <span class="n">wt</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">mt</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">print</span> <span class="s">&quot;File: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">fname</span>
+    <span class="n">nidx</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">wt_mt_name</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="n">nidx</span><span class="p">]</span> <span class="ow">in</span> <span class="n">wt_name</span><span class="p">:</span>
+            <span class="n">wt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;No. wild-type observations: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">wt</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;No. mutant observations: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">mt</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wt</span><span class="p">,</span> <span class="n">mt</span>
+</div>
+<div class="viewcode-block" id="combine"><a class="viewcode-back" href="../../sa.utilities.html#sa.utilities.combine">[docs]</a><span class="k">def</span> <span class="nf">combine</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">dataL</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Combine strains data from different plates into one set, add attribute explaining plate membership for observation.&quot;&quot;&quot;</span>
+    <span class="n">file_nameL</span><span class="p">,</span> <span class="n">attrL</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">meta</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Joining data from files: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">file_nameL</span><span class="p">)</span>
+    <span class="n">new_data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">file_nameL</span><span class="p">,</span> <span class="n">dataL</span><span class="p">):</span>
+        <span class="n">new_data</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span> <span class="p">[</span><span class="n">file_name</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;__&quot;</span> <span class="o">+</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
+    <span class="n">meta</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;joined_plates&quot;</span><span class="p">,</span> <span class="n">attrL</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">pp_plate_info</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">new_data</span><span class="p">)</span>
+    <span class="k">return</span>  <span class="n">meta</span><span class="p">,</span> <span class="n">new_data</span>
+</div>
+<div class="viewcode-block" id="plates2dict"><a class="viewcode-back" href="../../sa.utilities.html#sa.utilities.plates2dict">[docs]</a><span class="k">def</span> <span class="nf">plates2dict</span><span class="p">(</span><span class="n">plate</span><span class="p">,</span> <span class="n">dnp</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return dictionary from :param:`plate` indexed by plate identifier, row and column number.&quot;&quot;&quot;</span>
+    <span class="c"># el[1] -- plate number</span>
+    <span class="c"># el[3] -- row number</span>
+    <span class="c"># el[4] -- column number</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">plate</span><span class="p">)</span> <span class="o">==</span> <span class="n">dnp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">&quot;Dimension mismatch.&quot;</span>
+    <span class="k">return</span> <span class="p">{(</span><span class="n">el</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">el</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">el</span><span class="p">[</span><span class="mi">4</span><span class="p">]):</span> <span class="n">dnp</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">plate</span><span class="p">)}</span>
+</div>
+<div class="viewcode-block" id="pp_plate_info"><a class="viewcode-back" href="../../sa.utilities.html#sa.utilities.pp_plate_info">[docs]</a><span class="k">def</span> <span class="nf">pp_plate_info</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">plate</span><span class="p">):</span>
+    <span class="n">file_name</span><span class="p">,</span> <span class="n">attrs</span> <span class="o">=</span> <span class="n">meta</span>
+    <span class="k">print</span> <span class="s">&quot;Plate: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">file_name</span>
+    <span class="n">top</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.05</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">attrs</span><span class="p">))</span>
+    <span class="k">print</span> <span class="s">&quot;No. features: </span><span class="si">%d</span><span class="s">. These are: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">attrs</span><span class="p">),</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">attrs</span><span class="p">[:</span><span class="n">top</span><span class="p">])</span> <span class="o">+</span> <span class="s">&quot; ... &quot;</span> <span class="o">+</span> <span class="n">attrs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">print</span> <span class="s">&quot;No. observations: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">plate</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="to_orange"><a class="viewcode-back" href="../../sa.utilities.html#sa.utilities.to_orange">[docs]</a><span class="k">def</span> <span class="nf">to_orange</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">data_org</span><span class="p">,</span> <span class="n">dnp</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">noncomp_first</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">noncomp_last</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Save data in Orange format. Non-computational features are stored as meta attributes.&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_org</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s">&quot;The number of feature names and values do not match.&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_org</span><span class="p">)</span> <span class="o">==</span> <span class="n">dnp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">&quot;The number of observations for comp. and noncomp. features do not match.&quot;</span>
+    
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_name</span> <span class="o">+</span> <span class="s">&quot;_orange.tab&quot;</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">names</span><span class="p">))</span>
+    <span class="n">comp</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">-</span> <span class="n">noncomp_first</span> <span class="o">-</span> <span class="n">noncomp_last</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;d&quot;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">noncomp_first</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="s">&quot;c&quot;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">comp</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="s">&quot;d&quot;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">noncomp_last</span><span class="p">)]))</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;meta&quot;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">noncomp_first</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="s">&quot;&quot;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">comp</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="s">&quot;meta&quot;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">noncomp_last</span><span class="p">)]))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data_org</span><span class="p">):</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">r</span><span class="p">[:</span><span class="n">noncomp_first</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">dnp</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]))</span> <span class="o">+</span> <span class="n">r</span><span class="p">[</span><span class="o">-</span><span class="n">noncomp_last</span><span class="p">:]))</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;Data saved in Orange format to: </span><span class="si">%s</span><span class="s">_orange.tab&quot;</span> <span class="o">%</span> <span class="n">out_name</span>
+    </div>
+<div class="viewcode-block" id="to_csv"><a class="viewcode-back" href="../../sa.utilities.html#sa.utilities.to_csv">[docs]</a><span class="k">def</span> <span class="nf">to_csv</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">data_org</span><span class="p">,</span> <span class="n">dnp</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">noncomp_first</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">noncomp_last</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Save data in CSV format.&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_org</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s">&quot;The number of feature names and values do not match.&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_org</span><span class="p">)</span> <span class="o">==</span> <span class="n">dnp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">&quot;The number of observations for comp. and noncomp. features do not match.&quot;</span>
+    
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_name</span> <span class="o">+</span> <span class="s">&quot;_prep.csv&quot;</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">names</span><span class="p">))</span>
+    <span class="n">comp</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">-</span> <span class="n">noncomp_first</span> <span class="o">-</span> <span class="n">noncomp_last</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data_org</span><span class="p">):</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">r</span><span class="p">[:</span><span class="n">noncomp_first</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">dnp</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]))</span> <span class="o">+</span> <span class="n">r</span><span class="p">[</span><span class="o">-</span><span class="n">noncomp_last</span><span class="p">:]))</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;Data saved in CSV format to: </span><span class="si">%s</span><span class="s">_prep.csv&quot;</span> <span class="o">%</span> <span class="n">out_name</span>
+    
+        
+        </div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Yeast Screen Data Analysis 1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Marinka Zitnik.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Documents (examples.documents) &mdash; Nimfa 1.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Nimfa 1.3.1 documentation" href="index.html" />
+    <link rel="up" title="Examples (examples)" href="nimfa.examples.html" />
+    <link rel="next" title="ORL Images (examples.orl_images)" href="nimfa.examples.orl_images.html" />
+    <link rel="prev" title="CBCL Images (examples.cbcl_images)" href="nimfa.examples.cbcl_images.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-nimfa.examples.documents"></span><div class="section" id="documents-examples-documents">
+<h1>Documents (<tt class="docutils literal"><span class="pre">examples.documents</span></tt>)<a class="headerlink" href="#documents-examples-documents" title="Permalink to this headline">¶</a></h1>
+<p>In this example of text analysis we consider the text processing application inspired by <a class="reference internal" href="index.html#albright2006" id="id1">[Albright2006]</a>.</p>
+<p>We used the Medlars data set, which is a collection of 1033 medical abstracts. For example we performed factorization
+on term-by-document matrix by constructing a matrix of shape 4765 (terms) x 1033 (documents). Original number
+of terms is 16017, the reduced number is a result of text preprocessing, namely removing stop words, too short words, 
+words that appear 2 times or less in the corpus and words that appear 50 times or more.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Medlars data set of medical abstracts used in this example is not included in the <cite>datasets</cite> and need to be
+downloaded. Download links are listed in the <tt class="docutils literal"><span class="pre">datasets</span></tt>. Download compressed version of document text. To run the example, 
+the extracted Medlars data set must exist in the <tt class="docutils literal"><span class="pre">Medlars</span></tt> directory under <tt class="docutils literal"><span class="pre">datasets</span></tt>.</p>
+</div>
+<p>Example of medical abstract:</p>
+<div class="highlight-python"><div class="highlight"><pre>autolysis of bacillus subtilis by glucose depletion .                   
+in cultures in minimal medium, rapid lysis of cells of bacillus       
+subtilis was observed as soon as the carbon source, e.g. glucose, had   
+been completely consumed . the cells died and ultraviolet-absorbing     
+material was excreted in the medium . the results suggest that the cells
+lyse because of the presence of autolytic enzymes . in the presence of  
+glucose the damage to the cell wall caused by these enzymes is repaired 
+immediately . 
+</pre></div>
+</div>
+<p>Because of the nature of analysis, the resulting data matrix is very sparse. Therefore we use <tt class="docutils literal"><span class="pre">scipy.sparse</span></tt> matrix
+formats in factorization. This results in lower space consumption. Using, Standard NMF - Divergence, fitted
+factorization model is sparse as well, according to <a class="reference internal" href="index.html#hoyer2004" id="id2">[Hoyer2004]</a> measure of sparseness, the basis matrix has
+sparseness of 0.641 and the mixture matrix 0.863.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This sparseness 
+measure quantifies how much energy of a vector is packed into only few components. The sparseness of a vector
+is a real number in [0, 1]. Sparser vector has value closer to 1. The measure is 1 iff vector contains single
+nonzero component and the measure is equal to 0 iff all components are equal. Sparseness of a matrix is 
+the mean sparseness of its column vectors.</p>
+</div>
+<p>The configuration of this example is sparse data matrix with Standard NMF - Divergence factorization method using 
+Random Vcol algorithm for initialization and rank 15 (the number of hidden topics).</p>
+<p>Because of nonnegativity constraints, NMF has impressive benefits in terms of interpretation of its factors. In text
+processing applications, factorization rank can be considered the number of hidden topics present in the document
+collection. The basis matrix becomes a term-by-topic matrix whose columns are the basis vectors. Similar interpretation
+holds for the other factor, mixture matrix. Mixture matrix is a topic-by-document matrix with sparse nonnegative 
+columns. Element j of column 1 of mixture matrix measures the strength to which topic j appears in document 1.</p>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/documents_basisW1.png"><img alt="Highest weighted terms in basis vector W1. " src="_images/documents_basisW1.png" /></a>
+<p class="caption">Interpretation of NMF - Divergence basis vectors on Medlars data set. Highest weighted terms in basis vector W1. The nonzero elements of column 1
+of W (W1), which is sparse and nonnegative, correspond to particular terms. By considering the highest weighted terms in this vector, 
+we can assign a label or topic to basis vector W1. As the NMF allows user the ability to interpret the basis vectors, a user might
+attach the label <tt class="docutils literal"><span class="pre">liver</span></tt> to basis vector W1. As a note, the term in 10th place, <cite>viii</cite>, is not a Roman numeral but
+instead <cite>Factor viii</cite>, an essential blood clotting factor also known as anti-hemophilic factor. It has been found
+to be synthesized and released into the bloodstream by the vascular, glomerular and tubular endothelium and 
+the sinusoidal cells of the <tt class="docutils literal"><span class="pre">liver</span></tt>.</p>
+</div>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/documents_basisW4.png"><img alt="Highest weighted terms in basis vector W4. " src="_images/documents_basisW4.png" /></a>
+<p class="caption">Interpretation of NMF basis vectors on Medlars data set. Highest weighted terms in basis vector W4.</p>
+</div>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/documents_basisW13.png"><img alt="Highest weighted terms in basis vector W13. " src="_images/documents_basisW13.png" /></a>
+<p class="caption">Interpretation of NMF basis vectors on Medlars data set. Highest weighted terms in basis vector W13.</p>
+</div>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/documents_basisW15.png"><img alt="Highest weighted terms in basis vector W15. " src="_images/documents_basisW15.png" /></a>
+<p class="caption">Interpretation of NMF basis vectors on Medlars data set. Highest weighted terms in basis vector W15.</p>
+</div>
+<p>To run the example simply type:</p>
+<div class="highlight-python"><div class="highlight"><pre>python documents.py
+</pre></div>
+</div>
+<p>or call the module&#8217;s function:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">nimfa.examples</span>
+<span class="n">nimfa</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">documents</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This example uses <tt class="docutils literal"><span class="pre">matplotlib</span></tt> library for producing visual interpretation of NMF basis vectors on Medlars
+data set.</p>
+</div>
+<dl class="function">
+<dt id="nimfa.examples.documents.factorize">
+<tt class="descclassname">nimfa.examples.documents.</tt><tt class="descname">factorize</tt><big>(</big><em>V</em><big>)</big><a class="headerlink" href="#nimfa.examples.documents.factorize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform NMF - Divergence factorization on the sparse Medlars data matrix.</p>
+<p>Return basis and mixture matrices of the fitted factorization model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>V</strong> (<cite>scipy.sparse.csr_matrix</cite>) &#8211; The Medlars data matrix.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.documents.plot">
+<tt class="descclassname">nimfa.examples.documents.</tt><tt class="descname">plot</tt><big>(</big><em>W</em>, <em>idx2term</em><big>)</big><a class="headerlink" href="#nimfa.examples.documents.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the interpretation of NMF basis vectors on Medlars data set.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>W</strong> (<cite>scipy.sparse.csr_matrix</cite>) &#8211; Basis matrix of the fitted factorization model.</li>
+<li><strong>idx2term</strong> (<cite>dict</cite>) &#8211; Index-to-term translator.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.documents.preprocess">
+<tt class="descclassname">nimfa.examples.documents.</tt><tt class="descname">preprocess</tt><big>(</big><em>V</em>, <em>term2idx</em>, <em>idx2term</em><big>)</big><a class="headerlink" href="#nimfa.examples.documents.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess Medlars data matrix. Remove stop words, digits, too short words, words that appear 2 times or less 
+in the corpus and words that appear 50 times or more.</p>
+<p>Return preprocessed term-by-document sparse matrix in CSR format. Returned matrix&#8217;s shape is 4765 (terms) x 1033 (documents). 
+The sparse data matrix is converted to CSR format for fast arithmetic and matrix vector operations. Return
+updated index-to-term and term-to-index translators.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>V</strong> (<cite>scipy.sparse.lil_matrix</cite>) &#8211; The Medlars data matrix.</li>
+<li><strong>term2idx</strong> (<cite>dict</cite>) &#8211; Term-to-index translator.</li>
+<li><strong>idx2term</strong> (<cite>dict</cite>) &#8211; Index-to-term translator.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.documents.read">
+<tt class="descclassname">nimfa.examples.documents.</tt><tt class="descname">read</tt><big>(</big><big>)</big><a class="headerlink" href="#nimfa.examples.documents.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read medical abstracts data from Medlars data set.</p>
+<p>Construct a term-by-document matrix. This matrix is sparse, therefore <tt class="docutils literal"><span class="pre">scipy.sparse</span></tt> format is used. For construction
+LIL sparse format is used, which is an efficient structure for constructing sparse matrices incrementally.</p>
+<p>Return the Medlars sparse data matrix in LIL format, term-to-index <cite>dict</cite> translator and index-to-term 
+<cite>dict</cite> translator.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.documents.run">
+<tt class="descclassname">nimfa.examples.documents.</tt><tt class="descname">run</tt><big>(</big><big>)</big><a class="headerlink" href="#nimfa.examples.documents.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run NMF - Divergence on the Medlars data set.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Nimfa</a></h1>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=marinkaz&repo=nimfa&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="nimfa.models.html">Models (<tt class="docutils literal"><span class="pre">models</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.methods.html">Methods (<tt class="docutils literal"><span class="pre">methods</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.utils.html">Utils (<tt class="docutils literal"><span class="pre">utils</span></tt>)</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="nimfa.examples.html">Examples (<tt class="docutils literal"><span class="pre">examples</span></tt>)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.synthetic.html">Simulated studies (<tt class="docutils literal"><span class="pre">examples.synthetic</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.all_aml.html">ALL AML Leukemia (<tt class="docutils literal"><span class="pre">examples.aml_all</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.medulloblastoma.html">Medulloblastoma (<tt class="docutils literal"><span class="pre">examples.medulloblastoma</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.cbcl_images.html">CBCL Images (<tt class="docutils literal"><span class="pre">examples.cbcl_images</span></tt>)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Documents (<tt class="docutils literal"><span class="pre">examples.documents</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.orl_images.html">ORL Images (<tt class="docutils literal"><span class="pre">examples.orl_images</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.recommendations.html">Recommendations (<tt class="docutils literal"><span class="pre">examples.recommendations</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.gene_func_prediction.html">Gene Function Prediction (<tt class="docutils literal"><span class="pre">examples.gene_func_prediction</span></tt>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.datasets.html">Datasets (<tt class="docutils literal"><span class="pre">datasets</span></tt>)</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="nimfa.examples.html">Examples (<tt class="docutils literal"><span class="pre">examples</span></tt>)</a><ul>
+      <li>Previous: <a href="nimfa.examples.cbcl_images.html" title="previous chapter">CBCL Images (<tt class="docutils literal"><span class="pre">examples.cbcl_images</span></tt>)</a></li>
+      <li>Next: <a href="nimfa.examples.orl_images.html" title="next chapter">ORL Images (<tt class="docutils literal"><span class="pre">examples.orl_images</span></tt>)</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, The Nimfa developers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/marinkaz/nimfa" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

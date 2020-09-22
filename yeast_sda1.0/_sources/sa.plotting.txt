@@ -1,0 +1,5 @@
+.. automodule:: sa.plotting
+	:members:
+	:undoc-members:
+	:inherited-members:
+	:show-inheritance:

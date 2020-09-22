@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Nndsvd (methods.seeding.nndsvd) &mdash; Nimfa 1.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Nimfa 1.3.1 documentation" href="index.html" />
+    <link rel="up" title="Seeding (methods.seeding)" href="nimfa.methods.seeding.html" />
+    <link rel="next" title="Random_c (methods.seeding.random_c)" href="nimfa.methods.seeding.random_c.html" />
+    <link rel="prev" title="Seeding (methods.seeding)" href="nimfa.methods.seeding.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-nimfa.methods.seeding.nndsvd"></span><div class="section" id="nndsvd-methods-seeding-nndsvd">
+<h1>Nndsvd (<tt class="docutils literal"><span class="pre">methods.seeding.nndsvd</span></tt>)<a class="headerlink" href="#nndsvd-methods-seeding-nndsvd" title="Permalink to this headline">¶</a></h1>
+<p>Nonnegative Double Singular Value Decomposition (NNDSVD) <a class="reference internal" href="index.html#boutsidis2007" id="id1">[Boutsidis2007]</a> is a
+new method designed to enhance the initialization stage of the nonnegative
+matrix factorization. The basic algorithm contains no randomization and is
+based on two SVD processes, one approximating the data matrix, the other
+approximating positive sections of the resulting partial SVD factors utilizing
+an algebraic property of unit rank matrices.</p>
+<p>NNDSVD is well suited to initialize NMF algorithms with sparse factors.
+Numerical examples suggest that NNDSVD leads to rapid reduction of the
+approximation error of many NMF algorithms. By setting algorithm options
+<a href="#id2"><span class="problematic" id="id3">:param:`flag`</span></a> dense factors can be generated.</p>
+<dl class="class">
+<dt id="nimfa.methods.seeding.nndsvd.Nndsvd">
+<em class="property">class </em><tt class="descclassname">nimfa.methods.seeding.nndsvd.</tt><tt class="descname">Nndsvd</tt><a class="headerlink" href="#nimfa.methods.seeding.nndsvd.Nndsvd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<dl class="method">
+<dt id="nimfa.methods.seeding.nndsvd.Nndsvd.init_sparse">
+<tt class="descname">init_sparse</tt><big>(</big><em>V</em>, <em>U</em>, <em>S</em>, <em>E</em><big>)</big><a class="headerlink" href="#nimfa.methods.seeding.nndsvd.Nndsvd.init_sparse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Continue the NNDSVD initialization of sparse target matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>V</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil, dia) &#8211; Target matrix</li>
+<li><strong>U</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil, dia) &#8211; Left singular vectors.</li>
+<li><strong>E</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil, dia) &#8211; Right singular vectors.</li>
+<li><strong>S</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil, dia) &#8211; Singular values.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.seeding.nndsvd.Nndsvd.initialize">
+<tt class="descname">initialize</tt><big>(</big><em>V</em>, <em>rank</em>, <em>options</em><big>)</big><a class="headerlink" href="#nimfa.methods.seeding.nndsvd.Nndsvd.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return initialized basis and mixture matrix.</p>
+<p>Initialized matrices are sparse <tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse.csr_matrix</span></tt> if
+NNDSVD variant is specified by the <a href="#id4"><span class="problematic" id="id5">:param:`flag`</span></a> option,
+else matrices are <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>V</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil,
+dia or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>) &#8211; Target matrix, the matrix for MF method to estimate.
+Data instances to be clustered.</li>
+<li><strong>rank</strong> (<cite>int</cite>) &#8211; Factorization rank.</li>
+<li><strong>options</strong> (<cite>dict</cite>) &#8211; <p>Specify the algorithm and model specific options (e.g. initialization of
+extra matrix factor, seeding parameters).</p>
+<p>Option <tt class="docutils literal"><span class="pre">flag</span></tt> indicates the variant of the NNDSVD algorithm. It can take value from:</p>
+<blockquote>
+<div><ul>
+<li>0 &#8211; NNDSVD,</li>
+<li>1 &#8211; NNDSVDa (fill in the zero elements with the average),</li>
+<li>2 &#8211; NNDSVDar (fill in the zero elements with random values in the space [0:average/100]).</li>
+</ul>
+</div></blockquote>
+<p>Default is NNDSVD. Because of the nature of NNDSVDa and NNDSVDar, when the
+target matrix is sparse, only NNDSVD is possible and <cite>flag</cite> is ignored
+(NNDSVDa and NNDSVDar eliminate zero elements, therefore the matrix is
+not sparse anymore).</p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Nimfa</a></h1>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=marinkaz&repo=nimfa&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="nimfa.models.html">Models (<tt class="docutils literal"><span class="pre">models</span></tt>)</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="nimfa.methods.html">Methods (<tt class="docutils literal"><span class="pre">methods</span></tt>)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nimfa.methods.factorization.html">Factorization (<tt class="docutils literal"><span class="pre">methods.factorization</span></tt>)</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="nimfa.methods.seeding.html">Seeding (<tt class="docutils literal"><span class="pre">methods.seeding</span></tt>)</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="">Nndsvd (<tt class="docutils literal"><span class="pre">methods.seeding.nndsvd</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.seeding.random_c.html">Random_c (<tt class="docutils literal"><span class="pre">methods.seeding.random_c</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.seeding.random_vcol.html">Random_vcol (<tt class="docutils literal"><span class="pre">methods.seeding.random_vcol</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.seeding.random.html">Random (<tt class="docutils literal"><span class="pre">methods.seeding.random</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.seeding.fixed.html">Fixed (<tt class="docutils literal"><span class="pre">methods.seeding.fixed</span></tt>)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.utils.html">Utils (<tt class="docutils literal"><span class="pre">utils</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.examples.html">Examples (<tt class="docutils literal"><span class="pre">examples</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.datasets.html">Datasets (<tt class="docutils literal"><span class="pre">datasets</span></tt>)</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="nimfa.methods.html">Methods (<tt class="docutils literal"><span class="pre">methods</span></tt>)</a><ul>
+  <li><a href="nimfa.methods.seeding.html">Seeding (<tt class="docutils literal"><span class="pre">methods.seeding</span></tt>)</a><ul>
+      <li>Previous: <a href="nimfa.methods.seeding.html" title="previous chapter">Seeding (<tt class="docutils literal"><span class="pre">methods.seeding</span></tt>)</a></li>
+      <li>Next: <a href="nimfa.methods.seeding.random_c.html" title="next chapter">Random_c (<tt class="docutils literal"><span class="pre">methods.seeding.random_c</span></tt>)</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, The Nimfa developers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/marinkaz/nimfa" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

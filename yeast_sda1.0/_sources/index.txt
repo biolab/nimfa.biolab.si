@@ -1,0 +1,435 @@
+.. Yeast Screen Data Analysis documentation master file, created by
+   sphinx-quickstart on Tue Sep  4 13:36:08 2012.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Data Analysis of Yeast Screens at CCBR's Documentation 
+======================================================
+
+**Data analysis of yeast screen** based on features extracted from cell and its compartment 
+segmentation. Feature classes include cell area shapes, intensities, textures information 
+and additionally calculated ones.
+
+This packages provides outlier detection and removal of WT strains recognized as outliers,
+feature standardization, observation normalization, analysis of replicated yeast mutant strains, 
+method for identifying strains with non-WT phenotype and significance assessment (novelty detection by one-class SVM and GMM), 
+decompositions and embedding techniques (MDS, PCA, manifold embedding), clustering, unsupervised feature subset 
+selection via wrapper approach and silhouette index evaluation, various utilities for 
+filtering, splitting and combining features from different plates and collections, 
+option to save the data to Orange format and various plotting options. 
+
+
+###################
+Scripting Reference
+###################
+
+.. toctree::
+   :maxdepth: 2
+   
+   sa
+   
+	
+############
+Installation
+############
+
+No special installation procedure is specified. However, the package makes extensive use of `SciPy`_ and `NumPy`_ 
+libraries for fast and convenient matrix manipulation and some linear
+algebra operations. In addition it uses `scikit-learn`_ package for some machine learning algorithms and `Matplotlib`_
+for plotting. There are not any additional prerequisites. 
+
+.. _SciPy: http://www.scipy.org/
+.. _NumPy: http://numpy.scipy.org/
+.. _scikit-learn: http://scikit-learn.org/stable/
+.. _Matplotlib: http://matplotlib.sourceforge.net
+
+Download source code (zipped archive) from `BitBucket repository`_. This is a private repository and you need an invitation.
+
+.. _BitBucket repository: https://bitbucket.org/marinkaz/yeast-screen-data-analysis
+
+
+###########
+Quickstart
+###########
+
+Let us see an example of analysing yeast *S. cerevisiae* vacuole screen. In all places with ``<output omitted>`` some valuable information is printed to the screen regarding the flow
+of optimization procedures, success of algorithms' execution and results of analysis. Each example of usage below is accompanied by sample output files produced by 
+running it. One can use data sets stored in Orange format for further investigation and interactive visualization in `Orange`_.
+
+.. _Orange: http://orange.biolab.si
+
+* Single plate analysis of WT strains::
+
+    >>> import sa
+    >>> meta, plates = sa.utilities.read(dir_path = "deletion_vacuole_avgPerStrain/")
+    <output ommitted>
+    >>> for fidx in xrange(len(plates)):       
+    ...    sa.analysis.strains_1p_WT(meta[fidx], plates[fidx], res_path = "tmp/")
+    <output omitted>
+    
+  Same results can be achieved by running::
+  	
+  	> python single_plateWT.py "deletion_vacuole_avgPerStrain/" "tmp/"
+   
+  For each plate ``strains_1p_WT`` produces the following files in ``res_path`` directory: 
+   
+  - `Add-plate4_2012-04-26_2_silhouette.pdf`_ (If the ground truth labels are not known, evaluation must be performed using the model itself. 
+  	 Here we are interested whether clustering of WT profiles from single plate reveals any interesting patterns. To get an idea of how well-separated the resulting clusters
+  	 are, one can make a silhouette plot. Silhouette plot displays a measure of how close each point in one cluster is to points in the neighbouring clusters on the scale [-1,1].)
+  - `Add-plate4_2012-04-26_3_silhouette.pdf`_ (From the silhouette plot you can see that most points in both clusters have very low -- some even negative silhouette value, 
+  	 less than 0.3. Low silhouette values indicate that observations are nearby to observations from other clusters. The clusters obtained are not very distinct and appear
+  	 to be not well separated. This is expected as we have removed the WT outliers and prefer homogeneous WT data set.)
+  - `Add-plate4_2012-04-26_4_silhouette.pdf`_
+  - `Add-plate4_2012-04-26_5_silhouette.pdf`_
+  - `Add-plate4_2012-04-26_clustering_2.csv`_ (Clustering in 2 clusters corresponding to the above silhouette plot. Predictions are done for all WT strains from plate Add-plate4. This can help answering the question of how different WT strains are. Better clustering indicates distinct groups of WT strains.)  
+  - `Add-plate4_2012-04-26_clustering_3.csv`_ (Clustering in 3 clusters corresponding to the above silhouette plot.)  
+  - `Add-plate4_2012-04-26_clustering_4.csv`_ (Clustering in 4 clusters corresponding to the above silhouette plot.)  
+  - `Add-plate4_2012-04-26_clustering_5.csv`_ (Clustering in 5 clusters corresponding to the above silhouette plot.)  
+  - `Add-plate4_2012-04-26_heatmap.pdf`_
+  - `Add-plate4_2012-04-26_mean_well.pdf`_ (Matrix plot of wells as placed on the plate. The entries are mean observation distances from other observations on the same plate.)
+  - `Add-plate4_2012-04-26_orange.tab`_ (Profiles of MT and WT strains from plate after standardization and outlier removal in Orange format.)
+  - `Add-plate4_2012-04-26_prep.csv`_ (Profiles of MT and WT strains from plate after standardization and outlier removal in CSV format.)
+  - `Add-plate4_2012-04-26_outliers.csv`_ (Detected WT outliers using elliptic envelope method and correction regarding strain cell density.)
+  - `Add-plate4_2012-04-26_pca_3d.pdf`_ (3D PCA projection. It is mostly used as s tool in exploratory data analysis and for making predictive models and dimensionality reduction. Transforming and plotting the observations data in principle component space allows us to separate the observations according to variation of the profiles. Useful for detecting outliers. Observations are projected from higher dimension to lower dimension manifold such that the variance of projection along each component is maximized.)
+  - `Add-plate4_2012-04-26_cytoplasm_texture_differencevariance_chnl_3_0_plot_hist_with_norm_fit.pdf`_ (Attribute histogram with fitted normal PDF is produced for each attribute.) 
+  
+.. _Add-plate4_2012-04-26_2_silhouette.pdf: res/1/Add-plate4_2012-04-26_2_silhouette.pdf
+.. _Add-plate4_2012-04-26_3_silhouette.pdf: res/1/Add-plate4_2012-04-26_3_silhouette.pdf
+.. _Add-plate4_2012-04-26_4_silhouette.pdf: res/1/Add-plate4_2012-04-26_4_silhouette.pdf
+.. _Add-plate4_2012-04-26_5_silhouette.pdf: res/1/Add-plate4_2012-04-26_5_silhouette.pdf
+.. _Add-plate4_2012-04-26_clustering_2.csv: res/1/Add-plate4_2012-04-26_clustering_2.csv
+.. _Add-plate4_2012-04-26_clustering_3.csv: res/1/Add-plate4_2012-04-26_clustering_3.csv
+.. _Add-plate4_2012-04-26_clustering_4.csv: res/1/Add-plate4_2012-04-26_clustering_4.csv
+.. _Add-plate4_2012-04-26_clustering_5.csv: res/1/Add-plate4_2012-04-26_clustering_5.csv
+.. _Add-plate4_2012-04-26_heatmap.pdf: res/1/Add-plate4_2012-04-26_heatmap.pdf
+.. _Add-plate4_2012-04-26_mean_well.pdf: res/1/Add-plate4_2012-04-26_mean_well.pdf
+.. _Add-plate4_2012-04-26_orange.tab: res/1/Add-plate4_2012-04-26_orange.tab
+.. _Add-plate4_2012-04-26_prep.csv: res/1/Add-plate4_2012-04-26_prep.csv
+.. _Add-plate4_2012-04-26_outliers.csv: res/1/Add-plate4_2012-04-26_outliers.csv
+.. _Add-plate4_2012-04-26_pca_3d.pdf: res/1/Add-plate4_2012-04-26_pca_3d.pdf
+.. _Add-plate4_2012-04-26_cytoplasm_texture_differencevariance_chnl_3_0_plot_hist_with_norm_fit.pdf: res/1/Add-plate4_2012-04-26_cytoplasm_texture_differencevariance_chnl_3_0_plot_hist_with_norm_fit.pdf
+   
+
+* Combined plate analysis of WT strains from one collection::
+
+    >>> import sa
+    >>> meta, plates = sa.utilities.read(dir_path = "TS_vacuole_avgPerStrain/")
+    <output omitted>
+    >>> sa.analysis.strains_Np_WT(meta, plates, res_path = "tmp/")
+    <output omitted> 
+    
+  Same results can be achieved by running::
+  	
+  	> python combined_plates_single_coll_WT.py "TS_vacuole_avgPerStrain/" "tmp/"
+   
+  Function ``strains_Np_WT`` produces the following files in the ``res_path`` directory. All plates from collection are combined prior analysis. Then similar procedure as for 
+  one plate analysis is ran:
+  
+  - `combined_clustering_2.csv`_
+  - `combined_clustering_3.csv`_
+  - `combined_clustering_4.csv`_
+  - `combined_clustering_5.csv`_
+  - `combined_outliers.csv`_
+  - `joined_plates_2_silhouette.pdf`_
+  - `joined_plates_3_silhouette.pdf`_
+  - `joined_plates_4_silhouette.pdf`_
+  - `joined_plates_5_silhouette.pdf`_
+  - `joined_plates__joined_std_out_heatmap.pdf`_ (Heatmap of Euclidean distances between WT strains when joined standardization of all plates in TS collection is used.)
+  - `joined_plates__separate_std_out_heatmap.pdf`_ (Heatmap of Euclidean distances between WT strains when per plate standardization of plates in TS collection is used.)
+  - `joined_plates_orange.tab`_ (Profiles of MT and WT strains from all plates in collection obtained with per plate standardization and outlier removal in Orange format.)
+  - `joined_plates_prep.csv`_ (Profiles of MT and WT strains after standardization and outlier removal in CSV format.)
+  - `joined_plates_pca_3d.pdf`_
+  
+.. _combined_clustering_2.csv: res/2/combined_clustering_2.csv
+.. _combined_clustering_3.csv: res/2/combined_clustering_3.csv
+.. _combined_clustering_4.csv: res/2/combined_clustering_4.csv
+.. _combined_clustering_5.csv: res/2/combined_clustering_5.csv
+.. _combined_outliers.csv: res/2/combined_outliers.csv
+.. _joined_plates_2_silhouette.pdf: res/2/joined_plates_2_silhouette.pdf
+.. _joined_plates_3_silhouette.pdf: res/2/joined_plates_3_silhouette.pdf
+.. _joined_plates_4_silhouette.pdf: res/2/joined_plates_4_silhouette.pdf
+.. _joined_plates_5_silhouette.pdf: res/2/joined_plates_5_silhouette.pdf
+.. _joined_plates__joined_std_out_heatmap.pdf: res/2/joined_plates__joined_std_out_heatmap.pdf
+.. _joined_plates__separate_std_out_heatmap.pdf: res/2/joined_plates__separate_std_out_heatmap.pdf
+.. _joined_plates_orange.tab: res/2/joined_plates_orange.tab
+.. _joined_plates_prep.csv: res/2/joined_plates_prep.csv
+.. _joined_plates_pca_3d.pdf: res/2/joined_plates_pca_3d.pdf
+  
+  
+* Combined plate analysis of WT strains from multiple collections::
+
+    >>> import sa
+    >>> meta1, plates1 = sa.utilities.read(dir_path = "TS_vacuole_avgPerStrain/")
+    <output omitted>
+    >>> meta2, plates2 = sa.utilities.read(dir_path = "SG_vacuole_avgPerStrain/")
+    <output omitted>
+    >>> print "No. plates in coll 1: % d" % len(plates1)
+    No. plates in coll 1:  8
+    >>> print "No. observations in coll 1: %d" % sum(len(data) for data in plates1)
+    No. observations in coll 1: 2746
+    >>> print "No. plates in coll 2: %d" % len(plates2)
+    No. plates in coll 2: 2
+    >>> print "No. observations in coll 2: %d" % sum(len(data) for data in plates2)
+    No. observations in coll 2: 613
+    >>> plates1.extend(plates2)
+    >>> meta1.extend(meta2)
+    >>> print "No. plates in joined coll: %d" % len(plates1)
+    No. plates in joined coll: 10
+    >>> sa.analysis.strains_Np_WT(meta1, plates1, res_path = "tmp/")
+    <output omitted> 
+    
+  Same results can be achieved by running::
+  	
+  	> python combined_plates_multi_coll_WT.py "TS_vacuole_avgPerStrain/" "SG_vacuole_avgPerStrain/" "tmp/"
+  	
+  The last parameter is assumed to be the path to directory where results will be saved. This is preceded by paths to collections of plates. 
+  	
+  Plates from collections are combined and processed jointly. Function ``strains_Np_WT`` produces 
+  the following files in the ``res_path`` directory:
+  
+  - `j_combined_clustering_2.csv`_
+  - `j_combined_clustering_3.csv`_
+  - `j_combined_clustering_4.csv`_ 
+  - `j_combined_clustering_5.csv`_ (Note that to the screen is also printed the intersection between outliers and best cluster mapping, e.g. percentage of recognized outliers in each cluster. This is useful for recognizing if WT strains recognized as outliers cluster together.) 
+  - `j_combined_outliers.csv`_
+  - `j_joined_plates_2_silhouette.pdf`_
+  - `j_joined_plates_3_silhouette.pdf`_
+  - `j_joined_plates_4_silhouette.pdf`_
+  - `j_joined_plates_5_silhouette.pdf`_
+  - `j_joined_plates__joined_std_out_heatmap.pdf`_ (Heatmap of Euclidean distances between WT strains when joined standardization and outlier removal is performed for all plates. Two distinct groups of WT strains belonging to TS or SG collection can be observed.)
+  - `j_joined_plates__separate_std_out_heatmap.pdf`_ (Heatmap of Euclidean distances between WT strains when separated standardization and outlier removal is performed for each plate. This indicates that WT strains from different collections are comparable after per plate standardization. Per plate standardization is used in all analysis tasks.)	
+  - `j_joined_plates_orange.tab`_ (Profiles of MT and WT strains from all collections obtained with per plate standardization and outlier removal in Orange format.)
+  - `j_joined_plates_prep.csv`_ (Profiles of MT and WT strains after standardization and outlier removal in CSV format.)
+  - `j_joined_plates_pca_3d.pdf`_
+
+.. _j_combined_clustering_2.csv: res/3/combined_clustering_2.csv
+.. _j_combined_clustering_3.csv: res/3/combined_clustering_3.csv
+.. _j_combined_clustering_4.csv: res/3/combined_clustering_4.csv
+.. _j_combined_clustering_5.csv: res/3/combined_clustering_5.csv
+.. _j_combined_outliers.csv: res/3/combined_outliers.csv
+.. _j_joined_plates_2_silhouette.pdf: res/3/joined_plates_2_silhouette.pdf
+.. _j_joined_plates_3_silhouette.pdf: res/3/joined_plates_3_silhouette.pdf
+.. _j_joined_plates_4_silhouette.pdf: res/3/joined_plates_4_silhouette.pdf
+.. _j_joined_plates_5_silhouette.pdf: res/3/joined_plates_5_silhouette.pdf
+.. _j_joined_plates__joined_std_out_heatmap.pdf: res/3/joined_plates__joined_std_out_heatmap.pdf
+.. _j_joined_plates__separate_std_out_heatmap.pdf: res/3/joined_plates__separate_std_out_heatmap.pdf
+.. _j_joined_plates_orange.tab: res/3/joined_plates_orange.tab
+.. _j_joined_plates_prep.csv: res/3/joined_plates_prep.csv
+.. _j_joined_plates_pca_3d.pdf: res/3/joined_plates_pca_3d.pdf
+   
+   
+* Mutant strains that occur multiple times in the data set (replications)::
+
+    >>> import sa
+    >>> data_del = sa.utilities.read(dir_path = "deletion_vacuole_avgPerStrain/")
+    <output omitted> 
+    >>> data_ts = sa.utilities.read(dir_path = "TS_vacuole_avgPerStrain/")
+    <output omitted> 
+    >>> data_sg = sa.utilities.read(dir_path = "SG_vacuole_avgPerStrain/")
+    <output omitted>
+    >>> sa.analysis.strains_repl(data_del, data_ts, data_sg, 
+    ... repeats_path = "replicates/mutante-duplikati.csv", res_path = "tmp/", repeats_keys = ["RT", "37"]) 
+    <output omitted>
+    
+  Same results can be achieved by running::
+  	
+  	> python replicated_strains.py "deletion_vacuole_avgPerStrain/" "TS_vacuole_avgPerStrain/" "SG_vacuole_avgPerStrain/" "replicates/mutante-duplikati.csv" "tmp/"
+    
+  Function ``strains_repl`` produces the following files in directory ``res_path`` 
+  after executing the above code snippet:
+  
+  - `distance_reps_tot_hist.pdf`_
+  - `distance_reps.csv`_
+
+.. _distance_reps_tot_hist.pdf: res/4/distance_reps_tot_hist.pdf
+.. _distance_reps.csv: res/4/distance_reps.csv
+  
+   
+* Distance of strains from different collections::
+
+    >>> import sa
+    >>> data_del = sa.utilities.read(dir_path = "deletion_vacuole_avgPerStrain/")
+    <output omitted>
+    >>> data_ts = sa.utilities.read(dir_path = "TS_vacuole_avgPerStrain/")
+    <output omitted>
+    >>> data_sg = sa.utilities.read(dir_path = "SG_vacuole_avgPerStrain/")
+    <output omitted>
+    >>> sa.analysis.strains_coll(data_del, data_ts, data_sg, res_path = "tmp/")
+    <output omitted>
+    
+  Same results can be achieved by running::
+  	
+  	> python coll_distance.py "deletion_vacuole_avgPerStrain/" "TS_vacuole_avgPerStrain/" "SG_vacuole_avgPerStrain/" "tmp/"
+    
+  Function ``strains_coll`` preprocesses plates from each collection (standardizing features and removing recognized outliers) and computes distances between strains from the 
+  same and different collections (see documentation for further details). The following files are saved to directory ``res_path``:
+  
+  - `distance_hist_Del-SG-TS.pdf`_
+  - `distance_hist_SG-Del-TS.pdf`_
+  - `distance_hist_TS-SG-Del.pdf`_
+
+.. _distance_hist_Del-SG-TS.pdf: res/5/distance_hist_Del-SG-TS.pdf
+.. _distance_hist_SG-Del-TS.pdf: res/5/distance_hist_SG-Del-TS.pdf
+.. _distance_hist_TS-SG-Del.pdf: res/5/distance_hist_TS-SG-Del.pdf
+	   
+   
+* Mutant strains that significantly differ from WT strains (identification of strains with non-WT phenotype)::
+
+    >>> #which mutant strains are so different from strains with WT phenotype
+    >>> #that do not belong to the same distribution (novelty detection)
+    >>> import sa
+    >>> data_del = sa.utilities.read(dir_path = "deletion_vacuole_avgPerStrain/")
+    <output omitted>
+    >>> data_ts = sa.utilities.read(dir_path = "TS_vacuole_avgPerStrain/")
+    <output omitted>
+    >>> data_sg = sa.utilities.read(dir_path = "SG_vacuole_avgPerStrain/")
+    <output omitted>
+    >>> sa.analysis.strains_Np_novelty_MT(data_del, data_ts, data_sg, res_path = "tmp/") 
+    <output omitted>
+    
+  Same results can be achieved by running::
+  	
+  	> python novelty_SVM_MT.py "deletion_vacuole_avgPerStrain/" "TS_vacuole_avgPerStrain/" "SG_vacuole_avgPerStrain/" "tmp/"
+  
+  Function ``strains_Np_novelty`` outputs the following files to ``res_path``:
+  
+  - `novelty_detection_GMM.csv`_
+  - `novelty_detection_GMM.pdf`_
+  - `novelty_detection_SVM.csv`_ 
+  - `novelty_detection_SVM.pdf`_ 
+  - `novelty_detection_abnormal_MT_cluster0_SVM.csv`_
+  - `novelty_detection_abnormal_MT_cluster1_SVM.csv`_
+  - `novelty_detection_abnormal_MT_cluster2_SVM.csv`_
+  - `novelty_detection_abnormal_MT_clusters_SVM.pdf`_ 
+
+.. _novelty_detection_GMM.csv: res/6/novelty_detection_GMM.csv
+.. _novelty_detection_GMM.pdf: res/6/novelty_detection_GMM.pdf
+.. _novelty_detection_SVM.csv: res/6/novelty_detection_SVM.csv
+.. _novelty_detection_SVM.pdf: res/6/novelty_detection_SVM.pdf
+.. _novelty_detection_abnormal_MT_cluster0_SVM.csv: res/6/novelty_detection_abnormal_MT_cluster0_SVM.csv
+.. _novelty_detection_abnormal_MT_cluster1_SVM.csv: res/6/novelty_detection_abnormal_MT_cluster1_SVM.csv
+.. _novelty_detection_abnormal_MT_cluster2_SVM.csv: res/6/novelty_detection_abnormal_MT_cluster2_SVM.csv
+.. _novelty_detection_abnormal_MT_clusters_SVM.pdf: res/6/novelty_detection_abnormal_MT_clusters_SVM.pdf
+    
+  Alternatively::    
+
+    >>> #which mutant strains have profiles that significantly differ from WT strains' 
+    >>> #profiles
+    >>> import sa
+    >>> data_del = sa.utilities.read(dir_path = "deletion_vacuole_avgPerStrain/")
+    <output omitted>
+    >>> data_ts = sa.utilities.read(dir_path = "TS_vacuole_avgPerStrain/")
+    <output omitted>
+    >>> data_sg = sa.utilities.read(dir_path = "SG_vacuole_avgPerStrain/")
+    <output omitted>
+    >>> sa.analysis.strains_Np_MT(data_del, data_ts, data_sg, 
+    ... repeats_path = "replicates/mutante-duplikati.csv", res_path = "tmp/", repeats_keys = ["RT", "37"], standardize = True) 
+    <output omitted>
+    
+  Same results can be achieved by running::
+  	
+  	> python novelty_dist_MT.py "deletion_vacuole_avgPerStrain/" "TS_vacuole_avgPerStrain/" "SG_vacuole_avgPerStrain/" "replicates/mutante-duplikati.csv" "tmp/"
+    
+  Function ``strains_Np_MT`` outputs the following files to ``res_path``:
+  
+  - `hist_mean_MT-WT_distances.pdf`_ (Histogram of mean distances of mutant strains to WT strains.)
+  - `hist_MT-WT_WT-WT_distances.pdf`_ (Overlayed (i) histogram of mean distances of WT strains to other WT strains and (ii) and histogram of mean mutant distances to WT strains.)
+  - `hist_signif_YBR131W_100_100.pdf`_ (That kind of histogram is plotted for each ORF)
+  - `hist_WT-WT_distances.pdf`_ (Histogram of distances between all profiles of WT strains after outlier removal and standardization.)
+  - `MT-WT_distance.csv`_ (Mean distance of mutant strain from collection of WT profiles after outlier removal and standardization. If replications exist, their distances are stored in the `meta` column. Strains are ordered by their mean distance to WT profiles descendingly.)
+  - `MT-WT_distance_prep.csv`_ (Standardized profiles of mutants as specified by ranking in `MT-WT_distance.csv`_.)
+  - `WT-WT_distance.csv`_ (Mean distance of WT profiles from collection of WT profiles after outlier removal and standardization. WT strains are ordered by distance descendingly.)
+  - `WT_MT_by_distance_prep.csv`_ (Standardized profiles of mutants and WT strains ordered by distance.)
+
+.. _hist_mean_MT-WT_distances.pdf: res/7/hist_mean_MT-WT_distances.pdf 
+.. _hist_MT-WT_WT-WT_distances.pdf: res/7/hist_MT-WT_WT-WT_distances.pdf
+.. _hist_signif_YBR131W_100_100.pdf: res/7/hist_signif_YBR131W_100_100.pdf
+.. _hist_WT-WT_distances.pdf: res/7/hist_WT-WT_distances.pdf
+.. _MT-WT_distance.csv: res/7/MT-WT_distance.csv
+.. _MT-WT_distance_prep.csv: res/7/MT-WT_distance_prep.csv
+.. _WT-WT_distance.csv: res/7/WT-WT_distance.csv
+.. _WT_MT_by_distance_prep.csv: res/7/WT_MT_by_distance_prep.csv
+
+  By setting `standardize` parameter to `False` mean distances (MT-WT and WT-WT) are computed before standardization:
+  
+  - `MT-WT_distance_prior_std.csv`_
+  - `WT-WT_distance_prior_std.csv`_
+  
+.. _MT-WT_distance_prior_std.csv: res/7/MT-WT_distance_prior_std.csv
+.. _WT-WT_distance_prior_std.csv: res/7/WT-WT_distance_prior_std.csv
+    
+   
+* Feature subset selection (FSS) and clustering::
+
+    >>> import sa 
+    >>> data_del = sa.utilities.read(dir_path = "deletion_vacuole_avgPerStrain/")
+    <output omitted>
+    >>> data_ts = sa.utilities.read(dir_path = "TS_vacuole_avgPerStrain/")
+    <output omitted>
+    >>> data_sg = sa.utilities.read(dir_path = "SG_vacuole_avgPerStrain/")
+    <output omitted>
+    >>> sa.analysis.fss(data_del, data_ts, data_sg, res_path = "tmp/") 
+    <output omitted>
+    
+  Same results can be achieved by running::
+  	
+  	> python fss.py "deletion_vacuole_avgPerStrain/" "TS_vacuole_avgPerStrain/" "SG_vacuole_avgPerStrain/" "tmp/"
+    
+  Function ``fss`` outputs the following files to ``res_path``:
+  
+  - `fss_best_clustering.csv`_
+  - `fss_best_subset.csv`_
+  - `fss_subsets_scores.csv`_
+
+.. _fss_best_clustering.csv: res/8/fss_best_clustering.csv
+.. _fss_best_subset.csv: res/8/fss_best_subset.csv
+.. _fss_subsets_scores.csv: res/8/fss_subsets_scores.csv
+
+    
+* If FSS results are already available::
+      
+    >>> import sa 
+    >>> data_del = sa.utilities.read(dir_path = "deletion_vacuole_avgPerStrain/")
+    <output omitted>
+    >>> data_ts = sa.utilities.read(dir_path = "TS_vacuole_avgPerStrain/")
+    <output omitted>
+    >>> data_sg = sa.utilities.read(dir_path = "SG_vacuole_avgPerStrain/")
+    <output omitted>
+    >>> sa.analysis.fss_post_cluster(data_del, data_ts, data_sg, 
+    ...                             fss_subset_path = "res/fss_best_subset.csv", 
+    ...                             fss_cluster_path = "res/fss_best_clustering.csv", 
+    ...                             res_path = "tmp/") 
+    <output omitted>
+    
+  Same results can be achieved by running::
+  	
+  	> python post_fss.py "deletion_vacuole_avgPerStrain/" "TS_vacuole_avgPerStrain/" "SG_vacuole_avgPerStrain/" "res/fss_best_subset.csv" "res/fss_best_clustering.csv" "tmp/"
+    
+  Function ``fss_post_cluster`` saves the following files to ``res_path``:
+  
+  - `mds_scatterplot_3000_2d.pdf`_
+  - `preprocessed_del_ts_sg_orange.tab`_ (Profiles of MT and WT strains after standardization and outlier removal in Orange format.)
+  - `preprocessed_del_ts_sg_prep.csv`_ (Profiles of MT and WT strains after standardization and outlier removal in CSV format.)
+
+.. _mds_scatterplot_3000_2d.pdf: res/9/mds_scatterplot_3000_2d.pdf
+.. _preprocessed_del_ts_sg_orange.tab: res/9/preprocessed_del_ts_sg_orange.tab
+.. _preprocessed_del_ts_sg_prep.csv: res/9/preprocessed_del_ts_sg_prep.csv
+	   
+
+##########
+Disclaimer	
+##########	
+	
+This software and data is provided as-is, and there are no guarantees
+that it fits your purposes or that it is bug-free. Use it at your own 
+risk! 
+
+
+##################
+Indices and tables
+##################
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+

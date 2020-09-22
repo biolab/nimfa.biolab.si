@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>CBCL Images (examples.cbcl_images) &mdash; Nimfa 1.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Nimfa 1.3.1 documentation" href="index.html" />
+    <link rel="up" title="Examples (examples)" href="nimfa.examples.html" />
+    <link rel="next" title="Documents (examples.documents)" href="nimfa.examples.documents.html" />
+    <link rel="prev" title="Medulloblastoma (examples.medulloblastoma)" href="nimfa.examples.medulloblastoma.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-nimfa.examples.cbcl_images"></span><div class="section" id="cbcl-images-examples-cbcl-images">
+<h1>CBCL Images (<tt class="docutils literal"><span class="pre">examples.cbcl_images</span></tt>)<a class="headerlink" href="#cbcl-images-examples-cbcl-images" title="Permalink to this headline">¶</a></h1>
+<p>In this example of image processing we consider the problem demonstrated in <a class="reference internal" href="index.html#lee1999" id="id1">[Lee1999]</a>.</p>
+<p>We used the CBCL face images database consisting of 2429 face images of size 19 x 19. The facial images 
+consist of frontal views hand aligned in a 19 x 19 grid. Each face image is preprocessed. For each image, 
+the greyscale intensities are first linearly scaled, so that the pixel mean and standard deviation are
+equal to 0.25, and then clipped to the range [0, 1].</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The CBCL face images database used in this example is not included in the <cite>datasets</cite>. If you wish to
+perform the CBCL data experiments, start by downloading the images.  Download links are listed in the 
+<tt class="docutils literal"><span class="pre">datasets</span></tt>. To run the example, uncompress the data and put it into corresponding data directory, namely 
+the extracted CBCL data set must exist in the <tt class="docutils literal"><span class="pre">CBCL_faces</span></tt> directory under <tt class="docutils literal"><span class="pre">datasets</span></tt>. Once you have 
+the data installed, you are ready to start running the experiments.</p>
+</div>
+<p>We experimented with the following factorization algorithms to learn the basis images from the CBCL database: 
+Standard NMF - Euclidean, LSNMF, SNMF/R and SNMF/L. The number of bases is 49. Random Vcol algorithm is used for factorization
+initialization. The algorithms mostly converge after less than 50 iterations.</p>
+<p>Unlike vector quantization and principal components analysis (<a class="reference internal" href="index.html#lee1999" id="id2">[Lee1999]</a>), these algorithms learn a parts-based representations of 
+faces and some also spatially localized representations depending on different types of constraints on basis and mixture matrix. 
+Following are 7 x 7 montages of learned basis images by different factorization algorithms.</p>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/cbcl_faces_50_iters_LSNMF.png"><img alt="Basis images of LSNMF obtained after 50 iterations on original CBCL face images. " src="_images/cbcl_faces_50_iters_LSNMF.png" /></a>
+<p class="caption">Basis images of LSNMF obtained after 50 iterations on original CBCL face images. The bases trained by LSNMF are additive
+but not spatially localized for representation of faces. 10 subiterations and 10 inner subiterations are performed
+(these are LSNMF specific parameters).</p>
+</div>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/cbcl_faces_50_iters_NMF.png"><img alt="Basis images of NMF obtained after 50 iterations on original CBCL face images. " src="_images/cbcl_faces_50_iters_NMF.png" /></a>
+<p class="caption">Basis images of NMF obtained after 50 iterations on original CBCL face images. The images show that
+the bases trained by NMF are additive but not spatially localized for representation of faces.</p>
+</div>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/cbcl_faces_10_iters_SNMF_L.png"><img alt="Basis images of LSNMF obtained after 10 iterations on original CBCL face images. " src="_images/cbcl_faces_10_iters_SNMF_L.png" /></a>
+<p class="caption">Basis images of SNMF/L obtained after 10 iterations on original CBCL face images. The
+bases trained from LSNMF/L are both additive and spatially localized for representing faces. LSNMF/L imposes
+sparseness constraints on basis matrix, whereas LSNMF/R imposes sparseness on mixture matrix. Therefore obtained basis images
+are very sparse as it can be shown in the figure. The Euclidean distance of SNMF/L estimate from target matrix is 1827.66.</p>
+</div>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/cbcl_faces_10_iters_SNMF_R.png"><img alt="Basis images of SNMF/R obtained after 10 iterations on original CBCL face images. " src="_images/cbcl_faces_10_iters_SNMF_R.png" /></a>
+<p class="caption">Basis images of SNMF/R obtained after 10 iterations on original CBCL face images. The images show that
+the bases trained by NMF are additive but not spatially localized for representation of faces. The Euclidean
+distance of SNMF/R estimate from target matrix is 3948.149.</p>
+</div>
+<p>To run the example simply type:</p>
+<div class="highlight-python"><div class="highlight"><pre>python cbcl_images.py
+</pre></div>
+</div>
+<p>or call the module&#8217;s function:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">nimfa.examples</span>
+<span class="n">nimfa</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">cbcl_images</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This example uses <tt class="docutils literal"><span class="pre">matplotlib</span></tt> library for producing visual interpretation of basis vectors. It uses PIL 
+library for displaying face images.</p>
+</div>
+<dl class="function">
+<dt id="nimfa.examples.cbcl_images.factorize">
+<tt class="descclassname">nimfa.examples.cbcl_images.</tt><tt class="descname">factorize</tt><big>(</big><em>V</em><big>)</big><a class="headerlink" href="#nimfa.examples.cbcl_images.factorize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform LSNMF factorization on the CBCL faces data matrix.</p>
+<p>Return basis and mixture matrices of the fitted factorization model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>V</strong> (<cite>numpy.matrix</cite>) &#8211; The CBCL faces data matrix.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.cbcl_images.plot">
+<tt class="descclassname">nimfa.examples.cbcl_images.</tt><tt class="descname">plot</tt><big>(</big><em>W</em><big>)</big><a class="headerlink" href="#nimfa.examples.cbcl_images.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot basis vectors.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>W</strong> (<cite>numpy.matrix</cite>) &#8211; Basis matrix of the fitted factorization model.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.cbcl_images.preprocess">
+<tt class="descclassname">nimfa.examples.cbcl_images.</tt><tt class="descname">preprocess</tt><big>(</big><em>V</em><big>)</big><a class="headerlink" href="#nimfa.examples.cbcl_images.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess CBCL faces data matrix as Lee and Seung.</p>
+<p>Return normalized and preprocessed data matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>V</strong> (<cite>numpy.matrix</cite>) &#8211; The CBCL faces data matrix.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.cbcl_images.read">
+<tt class="descclassname">nimfa.examples.cbcl_images.</tt><tt class="descname">read</tt><big>(</big><big>)</big><a class="headerlink" href="#nimfa.examples.cbcl_images.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read face image data from the CBCL database. The matrix&#8217;s shape is 361 (pixels) x 2429 (faces).</p>
+<p>Step through each subject and each image. Images&#8217; sizes are not reduced.</p>
+<p>Return the CBCL faces data matrix.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.cbcl_images.run">
+<tt class="descclassname">nimfa.examples.cbcl_images.</tt><tt class="descname">run</tt><big>(</big><big>)</big><a class="headerlink" href="#nimfa.examples.cbcl_images.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run LSNMF on CBCL faces data set.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Nimfa</a></h1>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=marinkaz&repo=nimfa&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="nimfa.models.html">Models (<tt class="docutils literal"><span class="pre">models</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.methods.html">Methods (<tt class="docutils literal"><span class="pre">methods</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.utils.html">Utils (<tt class="docutils literal"><span class="pre">utils</span></tt>)</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="nimfa.examples.html">Examples (<tt class="docutils literal"><span class="pre">examples</span></tt>)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.synthetic.html">Simulated studies (<tt class="docutils literal"><span class="pre">examples.synthetic</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.all_aml.html">ALL AML Leukemia (<tt class="docutils literal"><span class="pre">examples.aml_all</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.medulloblastoma.html">Medulloblastoma (<tt class="docutils literal"><span class="pre">examples.medulloblastoma</span></tt>)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">CBCL Images (<tt class="docutils literal"><span class="pre">examples.cbcl_images</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.documents.html">Documents (<tt class="docutils literal"><span class="pre">examples.documents</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.orl_images.html">ORL Images (<tt class="docutils literal"><span class="pre">examples.orl_images</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.recommendations.html">Recommendations (<tt class="docutils literal"><span class="pre">examples.recommendations</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.gene_func_prediction.html">Gene Function Prediction (<tt class="docutils literal"><span class="pre">examples.gene_func_prediction</span></tt>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.datasets.html">Datasets (<tt class="docutils literal"><span class="pre">datasets</span></tt>)</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="nimfa.examples.html">Examples (<tt class="docutils literal"><span class="pre">examples</span></tt>)</a><ul>
+      <li>Previous: <a href="nimfa.examples.medulloblastoma.html" title="previous chapter">Medulloblastoma (<tt class="docutils literal"><span class="pre">examples.medulloblastoma</span></tt>)</a></li>
+      <li>Next: <a href="nimfa.examples.documents.html" title="next chapter">Documents (<tt class="docutils literal"><span class="pre">examples.documents</span></tt>)</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, The Nimfa developers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/marinkaz/nimfa" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

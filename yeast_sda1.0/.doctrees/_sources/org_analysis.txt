@@ -1,0 +1,5 @@
+.. automodule:: org_analysis
+	:members:
+	:undoc-members:
+	:inherited-members:
+	:show-inheritance:

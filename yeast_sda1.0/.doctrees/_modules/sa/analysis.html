@@ -1,0 +1,517 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>sa.analysis &mdash; Yeast Screen Data Analysis 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Yeast Screen Data Analysis 1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Yeast Screen Data Analysis 1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for sa.analysis</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">##########################</span>
+<span class="sd">analysis (``sa.analysis``)</span>
+<span class="sd">##########################</span>
+
+<span class="sd">This script performs statistical analysis of strains inside plate and in-between plates.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">sklearn</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">operator</span> <span class="kn">import</span> <span class="n">itemgetter</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics.pairwise</span> <span class="kn">import</span> <span class="n">euclidean_distances</span>
+
+<span class="kn">import</span> <span class="nn">utilities</span> <span class="kn">as</span> <span class="nn">utils</span>
+<span class="kn">import</span> <span class="nn">plotting</span>
+<span class="kn">import</span> <span class="nn">methods</span>
+    
+<div class="viewcode-block" id="strains_1p_WT"><a class="viewcode-back" href="../../sa.analysis.html#sa.analysis.strains_1p_WT">[docs]</a><span class="k">def</span> <span class="nf">strains_1p_WT</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">plate</span><span class="p">,</span> <span class="n">res_path</span><span class="p">,</span> <span class="n">plot_attr_hist</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Analyze WT strains from one plate.</span>
+<span class="sd">    </span>
+<span class="sd">    :param meta: Meta data for one plate, `(file_name, attr_names)`, as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type meta: `tuple`</span>
+<span class="sd">    :param plate: Plate data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type plate: `list`</span>
+<span class="sd">    :param res_path: Full path to the directory where results are to be saved.  </span>
+<span class="sd">    :type res_path: `str`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_name</span><span class="p">,</span> <span class="n">attrs</span> <span class="o">=</span> <span class="n">meta</span>
+    <span class="n">out_name</span> <span class="o">=</span> <span class="n">res_path</span> <span class="o">+</span> <span class="n">file_name</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
+    <span class="n">dataf</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">filter_attribute</span><span class="p">(</span><span class="n">attrs</span><span class="p">,</span> <span class="n">plate</span><span class="p">,</span> <span class="n">attr_name</span> <span class="o">=</span> <span class="s">&quot;ORF&quot;</span><span class="p">,</span> <span class="n">attr_values</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;YOR202W&quot;</span><span class="p">])</span>
+    <span class="n">dnpf</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">data2np</span><span class="p">(</span><span class="n">dataf</span><span class="p">,</span> <span class="n">skip_first</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">skip_last</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">plot_attr_hist</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">dnpf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">plotting</span><span class="o">.</span><span class="n">plot_hist_with_norm_fit</span><span class="p">(</span><span class="n">dnpf</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">attrs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">title</span> <span class="o">=</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">out_name</span> <span class="o">=</span> <span class="n">out_name</span> <span class="o">+</span> <span class="s">&quot;_&quot;</span> <span class="o">+</span> <span class="n">attrs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">dnp</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">standardize</span><span class="p">(</span><span class="n">dnpf</span><span class="p">)</span>
+    <span class="n">utils</span><span class="o">.</span><span class="n">pp_plate_info</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">plate</span><span class="p">)</span>
+    
+    <span class="c">#save to Orange format data used in analysis</span>
+    <span class="n">dnp_or</span> <span class="o">=</span> <span class="n">dnp</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">dnp_or</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">dnpf</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">utils</span><span class="o">.</span><span class="n">to_orange</span><span class="p">(</span><span class="n">attrs</span><span class="p">,</span> <span class="n">dataf</span><span class="p">,</span> <span class="n">dnp_or</span><span class="p">,</span> <span class="n">out_name</span> <span class="o">=</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">noncomp_first</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">noncomp_last</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c">#analysis</span>
+    <span class="n">en_out</span><span class="p">,</span> <span class="n">r_data</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">detect_outliers</span><span class="p">(</span><span class="n">dnp</span><span class="p">,</span> <span class="n">dataf</span><span class="p">,</span> <span class="n">out_name</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s%s</span><span class="s">_outliers.csv&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">res_path</span><span class="p">,</span> <span class="n">file_name</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]),</span> <span class="n">save</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+    <span class="n">r_dataf</span><span class="p">,</span> <span class="n">r_dnp</span> <span class="o">=</span> <span class="n">r_data</span>
+    <span class="c">#if you have outliers in data set, normalizing data will scale normal data to a very small interval</span>
+    <span class="c">#dnp = methods.normalize(r_dnp) </span>
+    <span class="n">dist_matrix</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">compute_distance</span><span class="p">(</span><span class="n">r_dnp</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">out_name</span> <span class="o">=</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">r_dataf</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">r_dnp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+    
+    
+    <span class="n">wt</span><span class="p">,</span> <span class="n">mt</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">split_WT_MT</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">plate</span><span class="p">)</span>
+    <span class="c">#WT</span>
+    <span class="n">dnp_wt</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">data2np</span><span class="p">(</span><span class="n">wt</span><span class="p">,</span> <span class="n">skip_first</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">skip_last</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">dnp_wt</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">standardize</span><span class="p">(</span><span class="n">dnp_wt</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">plate_wtr</span><span class="p">,</span> <span class="n">dnp_wtr</span><span class="p">)</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">detect_outliers</span><span class="p">(</span><span class="n">dnp_wt</span><span class="p">,</span> <span class="n">wt</span><span class="p">,</span> <span class="n">out_name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">save</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+    <span class="c">#MUTANTS</span>
+    <span class="n">dnp_mt</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">data2np</span><span class="p">(</span><span class="n">mt</span><span class="p">,</span> <span class="n">skip_first</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">skip_last</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">dnp_mt</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">standardize</span><span class="p">(</span><span class="n">dnp_mt</span><span class="p">)</span>
+    <span class="n">dnp_os</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">dnp_wtr</span><span class="p">,</span> <span class="n">dnp_mt</span><span class="p">))</span>
+    <span class="n">plate_os</span> <span class="o">=</span> <span class="n">plate_wtr</span> <span class="o">+</span> <span class="n">mt</span>
+    
+    <span class="n">dist_matrix_os</span> <span class="o">=</span> <span class="n">euclidean_distances</span><span class="p">(</span><span class="n">dnp_os</span><span class="p">,</span> <span class="n">dnp_os</span><span class="p">)</span>
+    <span class="n">mw_matrix</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">plot_plate_by_mean_well_distance</span><span class="p">(</span><span class="n">dist_matrix_os</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">out_name</span> <span class="o">=</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">plate</span> <span class="o">=</span> <span class="n">plate_os</span><span class="p">)</span>
+    
+    <span class="n">pred_kmeans</span><span class="p">,</span> <span class="n">score_kmeans</span><span class="p">,</span> <span class="n">trans_kmeans</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">k_means</span><span class="p">(</span><span class="n">dnp</span><span class="p">,</span> <span class="n">dataf</span><span class="p">,</span> <span class="n">k_range</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span> <span class="n">out_name_silhouette</span> <span class="o">=</span> <span class="n">out_name</span><span class="p">,</span> 
+                                                              <span class="n">out_dir_predictions</span> <span class="o">=</span> <span class="n">res_path</span><span class="p">,</span> <span class="n">out_name_predictions</span> <span class="o">=</span> <span class="n">file_name</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">],</span>
+                                                              <span class="n">save_silhouette</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">save_predictions</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+    
+    <span class="n">methods</span><span class="o">.</span><span class="n">outlier2cluster</span><span class="p">(</span><span class="n">en_out</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pred_kmeans</span><span class="p">)</span>
+    <span class="n">pca_trans</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">decompose_PCA</span><span class="p">(</span><span class="n">r_dnp</span><span class="p">,</span> <span class="n">r_dataf</span><span class="p">,</span> <span class="n">n_components</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">out_name</span> <span class="o">=</span> <span class="n">out_name</span><span class="p">)</span>
+ </div>
+<div class="viewcode-block" id="strains_Np_WT"><a class="viewcode-back" href="../../sa.analysis.html#sa.analysis.strains_Np_WT">[docs]</a><span class="k">def</span> <span class="nf">strains_Np_WT</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">plates</span><span class="p">,</span> <span class="n">res_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Analyze WT strains from many plates by combining them in one set.</span>
+<span class="sd">    </span>
+<span class="sd">    :param meta: Meta data, `[(file_name1, attr_names1), (file_name2 attr_names2) ...]`, as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type meta: `list`</span>
+<span class="sd">    :param plates: Plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type plates: `list`</span>
+<span class="sd">    :param res_path: Full path to the directory where results are to be saved. </span>
+<span class="sd">    :type res_path: `str`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_nameL</span><span class="p">,</span> <span class="n">attrsL</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">meta</span><span class="p">)</span>
+    <span class="n">meta</span><span class="p">,</span> <span class="n">platej</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">plates</span><span class="p">)</span>
+    <span class="n">file_name</span><span class="p">,</span> <span class="n">attrs</span> <span class="o">=</span> <span class="n">meta</span>
+    <span class="n">out_name</span> <span class="o">=</span> <span class="n">res_path</span> <span class="o">+</span> <span class="n">file_name</span>
+    
+    <span class="n">dataf</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">filter_attribute</span><span class="p">(</span><span class="n">attrs</span><span class="p">,</span> <span class="n">platej</span><span class="p">,</span> <span class="n">attr_name</span> <span class="o">=</span> <span class="s">&quot;ORF&quot;</span><span class="p">,</span> <span class="n">attr_values</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;YOR202W&quot;</span><span class="p">])</span>
+    <span class="n">dnpf</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">data2np</span><span class="p">(</span><span class="n">dataf</span><span class="p">,</span> <span class="n">skip_first</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">skip_last</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">dnp</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">standardize</span><span class="p">(</span><span class="n">dnpf</span><span class="p">)</span>
+    
+    <span class="c">#save to Orange format data used in analysis</span>
+    <span class="n">dnp_or</span> <span class="o">=</span> <span class="n">dnp</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">dnp_or</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">dnpf</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">utils</span><span class="o">.</span><span class="n">to_orange</span><span class="p">(</span><span class="n">attrs</span><span class="p">,</span> <span class="n">dataf</span><span class="p">,</span> <span class="n">dnp_or</span><span class="p">,</span> <span class="n">out_name</span> <span class="o">=</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">noncomp_first</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">noncomp_last</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+    
+    <span class="c">#analysis</span>
+    <span class="n">en_out</span><span class="p">,</span> <span class="n">r_data</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">detect_outliers</span><span class="p">(</span><span class="n">dnp</span><span class="p">,</span> <span class="n">dataf</span><span class="p">,</span> <span class="n">out_name</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">combined_outliers.csv&quot;</span> <span class="o">%</span> <span class="n">res_path</span><span class="p">,</span> <span class="n">save</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+    <span class="n">r_dataf</span><span class="p">,</span> <span class="n">r_dnp</span> <span class="o">=</span> <span class="n">r_data</span> 
+    <span class="c">#if you have outliers in data set, normalizing data will scale normal data to a very small interval</span>
+    <span class="c">#dnp = methods.normalize(dnp)</span>
+    <span class="n">dist_matrix</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">compute_distance</span><span class="p">(</span><span class="n">r_dnp</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">out_name</span> <span class="o">=</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">r_dataf</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">r_dataf</span><span class="p">))))</span>
+    <span class="n">pred_kmeans</span><span class="p">,</span> <span class="n">score_kmeans</span><span class="p">,</span> <span class="n">trans_kmeans</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">k_means</span><span class="p">(</span><span class="n">dnp</span><span class="p">,</span> <span class="n">dataf</span><span class="p">,</span> <span class="n">k_range</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span> <span class="n">out_name_silhouette</span> <span class="o">=</span> <span class="n">out_name</span><span class="p">,</span>
+                                                              <span class="n">out_dir_predictions</span> <span class="o">=</span> <span class="n">res_path</span><span class="p">,</span> <span class="n">out_name_predictions</span> <span class="o">=</span> <span class="s">&quot;combined&quot;</span><span class="p">,</span>
+                                                              <span class="n">save_silhouette</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">save_predictions</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+    <span class="n">methods</span><span class="o">.</span><span class="n">outlier2cluster</span><span class="p">(</span><span class="n">en_out</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pred_kmeans</span><span class="p">)</span>
+    <span class="n">pca_trans</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">decompose_PCA</span><span class="p">(</span><span class="n">r_dnp</span><span class="p">,</span> <span class="n">r_dataf</span><span class="p">,</span> <span class="n">n_components</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">out_name</span> <span class="o">=</span> <span class="n">out_name</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="strains_Np_MT"><a class="viewcode-back" href="../../sa.analysis.html#sa.analysis.strains_Np_MT">[docs]</a><span class="k">def</span> <span class="nf">strains_Np_MT</span><span class="p">(</span><span class="n">data_del</span><span class="p">,</span> <span class="n">data_ts</span><span class="p">,</span> <span class="n">data_sg</span><span class="p">,</span> <span class="n">repeats_path</span><span class="p">,</span> <span class="n">res_path</span><span class="p">,</span> <span class="n">repeats_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;RT&quot;</span><span class="p">,</span> <span class="s">&quot;37&quot;</span><span class="p">],</span> <span class="n">standardize</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find mutants with significantly different profiles than wild-type cells by estimating</span>
+<span class="sd">    distance between WT strains, MT strains, WT and MT strains and assess significance with </span>
+<span class="sd">    permutation test. </span>
+<span class="sd">    </span>
+<span class="sd">    :param data_del: Deletion collection plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type data_del: `tuple` (meta_data, plates_data)</span>
+<span class="sd">    :param data_ts: TS collection plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type data_ts: `tuple` (meta_data, plates_data)</span>
+<span class="sd">    :param data_sg: SG collection plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type data_sg: `tuple` (meta_data, plates_data)</span>
+<span class="sd">    :param repeats_path: Full path to file with multi-occuring mutant strains specification.</span>
+<span class="sd">    :type repeats_path: `str`</span>
+<span class="sd">    :param res_path: Full path to the directory where results are to be saved. </span>
+<span class="sd">    :type res_path: `str`</span>
+<span class="sd">    :param repeats_keys: Names of TS (temperature sensitive mutant strains) plates&#39; extensions. By default these are [&quot;RT&quot;, &quot;37&quot;].</span>
+<span class="sd">    :type repeats_keys: `list`</span>
+<span class="sd">    :param standardize: Indicator whether to work with standardized or original features. By default, data set is standardized. </span>
+<span class="sd">    :type standardize: `bool`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plates_wt</span><span class="p">,</span> <span class="n">dnp_wtc</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="n">plates_mt</span><span class="p">,</span> <span class="n">dnp_mtc</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">coll</span> <span class="ow">in</span> <span class="p">[</span><span class="n">data_del</span><span class="p">,</span> <span class="n">data_ts</span><span class="p">,</span> <span class="n">data_sg</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">meta</span><span class="p">,</span> <span class="n">plate</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">coll</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">coll</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">wt</span><span class="p">,</span> <span class="n">mt</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">split_WT_MT</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">plate</span><span class="p">)</span>
+            <span class="c">#WT</span>
+            <span class="n">dnp_wt</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">data2np</span><span class="p">(</span><span class="n">wt</span><span class="p">,</span> <span class="n">skip_first</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">skip_last</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">standardize</span><span class="p">:</span>
+                <span class="n">dnp_wt</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">standardize</span><span class="p">(</span><span class="n">dnp_wt</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">plate_wtr</span><span class="p">,</span> <span class="n">dnp_wtr</span><span class="p">)</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">detect_outliers</span><span class="p">(</span><span class="n">dnp_wt</span><span class="p">,</span> <span class="n">wt</span><span class="p">,</span> <span class="n">out_name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">save</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+            <span class="c">#MUTANTS</span>
+            <span class="n">dnp_mt</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">data2np</span><span class="p">(</span><span class="n">mt</span><span class="p">,</span> <span class="n">skip_first</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">skip_last</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">standardize</span><span class="p">:</span> 
+                <span class="n">dnp_mt</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">standardize</span><span class="p">(</span><span class="n">dnp_mt</span><span class="p">)</span>
+            <span class="c">#save</span>
+            <span class="n">plates_wt</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">plate_wtr</span><span class="p">)</span>
+            <span class="n">dnp_wtc</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">dnp_wtr</span><span class="p">)</span>
+            <span class="n">plates_mt</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">mt</span><span class="p">)</span>
+            <span class="n">dnp_mtc</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">dnp_mt</span><span class="p">)</span>    
+    
+    <span class="n">dnp_mtc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dnp_mtc</span><span class="p">)</span>
+    <span class="n">dnp_wtc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dnp_wtc</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;No. observations of mutant strains: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">plates_mt</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;No. observations of wild-type strains: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">plates_wt</span><span class="p">)</span>
+    
+    <span class="c">#Compute and save Euclidean distances between mutant and wild-type strains to file.</span>
+    <span class="k">print</span> <span class="s">&quot;Computing Euclidean distances between mutant and wild-type strains.&quot;</span>
+    <span class="n">dist_mat</span> <span class="o">=</span> <span class="n">euclidean_distances</span><span class="p">(</span><span class="n">dnp_mtc</span><span class="p">,</span> <span class="n">dnp_wtc</span><span class="p">)</span>
+    <span class="c">#mean distance of each mutant to all wild-type strains</span>
+    <span class="n">m_mt_wt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dist_mat</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Mean distance between mutant strain and wild-type: </span><span class="si">%5.3f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">m_mt_wt</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">plates_mt</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">m_mt_wt</span><span class="p">),</span> <span class="s">&quot;Dimension mismatch between mutant computational and meta features.&quot;</span>
+    
+    <span class="c">#Construct representation of mutant meta data and their distances. Average replication unless from TS collection</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">reps</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">read_repl</span><span class="p">(</span><span class="n">repeats_path</span><span class="p">,</span> <span class="n">repeats_keys</span><span class="p">)</span>
+    <span class="n">repsd</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">orf</span><span class="p">,</span> <span class="n">pn</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">reps</span><span class="p">:</span>
+        <span class="n">repsd</span><span class="p">[</span><span class="n">orf</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">pn</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">))</span>
+        
+    <span class="n">dstd</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">plates_mt</span><span class="p">)):</span>  
+        <span class="n">pn</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">plates_mt</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+        <span class="n">orf</span> <span class="o">=</span> <span class="n">plates_mt</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">dstd</span><span class="p">[(</span><span class="n">orf</span><span class="p">,</span> <span class="n">pn</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">)]</span> <span class="o">=</span> <span class="n">m_mt_wt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        
+    <span class="n">mutd</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">plates_mt</span><span class="p">)):</span>
+        <span class="n">orf</span> <span class="o">=</span> <span class="n">plates_mt</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">pn</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">plates_mt</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+        <span class="n">mutd</span><span class="p">[</span><span class="n">orf</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">orf</span><span class="p">,</span> <span class="n">dstd</span><span class="p">[(</span><span class="n">orf</span><span class="p">,</span> <span class="n">pn</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">)],</span> <span class="p">(</span><span class="n">pn</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">)))</span>
+
+    <span class="n">mut</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">orf</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">mutd</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c"># (orf, mean_dist, [(pn1, date1, r1, c1, dist1), (pn2, date2, r2, c2, dist1), ...])</span>
+            <span class="n">mut</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">orf</span><span class="p">,</span> <span class="n">vals</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="n">vals</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">valsc</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">vals</span><span class="p">:</span>
+                <span class="n">TS_in</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([(</span><span class="n">k</span> <span class="ow">in</span> <span class="n">val</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">repeats_keys</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                <span class="k">if</span> <span class="n">TS_in</span><span class="p">:</span>
+                    <span class="n">mut</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">orf</span><span class="p">,</span> <span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="mi">2</span><span class="p">]]))</span>
+                <span class="k">else</span><span class="p">:</span> <span class="n">valsc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">valsc</span><span class="p">:</span>
+                <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span> <span class="n">el</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">valsc</span><span class="p">])</span>
+                <span class="n">mut</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">orf</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="p">[(</span><span class="n">el</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">el</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">el</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span> <span class="n">el</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">3</span><span class="p">],</span> <span class="n">el</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">valsc</span><span class="p">]))</span>
+    
+    <span class="n">mut</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="n">itemgetter</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+    
+    <span class="c">#Save computed distances between mutants and WT to file</span>
+    <span class="n">out_name</span> <span class="o">=</span> <span class="n">res_path</span> <span class="o">+</span> <span class="s">&quot;MT-WT_distance.csv&quot;</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_name</span><span class="p">,</span> <span class="s">&quot;wt&quot;</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;ORF&quot;</span><span class="p">,</span> <span class="s">&quot;distance&quot;</span><span class="p">,</span> <span class="s">&quot;meta&quot;</span><span class="p">]))</span>    
+    <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">mut</span><span class="p">:</span>
+        <span class="n">orf</span><span class="p">,</span> <span class="n">meand</span><span class="p">,</span> <span class="n">repsm</span> <span class="o">=</span> <span class="n">el</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">orf</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">meand</span><span class="p">),</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">el</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">repsm</span><span class="p">)</span> <span class="p">])))</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;Mean mutant distances to WT saved to: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">out_name</span> 
+
+    <span class="n">dm_wt_wt</span> <span class="o">=</span> <span class="n">euclidean_distances</span><span class="p">(</span><span class="n">dnp_wtc</span><span class="p">,</span> <span class="n">dnp_wtc</span><span class="p">)</span>
+    <span class="n">wt_wt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tril</span><span class="p">(</span><span class="n">dm_wt_wt</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">wt_wt</span> <span class="o">=</span> <span class="n">wt_wt</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">wt_wt</span><span class="p">)]</span>  
+    <span class="n">m_wt_wt</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">dm_wt_wt</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:</span><span class="n">i</span><span class="p">],</span> <span class="n">dm_wt_wt</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:])))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">dm_wt_wt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+    
+    <span class="c">#Save computed distances between WT and WT to file</span>
+    <span class="n">out_name</span> <span class="o">=</span> <span class="n">res_path</span> <span class="o">+</span> <span class="s">&quot;WT-WT_distance.csv&quot;</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_name</span><span class="p">,</span> <span class="s">&quot;wt&quot;</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;ORF&quot;</span><span class="p">,</span> <span class="s">&quot;plate&quot;</span><span class="p">,</span> <span class="s">&quot;date&quot;</span><span class="p">,</span> <span class="s">&quot;row&quot;</span><span class="p">,</span> <span class="s">&quot;col&quot;</span><span class="p">,</span> <span class="s">&quot;distance&quot;</span><span class="p">]))</span>
+    <span class="n">wt_sort</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ds</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">m_wt_wt</span><span class="p">)]</span>
+    <span class="n">wt_sort</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">reverse</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="n">itemgetter</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>    
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">wt_sort</span><span class="p">:</span>
+        <span class="n">orf</span> <span class="o">=</span> <span class="n">plates_wt</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> 
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">,</span><span class="si">%5.4f</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">orf</span><span class="p">]</span> <span class="o">+</span> <span class="n">plates_wt</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">]),</span> <span class="n">dist</span><span class="p">))</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;Mean WT distances to WT saved to: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">out_name</span> 
+    
+    <span class="n">plotting</span><span class="o">.</span><span class="n">plot_hist_mean_MT_WT_distance</span><span class="p">([</span><span class="n">el</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">mut</span><span class="p">],</span> <span class="n">res_path</span><span class="p">)</span>  
+    <span class="n">plotting</span><span class="o">.</span><span class="n">plot_hist_WT_WT_distance</span><span class="p">(</span><span class="n">wt_wt</span><span class="p">,</span> <span class="n">res_path</span><span class="p">)</span>
+    <span class="n">plotting</span><span class="o">.</span><span class="n">plot_hist_mean_MT_WT__WT_WT_distance</span><span class="p">([</span><span class="n">el</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">mut</span><span class="p">],</span> <span class="n">m_wt_wt</span><span class="p">,</span> <span class="n">res_path</span><span class="p">)</span>
+    <span class="n">plotting</span><span class="o">.</span><span class="n">plot_hist_signif_MT_WT</span><span class="p">(</span><span class="n">mut</span><span class="p">,</span> <span class="n">plates_mt</span><span class="p">,</span> <span class="n">dnp_mtc</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">el</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">mut</span><span class="p">]),</span> <span class="n">res_path</span><span class="p">)</span>   
+    </div>
+<div class="viewcode-block" id="strains_coll"><a class="viewcode-back" href="../../sa.analysis.html#sa.analysis.strains_coll">[docs]</a><span class="k">def</span> <span class="nf">strains_coll</span><span class="p">(</span><span class="n">data_del</span><span class="p">,</span> <span class="n">data_ts</span><span class="p">,</span> <span class="n">data_sg</span><span class="p">,</span> <span class="n">res_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Preprocess plates from each collection (standardizing features and remove outlier WT strains)</span>
+<span class="sd">    and compute distances between strains from the same and different collections. Histograms</span>
+<span class="sd">    of distances between collections are saved to directory :param:`res_path`.</span>
+<span class="sd">    </span>
+<span class="sd">    :param data_del: Deletion collection plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type data_del: `tuple` (meta_data, plates_data)</span>
+<span class="sd">    :param data_ts: TS collection plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type data_ts: `tuple` (meta_data, plates_data)</span>
+<span class="sd">    :param data_sg: SG collection plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type data_sg: `tuple` (meta_data, plates_data)</span>
+<span class="sd">    :param res_path: Full path to the directory where results are to be saved.</span>
+<span class="sd">    :type res_path: `str`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dnps</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">coll_name</span><span class="p">,</span> <span class="n">coll</span> <span class="ow">in</span> <span class="p">[(</span><span class="s">&quot;DEL&quot;</span><span class="p">,</span> <span class="n">data_del</span><span class="p">),</span> <span class="p">(</span><span class="s">&quot;TS&quot;</span><span class="p">,</span> <span class="n">data_ts</span><span class="p">),</span> <span class="p">(</span><span class="s">&quot;SG&quot;</span><span class="p">,</span> <span class="n">data_sg</span><span class="p">)]:</span>
+        <span class="k">print</span> <span class="s">&quot;Preprocessing </span><span class="si">%s</span><span class="s"> collection&quot;</span> <span class="o">%</span> <span class="n">coll_name</span>
+        <span class="n">dnp</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">for</span> <span class="n">meta</span><span class="p">,</span> <span class="n">plate</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">coll</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">coll</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">wt</span><span class="p">,</span> <span class="n">mt</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">split_WT_MT</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">plate</span><span class="p">)</span>
+            <span class="c">#WT</span>
+            <span class="n">dnp_wt</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">data2np</span><span class="p">(</span><span class="n">wt</span><span class="p">,</span> <span class="n">skip_first</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">skip_last</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">dnp_wt</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">standardize</span><span class="p">(</span><span class="n">dnp_wt</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">plate_wtr</span><span class="p">,</span> <span class="n">dnp_wtr</span><span class="p">)</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">detect_outliers</span><span class="p">(</span><span class="n">dnp_wt</span><span class="p">,</span> <span class="n">wt</span><span class="p">,</span> <span class="n">out_name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">save</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+            <span class="c">#MUTANTS</span>
+            <span class="n">dnp_mt</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">data2np</span><span class="p">(</span><span class="n">mt</span><span class="p">,</span> <span class="n">skip_first</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">skip_last</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">dnp_mt</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">standardize</span><span class="p">(</span><span class="n">dnp_mt</span><span class="p">)</span>
+            <span class="c">#save</span>
+            <span class="n">dnp</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">dnp_wtr</span><span class="p">)</span>
+            <span class="n">dnp</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">dnp_mt</span><span class="p">)</span>
+            
+        <span class="n">dnps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dnp</span><span class="p">))</span>
+    
+    <span class="n">plotting</span><span class="o">.</span><span class="n">plot_hist_coll</span><span class="p">([</span><span class="n">dnps</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dnps</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">dnps</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[</span><span class="s">&quot;Del&quot;</span><span class="p">,</span> <span class="s">&quot;SG&quot;</span><span class="p">,</span> <span class="s">&quot;TS&quot;</span><span class="p">],</span> <span class="n">out_dir</span> <span class="o">=</span> <span class="n">res_path</span><span class="p">)</span>
+    <span class="n">plotting</span><span class="o">.</span><span class="n">plot_hist_coll</span><span class="p">([</span><span class="n">dnps</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">dnps</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dnps</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[</span><span class="s">&quot;SG&quot;</span><span class="p">,</span> <span class="s">&quot;Del&quot;</span><span class="p">,</span> <span class="s">&quot;TS&quot;</span><span class="p">],</span> <span class="n">out_dir</span> <span class="o">=</span> <span class="n">res_path</span><span class="p">)</span>
+    <span class="n">plotting</span><span class="o">.</span><span class="n">plot_hist_coll</span><span class="p">([</span><span class="n">dnps</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dnps</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">dnps</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="s">&quot;TS&quot;</span><span class="p">,</span> <span class="s">&quot;SG&quot;</span><span class="p">,</span> <span class="s">&quot;Del&quot;</span><span class="p">],</span> <span class="n">out_dir</span> <span class="o">=</span> <span class="n">res_path</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="strains_repl"><a class="viewcode-back" href="../../sa.analysis.html#sa.analysis.strains_repl">[docs]</a><span class="k">def</span> <span class="nf">strains_repl</span><span class="p">(</span><span class="n">data_del</span><span class="p">,</span> <span class="n">data_ts</span><span class="p">,</span> <span class="n">data_sg</span><span class="p">,</span> <span class="n">repeats_path</span><span class="p">,</span> <span class="n">res_path</span><span class="p">,</span> <span class="n">repeats_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;RT&quot;</span><span class="p">,</span> <span class="s">&quot;37&quot;</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Analyze mutants that occur multiple times in the data set. First standardize data and then analyze </span>
+<span class="sd">    distance distribution of replicate observations and all observations.</span>
+<span class="sd">    </span>
+<span class="sd">    :param data_del: Deletion collection plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type data_del: `tuple` (meta_data, plates_data)</span>
+<span class="sd">    :param data_ts: TS collection plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type data_ts: `tuple` (meta_data, plates_data)</span>
+<span class="sd">    :param data_sg: SG collection plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type data_sg: `tuple` (meta_data, plates_data)</span>
+<span class="sd">    :param repeats_path: Full path to file with multi-occurring mutants specification.</span>
+<span class="sd">    :type repeats_path: `str`</span>
+<span class="sd">    :param res_path: Full path to the directory where results are to be saved.</span>
+<span class="sd">    :type res_path: `str`</span>
+<span class="sd">    :param repeats_keys: Names of TS (temperature sensitive mutants) plates&#39; extensions. By default these are [&quot;RT&quot;, &quot;37&quot;].</span>
+<span class="sd">    :type repeats_keys: `list`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">c_plates</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">rc_dnp</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">coll_plates</span> <span class="ow">in</span> <span class="p">[</span><span class="n">data_del</span><span class="p">,</span> <span class="n">data_ts</span><span class="p">,</span> <span class="n">data_sg</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">plate</span> <span class="ow">in</span> <span class="n">coll_plates</span><span class="p">:</span>
+            <span class="n">dnp</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">data2np</span><span class="p">(</span><span class="n">plate</span><span class="p">,</span> <span class="n">skip_first</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">skip_last</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">dnp</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">standardize</span><span class="p">(</span><span class="n">dnp</span><span class="p">)</span>
+            <span class="n">c_plates</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">plate</span><span class="p">)</span>
+            <span class="n">rc_dnp</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">dnp</span><span class="p">)</span>
+   
+    <span class="k">print</span> <span class="s">&quot;Total number of examples </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">c_plates</span><span class="p">)</span>
+    <span class="n">c_dnp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">rc_dnp</span><span class="p">)</span>
+    <span class="n">methods</span><span class="o">.</span><span class="n">analyze_repl</span><span class="p">(</span><span class="n">repeats_path</span><span class="p">,</span> <span class="n">c_plates</span><span class="p">,</span> <span class="n">c_dnp</span><span class="p">,</span> <span class="n">res_path</span><span class="p">,</span> <span class="n">keys</span> <span class="o">=</span> <span class="n">repeats_keys</span><span class="p">,</span> <span class="n">save_dist_mat</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>   
+    </div>
+<div class="viewcode-block" id="fss"><a class="viewcode-back" href="../../sa.analysis.html#sa.analysis.fss">[docs]</a><span class="k">def</span> <span class="nf">fss</span><span class="p">(</span><span class="n">data_del</span><span class="p">,</span> <span class="n">data_ts</span><span class="p">,</span> <span class="n">data_sg</span><span class="p">,</span> <span class="n">res_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Feature subset selection for unsupervised learning. Feature subset selection (FSS) and clustering</span>
+<span class="sd">    based on feature subspace with highest score. A low dimensional representation (MDS) of best </span>
+<span class="sd">    clustering is saved to directory :param:`res_path`.</span>
+<span class="sd">    </span>
+<span class="sd">    :param data_del: Deletion collection plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type data_del: `tuple` (meta_data, plates_data)</span>
+<span class="sd">    :param data_ts: TS collection plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type data_ts: `tuple` (meta_data, plates_data)</span>
+<span class="sd">    :param data_sg: SG collection plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type data_sg: `tuple` (meta_data, plates_data)</span>
+<span class="sd">    :param res_path: Full path to the directory where results are to be saved.</span>
+<span class="sd">    :type res_path: `str`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dnp</span><span class="p">,</span> <span class="n">plates</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">std_prep</span><span class="p">(</span><span class="n">data_del</span><span class="p">,</span> <span class="n">data_ts</span><span class="p">,</span> <span class="n">data_sg</span><span class="p">,</span> <span class="n">res_path</span><span class="p">)</span>
+    <span class="n">dnp</span> <span class="o">=</span> <span class="n">dnp</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span>
+    <span class="n">attr_names</span> <span class="o">=</span> <span class="n">data_del</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">6</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">dnp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">attr_names</span><span class="p">),</span> <span class="s">&quot;The shapes of attribute space and feature names do not match.&quot;</span>
+    
+    <span class="n">pred_best</span><span class="p">,</span> <span class="n">score_best</span><span class="p">,</span> <span class="n">attr_best</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">fss_wrapper</span><span class="p">(</span><span class="n">dnp</span><span class="p">,</span> <span class="n">plates</span><span class="p">,</span> <span class="n">attr_names</span><span class="p">,</span> <span class="n">out_dir</span> <span class="o">=</span> <span class="n">res_path</span><span class="p">)</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">decompose_MDS</span><span class="p">(</span><span class="n">dnp</span><span class="p">,</span> <span class="n">pred_best</span><span class="p">,</span> <span class="n">out_dir</span> <span class="o">=</span> <span class="n">res_path</span><span class="p">,</span> <span class="n">save_coordinates</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="fss_post_cluster"><a class="viewcode-back" href="../../sa.analysis.html#sa.analysis.fss_post_cluster">[docs]</a><span class="k">def</span> <span class="nf">fss_post_cluster</span><span class="p">(</span><span class="n">data_del</span><span class="p">,</span> <span class="n">data_ts</span><span class="p">,</span> <span class="n">data_sg</span><span class="p">,</span> <span class="n">fss_subset_path</span><span class="p">,</span> <span class="n">fss_cluster_path</span><span class="p">,</span> <span class="n">res_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read clustering predictions and description of feature subspace. Run MDS optimization</span>
+<span class="sd">    and save plotted coordinates. </span>
+<span class="sd">    </span>
+<span class="sd">    :param data_del: Deletion collection plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type data_del: `tuple` (meta_data, plates_data)</span>
+<span class="sd">    :param data_ts: TS collection plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type data_ts: `tuple` (meta_data, plates_data)</span>
+<span class="sd">    :param data_sg: SG collection plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type data_sg: `tuple` (meta_data, plates_data)</span>
+<span class="sd">    :param fss_subset_path: Full path to the file with feature space description </span>
+<span class="sd">                            as obtained by :mod:`analysis.fss`.</span>
+<span class="sd">    :type fss_subset_path: `str`</span>
+<span class="sd">    :param fss_cluster_path: Full path to the file with predictions for observations</span>
+<span class="sd">                            as obtained by :mod:`analysis.fss`.</span>
+<span class="sd">    :type fss_cluster_path: `str`</span>
+<span class="sd">    :param res_path: Full path to the directory where results are to be saved.</span>
+<span class="sd">    :type res_path: `str`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dnp</span><span class="p">,</span> <span class="n">plates</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">std_prep</span><span class="p">(</span><span class="n">data_del</span><span class="p">,</span> <span class="n">data_ts</span><span class="p">,</span> <span class="n">data_sg</span><span class="p">,</span> <span class="n">res_path</span><span class="p">)</span>
+    <span class="n">dnp</span> <span class="o">=</span> <span class="n">dnp</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span>
+    <span class="n">attr_names</span> <span class="o">=</span> <span class="n">data_del</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">6</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">dnp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">attr_names</span><span class="p">),</span> <span class="s">&quot;The shapes of attribute space and feature names do not match.&quot;</span>
+    
+    <span class="n">f_subset</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fss_subset_path</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">)</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">f_subset</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">f_subset</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;Feature subspace size: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">fs</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Feature subspace: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fs</span><span class="p">)</span>
+    
+    <span class="n">f_cluster</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fss_cluster_path</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">)</span>
+    <span class="n">pred</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f_cluster</span><span class="p">]</span>
+    <span class="n">f_cluster</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="n">attr2idx</span> <span class="o">=</span> <span class="p">{</span><span class="n">attr</span><span class="p">:</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">attr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">attr_names</span><span class="p">)}</span>
+    <span class="n">fs_idx</span> <span class="o">=</span> <span class="p">[</span><span class="n">attr2idx</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">fs</span><span class="p">]</span>
+    
+    <span class="n">plt2idx</span> <span class="o">=</span> <span class="p">{(</span><span class="n">el</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">el</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">el</span><span class="p">[</span><span class="mi">4</span><span class="p">]):</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">plates</span><span class="p">)}</span>
+    <span class="n">c_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">dnp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">pred</span><span class="p">:</span>
+        <span class="n">plt</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">el</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">el</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">el</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+        <span class="n">c_labels</span><span class="p">[</span><span class="n">plt2idx</span><span class="p">[(</span><span class="n">plt</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">)]]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">el</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span> 
+    
+    <span class="n">dnp_fss</span> <span class="o">=</span> <span class="n">dnp</span><span class="p">[:,</span> <span class="n">fs_idx</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">dnp_fss</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">fs</span><span class="p">),</span> <span class="s">&quot;Dimension mismatch.&quot;</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">decompose_MDS</span><span class="p">(</span><span class="n">dnp_fss</span><span class="p">,</span> <span class="n">c_labels</span><span class="p">,</span> <span class="n">out_dir</span> <span class="o">=</span> <span class="n">res_path</span><span class="p">,</span> <span class="n">save_coordinates</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+ </div>
+<div class="viewcode-block" id="strains_Np_novelty_MT"><a class="viewcode-back" href="../../sa.analysis.html#sa.analysis.strains_Np_novelty_MT">[docs]</a><span class="k">def</span> <span class="nf">strains_Np_novelty_MT</span><span class="p">(</span><span class="n">data_del</span><span class="p">,</span> <span class="n">data_ts</span><span class="p">,</span> <span class="n">data_sg</span><span class="p">,</span> <span class="n">res_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find mutants with significantly different profiles than wild-type cells by novelty </span>
+<span class="sd">    detection using one-class SVM and GMM.</span>
+<span class="sd">    </span>
+<span class="sd">    :param data_del: Deletion collection plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type data_del: `tuple` (meta_data, plates_data)</span>
+<span class="sd">    :param data_ts: TS collection plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type data_ts: `tuple` (meta_data, plates_data)</span>
+<span class="sd">    :param data_sg: SG collection plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type data_sg: `tuple` (meta_data, plates_data)</span>
+<span class="sd">    :param res_path: Full path to the directory where results are to be saved.</span>
+<span class="sd">    :type res_path: `str`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plates_wt</span><span class="p">,</span> <span class="n">dnp_wtc</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="n">plates_mt</span><span class="p">,</span> <span class="n">dnp_mtc</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">coll</span> <span class="ow">in</span> <span class="p">[</span><span class="n">data_del</span><span class="p">,</span> <span class="n">data_ts</span><span class="p">,</span> <span class="n">data_sg</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">meta</span><span class="p">,</span> <span class="n">plate</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">coll</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">coll</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">wt</span><span class="p">,</span> <span class="n">mt</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">split_WT_MT</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">plate</span><span class="p">)</span>
+            <span class="c">#WT</span>
+            <span class="n">dnp_wt</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">data2np</span><span class="p">(</span><span class="n">wt</span><span class="p">,</span> <span class="n">skip_first</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">skip_last</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">dnp_wt</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">standardize</span><span class="p">(</span><span class="n">dnp_wt</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">plate_wtr</span><span class="p">,</span> <span class="n">dnp_wtr</span><span class="p">)</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">detect_outliers</span><span class="p">(</span><span class="n">dnp_wt</span><span class="p">,</span> <span class="n">wt</span><span class="p">,</span> <span class="n">out_name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">save</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+            <span class="c">#MUTANTS</span>
+            <span class="n">dnp_mt</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">data2np</span><span class="p">(</span><span class="n">mt</span><span class="p">,</span> <span class="n">skip_first</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">skip_last</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">dnp_mt</span> <span class="o">=</span> <span class="n">methods</span><span class="o">.</span><span class="n">standardize</span><span class="p">(</span><span class="n">dnp_mt</span><span class="p">)</span>
+            <span class="c">#save</span>
+            <span class="n">plates_wt</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">plate_wtr</span><span class="p">)</span>
+            <span class="n">dnp_wtc</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">dnp_wtr</span><span class="p">)</span>
+            <span class="n">plates_mt</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">mt</span><span class="p">)</span>
+            <span class="n">dnp_mtc</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">dnp_mt</span><span class="p">)</span>     
+    
+    <span class="n">dnp_mtc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dnp_mtc</span><span class="p">)</span>
+    <span class="n">dnp_wtc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dnp_wtc</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;No. observations of mutant strains: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">plates_mt</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;No. observations of wild-type strains: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">plates_wt</span><span class="p">)</span>
+    
+    <span class="n">methods</span><span class="o">.</span><span class="n">detect_novelties_SVM</span><span class="p">(</span><span class="n">dnp_wtc</span><span class="p">,</span> <span class="n">dnp_mtc</span><span class="p">,</span> <span class="n">plates_wt</span><span class="p">,</span> <span class="n">plates_mt</span><span class="p">,</span> <span class="n">res_path</span><span class="p">,</span> <span class="n">save_visualization</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+    <span class="n">methods</span><span class="o">.</span><span class="n">detect_novelties_GMM</span><span class="p">(</span><span class="n">dnp_wtc</span><span class="p">,</span> <span class="n">dnp_mtc</span><span class="p">,</span> <span class="n">plates_wt</span><span class="p">,</span> <span class="n">plates_mt</span><span class="p">,</span> <span class="n">res_path</span><span class="p">)</span>
+    
+    
+    
+    </div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Yeast Screen Data Analysis 1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Marinka Zitnik.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.
+    </div>
+  </body>
+</html>

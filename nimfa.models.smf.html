@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Smf (models.smf) &mdash; Nimfa 1.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Nimfa 1.3.1 documentation" href="index.html" />
+    <link rel="up" title="Models (models)" href="nimfa.models.html" />
+    <link rel="next" title="Mf_fit (models.mf_fit)" href="nimfa.models.mf_fit.html" />
+    <link rel="prev" title="Nmf_mm (models.nmf_mm)" href="nimfa.models.nmf_mm.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-nimfa.models.smf"></span><div class="section" id="smf-models-smf">
+<h1>Smf (<tt class="docutils literal"><span class="pre">models.smf</span></tt>)<a class="headerlink" href="#smf-models-smf" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="nimfa.models.smf.Smf">
+<em class="property">class </em><tt class="descclassname">nimfa.models.smf.</tt><tt class="descname">Smf</tt><big>(</big><em>params</em><big>)</big><a class="headerlink" href="#nimfa.models.smf.Smf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<p>This class defines a common interface / model to handle standard MF models in
+a generic way.</p>
+<p>It contains definitions of the minimum set of generic methods that are used in 
+common computations and matrix factorizations. Besides it contains some quality
+and performance measures about factorizations.</p>
+<dl class="method">
+<dt id="nimfa.models.smf.Smf.basis">
+<tt class="descname">basis</tt><big>(</big><big>)</big><a class="headerlink" href="#nimfa.models.smf.Smf.basis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the matrix of basis vectors (factor 1 matrix).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.smf.Smf.coef">
+<tt class="descname">coef</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.smf.Smf.coef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the matrix of mixture coefficients (factor 2 matrix).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (<a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><em>None</em></a>) &#8211; Used in the multiple MF model. In standard MF <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.smf.Smf.distance">
+<tt class="descname">distance</tt><big>(</big><em>metric='euclidean'</em>, <em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.smf.Smf.distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the loss function value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>distance</strong> (<cite>str</cite> with values &#8216;euclidean&#8217; or &#8216;kl&#8217;) &#8211; Specify distance metric to be used. Possible are Euclidean and
+Kullback-Leibler (KL) divergence. Strictly, KL is not a metric.</li>
+<li><strong>idx</strong> (<a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><em>None</em></a>) &#8211; Used in the multiple MF model. In standard MF <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.smf.Smf.fitted">
+<tt class="descname">fitted</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.smf.Smf.fitted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the estimated target matrix according to the MF algorithm model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (<a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><em>None</em></a>) &#8211; Used in the multiple MF model. In standard MF <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.smf.Smf.residuals">
+<tt class="descname">residuals</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.smf.Smf.residuals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return residuals matrix between the target matrix and its MF estimate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (<a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><em>None</em></a>) &#8211; Used in the multiple MF model. In standard MF <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.smf.Smf.target">
+<tt class="descname">target</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.smf.Smf.target" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the target matrix to estimate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (<a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><em>None</em></a>) &#8211; Used in the multiple MF model. In standard MF <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Nimfa</a></h1>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=marinkaz&repo=nimfa&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="nimfa.models.html">Models (<tt class="docutils literal"><span class="pre">models</span></tt>)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.nmf.html">Nmf (<tt class="docutils literal"><span class="pre">models.nmf</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.nmf_std.html">Nmf_std (<tt class="docutils literal"><span class="pre">models.nmf_std</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.nmf_ns.html">Nmf_ns (<tt class="docutils literal"><span class="pre">models.nmf_ns</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.nmf_mm.html">Nmf_mm (<tt class="docutils literal"><span class="pre">models.nmf_mm</span></tt>)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Smf (<tt class="docutils literal"><span class="pre">models.smf</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.mf_fit.html">Mf_fit (<tt class="docutils literal"><span class="pre">models.mf_fit</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.mf_track.html">Mf_track (<tt class="docutils literal"><span class="pre">models.mf_track</span></tt>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.methods.html">Methods (<tt class="docutils literal"><span class="pre">methods</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.utils.html">Utils (<tt class="docutils literal"><span class="pre">utils</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.examples.html">Examples (<tt class="docutils literal"><span class="pre">examples</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.datasets.html">Datasets (<tt class="docutils literal"><span class="pre">datasets</span></tt>)</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="nimfa.models.html">Models (<tt class="docutils literal"><span class="pre">models</span></tt>)</a><ul>
+      <li>Previous: <a href="nimfa.models.nmf_mm.html" title="previous chapter">Nmf_mm (<tt class="docutils literal"><span class="pre">models.nmf_mm</span></tt>)</a></li>
+      <li>Next: <a href="nimfa.models.mf_fit.html" title="next chapter">Mf_fit (<tt class="docutils literal"><span class="pre">models.mf_fit</span></tt>)</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, The Nimfa developers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/marinkaz/nimfa" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,294 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>plotting (sa.plotting) &mdash; Yeast Screen Data Analysis 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Yeast Screen Data Analysis 1.0 documentation" href="index.html" />
+    <link rel="up" title="SA (sa)" href="sa.html" />
+    <link rel="next" title="utilities (sa.utilities)" href="sa.utilities.html" />
+    <link rel="prev" title="methods (sa.methods)" href="sa.methods.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sa.utilities.html" title="utilities (sa.utilities)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="sa.methods.html" title="methods (sa.methods)"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Yeast Screen Data Analysis 1.0 documentation</a> &raquo;</li>
+          <li><a href="sa.html" accesskey="U">SA (<tt class="docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal"><span class="pre">sa</span></tt>)</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-sa.plotting"></span><div class="section" id="plotting-sa-plotting">
+<h1>plotting (<tt class="docutils literal"><span class="pre">sa.plotting</span></tt>)<a class="headerlink" href="#plotting-sa-plotting" title="Permalink to this headline">¶</a></h1>
+<p>This script contains various plotting functions for strains analysis, such as histograms, PCA projection, MDS,
+Silhouette plot.</p>
+<dl class="function">
+<dt id="sa.plotting.plot_hist_WT_WT_distance">
+<tt class="descclassname">sa.plotting.</tt><tt class="descname">plot_hist_WT_WT_distance</tt><big>(</big><em>wt_wt</em>, <em>out_dir</em><big>)</big><a class="reference internal" href="_modules/sa/plotting.html#plot_hist_WT_WT_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.plotting.plot_hist_WT_WT_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot histogram of distances between WT strains and save the histogram to
+directory <a href="#id1"><span class="problematic" id="id2">:param:`out_dir`</span></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>wt_wt</strong> (<cite>list</cite>) &#8211; Distances between all pairs of WT strains.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.plotting.plot_hist_coll">
+<tt class="descclassname">sa.plotting.</tt><tt class="descname">plot_hist_coll</tt><big>(</big><em>colls</em>, <em>colls_labels</em>, <em>out_dir</em><big>)</big><a class="reference internal" href="_modules/sa/plotting.html#plot_hist_coll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.plotting.plot_hist_coll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot and save to directory <a href="#id3"><span class="problematic" id="id4">:param:`out_dir`</span></a> overlayed histograms of distances between
+collections <a href="#id5"><span class="problematic" id="id6">:param:`colls`</span></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>colls_labels</strong> (<cite>list</cite>) &#8211; Names of collections as ordered and specified by parameter <a href="#id7"><span class="problematic" id="id8">:param:`colls`</span></a>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.plotting.plot_hist_mean_MT_WT__WT_WT_distance">
+<tt class="descclassname">sa.plotting.</tt><tt class="descname">plot_hist_mean_MT_WT__WT_WT_distance</tt><big>(</big><em>m_mt_wt</em>, <em>m_wt_wt</em>, <em>out_dir</em><big>)</big><a class="reference internal" href="_modules/sa/plotting.html#plot_hist_mean_MT_WT__WT_WT_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.plotting.plot_hist_mean_MT_WT__WT_WT_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot overlayed (i) histogram of mean distances of WT strains to other WT strains and (ii) and histogram of mean 
+mutant distances to WT strains. Save the plot to directory <a href="#id9"><span class="problematic" id="id10">:param:`out_dir`</span></a> named <cite>hist_WT-WT_MT-MT_distances.pdf</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>m_mt_wt</strong> (<cite>list</cite>) &#8211; Mean distances of MT strains to WT strains.</li>
+<li><strong>m_wt_wt</strong> (<cite>list</cite>) &#8211; Mean distances between WT strain and other WT strains.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.plotting.plot_hist_mean_MT_WT_distance">
+<tt class="descclassname">sa.plotting.</tt><tt class="descname">plot_hist_mean_MT_WT_distance</tt><big>(</big><em>m_mt_wt</em>, <em>out_dir</em><big>)</big><a class="reference internal" href="_modules/sa/plotting.html#plot_hist_mean_MT_WT_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.plotting.plot_hist_mean_MT_WT_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot histogram of mean distances of mutant strains to WT strains and save the histogram to
+directory <a href="#id11"><span class="problematic" id="id12">:param:`out_dir`</span></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>m_mt_wt</strong> (<cite>list</cite>) &#8211; Mean distance of each mutant strain to WT strains averaging distances
+if replicates exist.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.plotting.plot_hist_signif_MT_WT">
+<tt class="descclassname">sa.plotting.</tt><tt class="descname">plot_hist_signif_MT_WT</tt><big>(</big><em>mut</em>, <em>plates_mt</em>, <em>dnp_mtc</em>, <em>tot_mean</em>, <em>out_dir</em><big>)</big><a class="reference internal" href="_modules/sa/plotting.html#plot_hist_signif_MT_WT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.plotting.plot_hist_signif_MT_WT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute and plot observed mutant distance and mean mutant distance to sampled random set of mutant strains.
+Save histogram showing null distribution of distances and observed distance for each mutant
+to directory <a href="#id13"><span class="problematic" id="id14">:param:`out_dir`</span></a>.</p>
+<dl class="docutils">
+<dt>Compare observed mutant strain distance to WT strains and mutant distance to sampled sets of mutant strains:</dt>
+<dd><ol class="first last arabic simple">
+<li>Construct N (100) random sets of size S (100) which contain mutant strains.</li>
+<li>Compute mean distance between mutant strain and each of constructed sets.</li>
+<li>Plot histogram of distances from previous step and observed mean distance.</li>
+<li>Repeat for each mutant strain. Mean distances are taken for replicates.</li>
+</ol>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>mut</strong> (<cite>list</cite>) &#8211; Observed distances of mutants and some meta data in the format
+[ (orf, mean_dist, [(pn1, date1, r1, c1, dist1), (pn2, date2, r2, c2, dist1), ...]) ]</li>
+<li><strong>plates_mt</strong> (<cite>list</cite>) &#8211; Complete profiles of mutant strains</li>
+<li><strong>dnp_mtc</strong> (<cite>numpy.array</cite>) &#8211; Computational profiles of mutant strains.</li>
+<li><strong>tot_mean</strong> (<cite>float</cite>) &#8211; Total mean distance between MT and WT strains.</li>
+<li><strong>out_dir</strong> (<cite>str</cite>) &#8211; Full path to output directory where plot will be saved.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.plotting.plot_hist_with_norm_fit">
+<tt class="descclassname">sa.plotting.</tt><tt class="descname">plot_hist_with_norm_fit</tt><big>(</big><em>X</em>, <em>attr</em>, <em>title</em>, <em>out_name</em><big>)</big><a class="reference internal" href="_modules/sa/plotting.html#plot_hist_with_norm_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.plotting.plot_hist_with_norm_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a histogram of of input data and plot the analytic normal PDF over it. 
+Save it to a file <a href="#id15"><span class="problematic" id="id16">:param:`out_name`</span></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>title</strong> (<cite>str</cite>) &#8211; Plate identifier used as part of title in the plot.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.plotting.plot_pca_projection">
+<tt class="descclassname">sa.plotting.</tt><tt class="descname">plot_pca_projection</tt><big>(</big><em>X</em>, <em>plate</em>, <em>title</em>, <em>out_name</em><big>)</big><a class="reference internal" href="_modules/sa/plotting.html#plot_pca_projection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.plotting.plot_pca_projection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot 3D projection along PCA components with the most variance and save it to a file <a href="#id17"><span class="problematic" id="id18">:param:`out_name`</span></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>X</strong> (<cite>numpy.array</cite>) &#8211; Transformed data set of computational features (dimensionality reduction).</li>
+<li><strong>plate</strong> (<cite>list</cite>) &#8211; Plate data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.plotting.plot_plate_by_mean_well_distance">
+<tt class="descclassname">sa.plotting.</tt><tt class="descname">plot_plate_by_mean_well_distance</tt><big>(</big><em>dist_matrix</em>, <em>title</em>, <em>out_name</em>, <em>plate</em><big>)</big><a class="reference internal" href="_modules/sa/plotting.html#plot_plate_by_mean_well_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.plotting.plot_plate_by_mean_well_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce matrix plot of wells as placed on the plate. The entries in matrix
+are mean observation distances in param:<cite>dist_matrix</cite> from other observations on plate. Save to file
+named <a href="#id19"><span class="problematic" id="id20">:param:`out_name`</span></a>.</p>
+<p>White entries in the plot represent missing strains or removed WT strains due to outlier detection.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>title</strong> (<cite>str</cite>) &#8211; Plate identifier used as part of title in the plot.</td>
+</tr>
+</tbody>
+</table>
+<p>Return matrix of mean well distances.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.plotting.plot_silhouette">
+<tt class="descclassname">sa.plotting.</tt><tt class="descname">plot_silhouette</tt><big>(</big><em>scores</em>, <em>c_idx</em>, <em>K</em>, <em>out_name</em><big>)</big><a class="reference internal" href="_modules/sa/plotting.html#plot_silhouette"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.plotting.plot_silhouette" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save a silhouette plot to file named <a href="#id21"><span class="problematic" id="id22">:param:`out_name`</span></a>, showing the distributions of silhouette 
+scores <a href="#id23"><span class="problematic" id="id24">:param:`scores`</span></a> in clusters. Scores represent the silhouette scores for each observation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>scores</strong> (<cite>list</cite>) &#8211; Silhouette score for each observation.</li>
+<li><strong>c_idx</strong> (<cite>list</cite>) &#8211; Cluster index for each observation.</li>
+<li><strong>K</strong> (<cite>int</cite>) &#8211; The number of clusters.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="sa.methods.html"
+                        title="previous chapter">methods (<tt class="docutils literal docutils literal docutils literal"><span class="pre">sa.methods</span></tt>)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="sa.utilities.html"
+                        title="next chapter">utilities (<tt class="docutils literal"><span class="pre">sa.utilities</span></tt>)</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sa.utilities.html" title="utilities (sa.utilities)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="sa.methods.html" title="methods (sa.methods)"
+             >previous</a> |</li>
+        <li><a href="index.html">Yeast Screen Data Analysis 1.0 documentation</a> &raquo;</li>
+          <li><a href="sa.html" >SA (<tt class="docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal"><span class="pre">sa</span></tt>)</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Marinka Zitnik.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.
+    </div>
+  </body>
+</html>

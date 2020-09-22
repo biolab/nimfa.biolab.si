@@ -1,0 +1,583 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Nmf_ns (models.nmf_ns) &mdash; Nimfa 1.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Nimfa 1.3.1 documentation" href="index.html" />
+    <link rel="up" title="Models (models)" href="nimfa.models.html" />
+    <link rel="next" title="Nmf_mm (models.nmf_mm)" href="nimfa.models.nmf_mm.html" />
+    <link rel="prev" title="Nmf_std (models.nmf_std)" href="nimfa.models.nmf_std.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-nimfa.models.nmf_ns"></span><div class="section" id="nmf-ns-models-nmf-ns">
+<h1>Nmf_ns (<tt class="docutils literal"><span class="pre">models.nmf_ns</span></tt>)<a class="headerlink" href="#nmf-ns-models-nmf-ns" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="nimfa.models.nmf_ns.Nmf_ns">
+<em class="property">class </em><tt class="descclassname">nimfa.models.nmf_ns.</tt><tt class="descname">Nmf_ns</tt><big>(</big><em>params</em><big>)</big><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="nimfa.models.nmf.html#nimfa.models.nmf.Nmf" title="nimfa.models.nmf.Nmf"><tt class="xref py py-class docutils literal"><span class="pre">nimfa.models.nmf.Nmf</span></tt></a></p>
+<p>Implementation of the alternative model to manage factorizations that follow
+nonstandard NMF model. This modification is required by the Nonsmooth NMF
+algorithm (NSNMF) <a class="reference internal" href="index.html#montano2006" id="id1">[Montano2006]</a>. The Nonsmooth NMF algorithm is a modification
+of the standard divergence based NMF methods. By introducing a smoothing matrix
+it is aimed to achieve global sparseness.</p>
+<p>It is the underlying model of matrix factorization and provides structure of
+modified standard NMF model.</p>
+<dl class="attribute">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.W">
+<tt class="descname">W</tt><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.W" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basis matrix &#8211; the first matrix factor in the nonsmooth NMF model</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.H">
+<tt class="descname">H</tt><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.H" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mixture matrix &#8211; the third matrix factor in the nonsmooth NMF model</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.S">
+<tt class="descname">S</tt><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.S" title="Permalink to this definition">¶</a></dt>
+<dd><p>Smoothing matrix &#8211; the middle matrix factor (V = WSH) in the nonsmooth NMF model</p>
+</dd></dl>
+
+<p>The interpretation of the basis and mixture matrix is such as in the standard NMF model.
+The smoothing matrix is an extra square matrix whose entries depends on smoothing
+parameter theta which can be specified as algorithm specific model option. For detailed
+explanation of the NSNMF algorithm see <tt class="xref py py-mod docutils literal"><span class="pre">methods.factorization.nsnmf</span></tt>.</p>
+<dl class="method">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.basis">
+<tt class="descname">basis</tt><big>(</big><big>)</big><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.basis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the matrix of basis vectors.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.coef">
+<tt class="descname">coef</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.coef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the matrix of mixture coefficients.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (<a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><em>None</em></a>) &#8211; Used in the multiple NMF model. In nonsmooth NMF <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.connectivity">
+<tt class="descname">connectivity</tt><big>(</big><em>H=None</em>, <em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.connectivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the connectivity matrix for the samples based on their mixture coefficients.</p>
+<p>The connectivity matrix C is a symmetric matrix which shows the shared membership of the samples: entry C_ij is 1 iff sample i and 
+sample j belong to the same cluster, 0 otherwise. Sample assignment is determined by its largest metagene expression value.</p>
+<p>Return connectivity matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In factorizations following
+standard NMF model or nonsmooth NMF model <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.consensus">
+<tt class="descname">consensus</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.consensus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute consensus matrix as the mean connectivity matrix across multiple runs of the factorization. It has been
+proposed by <a class="reference internal" href="index.html#brunet2004" id="id2">[Brunet2004]</a> to help visualize and measure the stability of the clusters obtained by NMF.</p>
+<p>Tracking of matrix factors across multiple runs must be enabled for computing consensus matrix. For results
+of a single NMF run, the consensus matrix reduces to the connectivity matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In factorizations following
+standard NMF model or nonsmooth NMF model <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.coph_cor">
+<tt class="descname">coph_cor</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.coph_cor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute cophenetic correlation coefficient of consensus matrix, generally obtained from multiple NMF runs.</p>
+<p>The cophenetic correlation coefficient is measure which indicates the dispersion of the consensus matrix and is based 
+on the average of connectivity matrices. It measures the stability of the clusters obtained from NMF. 
+It is computed as the Pearson correlation of two distance matrices: the first is the distance between samples induced by the 
+consensus matrix; the second is the distance between samples induced by the linkage used in the reordering of the consensus 
+matrix <a class="reference internal" href="index.html#brunet2004" id="id3">[Brunet2004]</a>.</p>
+<p>Return real number. In a perfect consensus matrix, cophenetic correlation equals 1. When the entries in consensus matrix are
+scattered between 0 and 1, the cophenetic correlation is &lt; 1. We observe how this coefficient changes as factorization rank 
+increases. We select the first rank, where the magnitude of the cophenetic correlation coefficient begins to fall <a class="reference internal" href="index.html#brunet2004" id="id4">[Brunet2004]</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In factorizations following standard NMF model or nonsmooth NMF model
+<a href="#id5"><span class="problematic" id="id6">:param:`idx`</span></a> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.dim">
+<tt class="descname">dim</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.dim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return triple containing the dimension of the target matrix and matrix factorization rank.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In factorizations following
+standard NMF model or nonsmooth NMF model <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.dispersion">
+<tt class="descname">dispersion</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.dispersion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute dispersion coefficient of consensus matrix</p>
+<p>Dispersion coefficient <a class="reference internal" href="index.html#park2007" id="id7">[Park2007]</a> measures the reproducibility of clusters obtained
+from multiple NMF runs.</p>
+<p>Return the real value in [0,1]. Dispersion is 1 for a perfect consensus matrix and
+has value in [0,0] for a scattered consensus matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In standard NMF model or nonsmooth NMF
+model <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.distance">
+<tt class="descname">distance</tt><big>(</big><em>metric='euclidean'</em>, <em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the loss function value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>distance</strong> (<cite>str</cite> with values &#8216;euclidean&#8217; or &#8216;kl&#8217;) &#8211; Specify distance metric to be used. Possible are Euclidean and
+Kullback-Leibler (KL) divergence. Strictly, KL is not a metric.</li>
+<li><strong>idx</strong> (<a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><em>None</em></a>) &#8211; Used in the multiple NMF model. In nonsmooth NMF <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.entropy">
+<tt class="descname">entropy</tt><big>(</big><em>membership=None</em>, <em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.entropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the entropy of the NMF model given a priori known groups of
+samples <a class="reference internal" href="index.html#park2007" id="id8">[Park2007]</a>.</p>
+<p>The entropy is a measure of performance of a clustering method in
+recovering classes defined by a list a priori known (true class labels).</p>
+<p>Return the real number. The smaller the entropy, the better the
+clustering performance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>membership</strong> (<cite>list</cite>) &#8211; Specify known class membership for each sample.</li>
+<li><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In factorizations following
+standard NMF model or nonsmooth NMF model <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.estimate_rank">
+<tt class="descname">estimate_rank</tt><big>(</big><em>rank_range=[30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50], n_run=10, idx=0, what='all'</em><big>)</big><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.estimate_rank" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choosing factorization parameters carefully is vital for success of a factorization.
+However, the most critical parameter is factorization rank. This method tries
+different values for ranks, performs factorizations, computes some quality
+measures of the results and chooses the best value according to <a class="reference internal" href="index.html#brunet2004" id="id9">[Brunet2004]</a>
+and <a class="reference internal" href="index.html#hutchins2008" id="id10">[Hutchins2008]</a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The process of rank estimation can be lengthy.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Matrix factors are tracked during rank estimation. This is needed
+for computing cophenetic correlation coefficient.</p>
+</div>
+<p>Return a <cite>dict</cite> (keys are values of rank from range, values are <a href="#id11"><span class="problematic" id="id12">`</span></a>dict`s of measures)
+of quality measures for each value in rank&#8217;s range. This can be passed to the
+visualization model, from which estimated rank can be established.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>rank_range</strong> (list or tuple like range of <cite>int</cite>) &#8211; Range of factorization ranks to try. Default is <tt class="docutils literal"><span class="pre">range(30,</span> <span class="pre">51)</span></tt>.</li>
+<li><strong>n_run</strong> (<cite>int</cite>) &#8211; The number of runs to be performed for each value in range. Default is 10.</li>
+<li><strong>what</strong> (list or tuple like of <cite>str</cite>) &#8211; <p>Specify quality measures of the results computed for each rank.
+By default, summary of the fitted factorization model is computed. Instead,
+user can supply list of strings that matches some of the following quality measures:</p>
+<blockquote>
+<div><ul>
+<li><cite>sparseness</cite></li>
+<li><cite>rss</cite></li>
+<li><cite>evar</cite></li>
+<li><cite>residuals</cite></li>
+<li><cite>connectivity</cite></li>
+<li><cite>dispersion</cite></li>
+<li><cite>cophenetic</cite></li>
+<li><cite>consensus</cite></li>
+<li><cite>euclidean</cite></li>
+<li><cite>kl</cite></li>
+</ul>
+</div></blockquote>
+</li>
+<li><strong>idx</strong> (<cite>str</cite> or <cite>int</cite>) &#8211; Name of the matrix (coefficient) matrix. Used only in the multiple
+NMF model. Default is 0 (first coefficient matrix).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.evar">
+<tt class="descname">evar</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.evar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the explained variance of the NMF estimate of the target matrix.</p>
+<p>This measure can be used for comparing the ability of models for accurately
+reproducing the original target matrix. Some methods specifically aim at
+minimizing the RSS and maximizing the explained variance while others not, which
+one should note when using this measure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In factorizations following
+standard NMF model or nonsmooth NMF model <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.fitted">
+<tt class="descname">fitted</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.fitted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the estimated target matrix according to the nonsmooth NMF algorithm model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (<a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><em>None</em></a>) &#8211; Used in the multiple NMF model. In nonsmooth NMF <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.predict">
+<tt class="descname">predict</tt><big>(</big><em>what='samples'</em>, <em>prob=False</em>, <em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the dominant basis components. The dominant basis component is
+computed as the row index for which the entry is the maximum within the column.</p>
+<p>If <tt class="docutils literal"><span class="pre">prob</span></tt> is not specified, list is returned which contains computed index
+for each sample (feature). Otherwise tuple is returned where first element
+is a list as specified before and second element is a list of associated
+probabilities, relative contribution of the maximum entry within each column.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>what</strong> (<cite>str</cite>) &#8211; Specify target for dominant basis components computation. Two values
+are possible, &#8216;samples&#8217; or &#8216;features&#8217;. When what=&#8217;samples&#8217; is specified,
+dominant basis component for each sample is determined based on its associated
+entries in the mixture coefficient matrix (H). When what=&#8217;features&#8217; computation
+is performed on the transposed basis matrix (W.T).</li>
+<li><strong>prob</strong> (<cite>bool</cite> equivalent) &#8211; Specify dominant basis components probability inclusion.</li>
+<li><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In factorizations following
+standard NMF model or nonsmooth NMF model <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.purity">
+<tt class="descname">purity</tt><big>(</big><em>membership=None</em>, <em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.purity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the purity given a priori known groups of samples <a class="reference internal" href="index.html#park2007" id="id13">[Park2007]</a>.</p>
+<p>The purity is a measure of performance of a clustering method in recovering
+classes defined by a list a priori known (true class labels).</p>
+<p>Return the real number in [0,1]. The larger the purity, the better the
+clustering performance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>membership</strong> (<cite>list</cite>) &#8211; Specify known class membership for each sample.</li>
+<li><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In factorizations following
+standard NMF model or nonsmooth NMF model <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.residuals">
+<tt class="descname">residuals</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.residuals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return residuals matrix between the target matrix and its nonsmooth NMF estimate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (<a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><em>None</em></a>) &#8211; Used in the multiple NMF model. In nonsmooth NMF <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.rss">
+<tt class="descname">rss</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.rss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute Residual Sum of Squares (RSS) between NMF estimate and
+target matrix <a class="reference internal" href="index.html#hutchins2008" id="id14">[Hutchins2008]</a>.</p>
+<p>This measure can be used to estimate optimal factorization rank.
+<a class="reference internal" href="index.html#hutchins2008" id="id15">[Hutchins2008]</a> suggested to choose the first value where the RSS curve
+presents an inflection point. <a class="reference internal" href="index.html#frigyesi2008" id="id16">[Frigyesi2008]</a> suggested to use the
+smallest value at which the decrease in the RSS is lower than the
+decrease of the RSS obtained from random data.</p>
+<p>RSS tells us how much of the variation in the dependent variables our
+model did not explain.</p>
+<p>Return real value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In factorizations following
+standard NMF model or nonsmooth NMF model <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.score_features">
+<tt class="descname">score_features</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.score_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Score features in terms of their specificity to the basis vectors <a class="reference internal" href="index.html#park2007" id="id17">[Park2007]</a>.</p>
+<p>A row vector of the basis matrix (W) indicates contributions of a feature
+to the r (i.e. columns of W) latent components. It might be informative to
+investigate features that have strong component-specific membership values
+to the latent components.</p>
+<p>Return array with feature scores. Feature scores are real-valued from interval [0,1].
+Higher value indicates greater feature specificity.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In standard NMF model or nonsmooth NMF model
+<tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.select_features">
+<tt class="descname">select_features</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.select_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the most basis-specific features for each basis vector <a class="reference internal" href="index.html#park2007" id="id18">[Park2007]</a>.</p>
+<p><a class="reference internal" href="index.html#park2007" id="id19">[Park2007]</a> scoring schema and feature selection method is used. The features are
+first scored using the <a class="reference internal" href="#nimfa.models.nmf_ns.Nmf_ns.score_features" title="nimfa.models.nmf_ns.Nmf_ns.score_features"><tt class="xref py py-func docutils literal"><span class="pre">score_features()</span></tt></a>. Then only the features that fulfill
+both the following criteria are retained:</p>
+<ol class="arabic simple">
+<li>score greater than u + 3s, where u and s are the median and the median
+absolute deviation (MAD) of the scores, resp.,</li>
+<li>the maximum contribution to a basis component (i.e the maximal value in
+the corresponding row of the basis matrix (W)) is larger
+than the median of all contributions (i.e. of all elements of basis matrix (W)).</li>
+</ol>
+<p>Return a boolean array indicating whether features were selected.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In standard NMF model or nonsmooth NMF
+model <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.smoothing">
+<tt class="descname">smoothing</tt><big>(</big><big>)</big><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.smoothing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the smoothing matrix.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.sparseness">
+<tt class="descname">sparseness</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.sparseness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute sparseness of matrix (basis vectors matrix, mixture coefficients) <a class="reference internal" href="index.html#hoyer2004" id="id20">[Hoyer2004]</a>.</p>
+<p>Sparseness of a vector quantifies how much energy is packed into its components.
+The sparseness of a vector is a real number in [0, 1], where sparser vector
+has value closer to 1. Sparseness is 1 iff the vector contains a single
+nonzero component and is equal to 0 iff all components of the vector are equal.</p>
+<p>Sparseness of a matrix is mean sparseness of its column vectors.</p>
+<p>Return tuple that contains sparseness of the basis and mixture coefficients matrices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In standard NMF model or nonsmooth NMF
+model <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.nmf_ns.Nmf_ns.target">
+<tt class="descname">target</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.models.nmf_ns.Nmf_ns.target" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the target matrix to estimate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (<a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><em>None</em></a>) &#8211; Used in the multiple NMF model. In nonsmooth NMF <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Nimfa</a></h1>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=marinkaz&repo=nimfa&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="nimfa.models.html">Models (<tt class="docutils literal"><span class="pre">models</span></tt>)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.nmf.html">Nmf (<tt class="docutils literal"><span class="pre">models.nmf</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.nmf_std.html">Nmf_std (<tt class="docutils literal"><span class="pre">models.nmf_std</span></tt>)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Nmf_ns (<tt class="docutils literal"><span class="pre">models.nmf_ns</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.nmf_mm.html">Nmf_mm (<tt class="docutils literal"><span class="pre">models.nmf_mm</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.smf.html">Smf (<tt class="docutils literal"><span class="pre">models.smf</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.mf_fit.html">Mf_fit (<tt class="docutils literal"><span class="pre">models.mf_fit</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.mf_track.html">Mf_track (<tt class="docutils literal"><span class="pre">models.mf_track</span></tt>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.methods.html">Methods (<tt class="docutils literal"><span class="pre">methods</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.utils.html">Utils (<tt class="docutils literal"><span class="pre">utils</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.examples.html">Examples (<tt class="docutils literal"><span class="pre">examples</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.datasets.html">Datasets (<tt class="docutils literal"><span class="pre">datasets</span></tt>)</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="nimfa.models.html">Models (<tt class="docutils literal"><span class="pre">models</span></tt>)</a><ul>
+      <li>Previous: <a href="nimfa.models.nmf_std.html" title="previous chapter">Nmf_std (<tt class="docutils literal"><span class="pre">models.nmf_std</span></tt>)</a></li>
+      <li>Next: <a href="nimfa.models.nmf_mm.html" title="next chapter">Nmf_mm (<tt class="docutils literal"><span class="pre">models.nmf_mm</span></tt>)</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, The Nimfa developers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/marinkaz/nimfa" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

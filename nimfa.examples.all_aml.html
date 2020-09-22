@@ -1,0 +1,405 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ALL AML Leukemia (examples.aml_all) &mdash; Nimfa 1.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Nimfa 1.3.1 documentation" href="index.html" />
+    <link rel="up" title="Examples (examples)" href="nimfa.examples.html" />
+    <link rel="next" title="Medulloblastoma (examples.medulloblastoma)" href="nimfa.examples.medulloblastoma.html" />
+    <link rel="prev" title="Simulated studies (examples.synthetic)" href="nimfa.examples.synthetic.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-nimfa.examples.all_aml"></span><div class="section" id="all-aml-leukemia-examples-aml-all">
+<h1>ALL AML Leukemia (<tt class="docutils literal"><span class="pre">examples.aml_all</span></tt>)<a class="headerlink" href="#all-aml-leukemia-examples-aml-all" title="Permalink to this headline">¶</a></h1>
+<p>This module demonstrates the ability of NMF to recover meaningful biological information from 
+cancer related microarray data. NMF appears to have advantages over other methods such as HC or SOM. 
+Instead of separating gene clusters based on distance computation, NMF detects context-dependent patterns 
+of gene expression in complex biological systems.</p>
+<p><a class="reference external" href="http://orange.biolab.si/datasets/leukemia.htm">Leukemia</a> data set is used in this example. This data set is a benchmark in the cancer classification
+community. It contains two ALL samples that are consistently misclassified or classified with low 
+confidence by most methods. There are a number of possible explanations for this, 
+including incorrect diagnosis of the samples. They are included them in example.The distinction between AML 
+and ALL, as well as the division of ALL into T and B cell subtypes is well known.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Leukemia data set used in this example is included in the <cite>datasets</cite> and does not need to be
+downloaded. However, download links are listed in the <tt class="docutils literal"><span class="pre">datasets</span></tt>. To run the example, the data set
+must exist in the <tt class="docutils literal"><span class="pre">ALL_AML</span></tt> directory under <cite>data sets</cite>.</p>
+</div>
+<p>This example is inspired by <a class="reference internal" href="index.html#brunet2004" id="id1">[Brunet2004]</a>. In <a class="reference internal" href="index.html#brunet2004" id="id2">[Brunet2004]</a> authors applied NMF to the leukemia data set. With rank, rank = 2, 
+NMF recovered the AML-ALL biological distinction with high accuracy and robustness. Higher ranks revealed further
+partitioning of the samples. Clear block diagonal patterns in reordered consensus matrices attest to the 
+robustness of models with 2, 3 and 4 classes.</p>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/all_aml_consensus2.png"><img alt="Consensus matrix generated for rank, rank = 2. " src="_images/all_aml_consensus2.png" /></a>
+<p class="caption">Reordered consensus matrix generated for rank, rank = 2. Reordered consensus matrix averages 50 connectivity 
+matrices computed at rank = 2, 3 for the leukemia data set with the 5000 most highly varying genes 
+according to their coefficient of variation. Samples are hierarchically clustered by using 
+distances derived from consensus clustering matrix entries, coloured from 0 (deep blue, samples
+are never in the same cluster) to 1 (dark red, samples are always in the same cluster).</p>
+</div>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/all_aml_consensus3.png"><img alt="Consensus matrix generated for rank, rank = 3." src="_images/all_aml_consensus3.png" /></a>
+<p class="caption">Reordered consensus matrix generated for rank, rank = 3.</p>
+</div>
+<table border="1" class="docutils">
+<caption>Standard NMF Class assignments obtained with this example for rank = 2 and rank = 3. </caption>
+<colgroup>
+<col width="50%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sample</th>
+<th class="head">rank = 2</th>
+<th class="head">rank = 3</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>ALL_19769_B-cell</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr class="row-odd"><td>ALL_23953_B-cell</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr class="row-even"><td>ALL_28373_B-cell</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr class="row-odd"><td>ALL_9335_B-cell</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr class="row-even"><td>ALL_9692_B-cell</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr class="row-odd"><td>ALL_14749_B-cell</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr class="row-even"><td>ALL_17281_B-cell</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr class="row-odd"><td>ALL_19183_B-cell</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr class="row-even"><td>ALL_20414_B-cell</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr class="row-odd"><td>ALL_21302_B-cell</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr class="row-even"><td>ALL_549_B-cell</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr class="row-odd"><td>ALL_17929_B-cell</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr class="row-even"><td>ALL_20185_B-cell</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr class="row-odd"><td>ALL_11103_B-cell</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr class="row-even"><td>ALL_18239_B-cell</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr class="row-odd"><td>ALL_5982_B-cell</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr class="row-even"><td>ALL_7092_B-cell</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr class="row-odd"><td>ALL_R11_B-cell</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr class="row-even"><td>ALL_R23_B-cell</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr class="row-odd"><td>ALL_16415_T-cell</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr class="row-even"><td>ALL_19881_T-cell</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr class="row-odd"><td>ALL_9186_T-cell</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr class="row-even"><td>ALL_9723_T-cell</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr class="row-odd"><td>ALL_17269_T-cell</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr class="row-even"><td>ALL_14402_T-cell</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr class="row-odd"><td>ALL_17638_T-cell</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr class="row-even"><td>ALL_22474_T-cell</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr class="row-odd"><td>AML_12</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="row-even"><td>AML_13</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>AML_14</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="row-even"><td>AML_16</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>AML_20</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="row-even"><td>AML_1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>AML_2</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="row-even"><td>AML_3</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>AML_5</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="row-even"><td>AML_6</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>AML_7</td>
+<td>1</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>To run the example simply type:</p>
+<div class="highlight-python"><div class="highlight"><pre>python all_aml.py
+</pre></div>
+</div>
+<p>or call the module&#8217;s function:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">nimfa.examples</span>
+<span class="n">nimfa</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">all_aml</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This example uses <tt class="docutils literal"><span class="pre">matplotlib</span></tt> library for producing a heatmap of a consensus matrix.</p>
+</div>
+<dl class="function">
+<dt id="nimfa.examples.all_aml.plot">
+<tt class="descclassname">nimfa.examples.all_aml.</tt><tt class="descname">plot</tt><big>(</big><em>C</em>, <em>rank</em><big>)</big><a class="headerlink" href="#nimfa.examples.all_aml.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot reordered consensus matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>C</strong> (<em>numpy.ndarray`</em>) &#8211; Reordered consensus matrix.</li>
+<li><strong>rank</strong> (<cite>int</cite>) &#8211; Factorization rank.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.all_aml.read">
+<tt class="descclassname">nimfa.examples.all_aml.</tt><tt class="descname">read</tt><big>(</big><big>)</big><a class="headerlink" href="#nimfa.examples.all_aml.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read ALL AML gene expression data. The matrix&#8217;s shape is 5000 (genes) x 38 (samples).
+It contains only positive data.</p>
+<p>Return the gene expression data matrix.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.all_aml.reorder">
+<tt class="descclassname">nimfa.examples.all_aml.</tt><tt class="descname">reorder</tt><big>(</big><em>C</em><big>)</big><a class="headerlink" href="#nimfa.examples.all_aml.reorder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reorder consensus matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>C</strong> (<cite>numpy.ndarray</cite>) &#8211; Consensus matrix.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.all_aml.run">
+<tt class="descclassname">nimfa.examples.all_aml.</tt><tt class="descname">run</tt><big>(</big><big>)</big><a class="headerlink" href="#nimfa.examples.all_aml.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run Standard NMF on leukemia data set.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.all_aml.run_one">
+<tt class="descclassname">nimfa.examples.all_aml.</tt><tt class="descname">run_one</tt><big>(</big><em>V</em>, <em>rank</em><big>)</big><a class="headerlink" href="#nimfa.examples.all_aml.run_one" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run standard NMF on leukemia data set. 50 runs of Standard NMF are performed and obtained consensus matrix
+averages all 50 connectivity matrices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>V</strong> (<cite>numpy.ndarray</cite>) &#8211; Target matrix with gene expression data.</li>
+<li><strong>rank</strong> (<cite>int</cite>) &#8211; Factorization rank.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Nimfa</a></h1>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=marinkaz&repo=nimfa&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="nimfa.models.html">Models (<tt class="docutils literal"><span class="pre">models</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.methods.html">Methods (<tt class="docutils literal"><span class="pre">methods</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.utils.html">Utils (<tt class="docutils literal"><span class="pre">utils</span></tt>)</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="nimfa.examples.html">Examples (<tt class="docutils literal"><span class="pre">examples</span></tt>)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.synthetic.html">Simulated studies (<tt class="docutils literal"><span class="pre">examples.synthetic</span></tt>)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">ALL AML Leukemia (<tt class="docutils literal"><span class="pre">examples.aml_all</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.medulloblastoma.html">Medulloblastoma (<tt class="docutils literal"><span class="pre">examples.medulloblastoma</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.cbcl_images.html">CBCL Images (<tt class="docutils literal"><span class="pre">examples.cbcl_images</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.documents.html">Documents (<tt class="docutils literal"><span class="pre">examples.documents</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.orl_images.html">ORL Images (<tt class="docutils literal"><span class="pre">examples.orl_images</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.recommendations.html">Recommendations (<tt class="docutils literal"><span class="pre">examples.recommendations</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.gene_func_prediction.html">Gene Function Prediction (<tt class="docutils literal"><span class="pre">examples.gene_func_prediction</span></tt>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.datasets.html">Datasets (<tt class="docutils literal"><span class="pre">datasets</span></tt>)</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="nimfa.examples.html">Examples (<tt class="docutils literal"><span class="pre">examples</span></tt>)</a><ul>
+      <li>Previous: <a href="nimfa.examples.synthetic.html" title="previous chapter">Simulated studies (<tt class="docutils literal"><span class="pre">examples.synthetic</span></tt>)</a></li>
+      <li>Next: <a href="nimfa.examples.medulloblastoma.html" title="next chapter">Medulloblastoma (<tt class="docutils literal"><span class="pre">examples.medulloblastoma</span></tt>)</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, The Nimfa developers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/marinkaz/nimfa" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

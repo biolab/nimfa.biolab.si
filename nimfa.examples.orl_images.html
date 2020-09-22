@@ -1,0 +1,256 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ORL Images (examples.orl_images) &mdash; Nimfa 1.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Nimfa 1.3.1 documentation" href="index.html" />
+    <link rel="up" title="Examples (examples)" href="nimfa.examples.html" />
+    <link rel="next" title="Recommendations (examples.recommendations)" href="nimfa.examples.recommendations.html" />
+    <link rel="prev" title="Documents (examples.documents)" href="nimfa.examples.documents.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-nimfa.examples.orl_images"></span><div class="section" id="orl-images-examples-orl-images">
+<h1>ORL Images (<tt class="docutils literal"><span class="pre">examples.orl_images</span></tt>)<a class="headerlink" href="#orl-images-examples-orl-images" title="Permalink to this headline">¶</a></h1>
+<p>In this example of image processing we consider the image problem presented in <a class="reference internal" href="index.html#hoyer2004" id="id1">[Hoyer2004]</a>.</p>
+<p>We used the ORL face database composed of 400 images of size 112 x 92. There are 40 persons, 10 images per
+each person. The images were taken at different times, lighting and facial expressions. The faces are in 
+an upright position in frontal view, with a slight left-right rotation. In example we performed factorization
+on reduced face images by constructing a matrix of shape 2576 (pixels) x 400 (faces) and on original face
+images by constructing a matrix of shape 10304 (pixels) x 400 (faces). To avoid too large values, the data matrix is 
+divided by 100. Indeed, this division does not has any major impact on performance of the MF methods.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The ORL face images database used in this example is included in the <cite>datasets</cite> and does not need to be
+downloaded. However, download links are listed in the <tt class="docutils literal"><span class="pre">datasets</span></tt>. To run the example, the ORL face images
+must exist in the <tt class="docutils literal"><span class="pre">ORL_faces</span></tt> directory under <tt class="docutils literal"><span class="pre">datasets</span></tt>.</p>
+</div>
+<p>We experimented with the Standard NMF - Euclidean, LSNMF and PSMF factorization methods to learn the basis images from the ORL database. The
+number of bases is 25. In <a class="reference internal" href="index.html#lee1999" id="id2">[Lee1999]</a> Lee and Seung showed that Standard NMF (Euclidean or divergence) found a parts-based
+representation when trained on face images from CBCL database. However, applying NMF to the ORL data set, in which images
+are not as well aligned, a global decomposition emerges. To compare, this example applies different MF methods to the face 
+images data set. Applying MF methods with sparseness constraint, namely PSMF, the resulting bases are not global, but instead
+give spatially localized representations, as can be seen from the figure. Similar conclusions are published in <a class="reference internal" href="index.html#hoyer2004" id="id3">[Hoyer2004]</a>.
+Setting a high sparseness value for the basis images results in a local representation.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">It is worth noting that sparseness constraints do not always lead to local solutions. Global solutions can 
+be obtained by forcing low sparseness on basis matrix and high sparseness on coefficient matrix - forcing 
+each coefficient to represent as much of the image as possible.</p>
+</div>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/orl_faces_500_iters_large_LSNMF.png"><img alt="Basis images of LSNMF obtained after 500 iterations on original face images. " src="_images/orl_faces_500_iters_large_LSNMF.png" /></a>
+<p class="caption">Basis images of LSNMF obtained after 500 iterations on original face images. The bases trained by LSNMF are additive
+but not spatially localized for representation of faces. Random VCol initialization algorithm is used. The number of
+subiterations for solving subproblems in LSNMF is a important issues. However, we stick to default and use 10 subiterations
+in this example.</p>
+</div>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/orl_faces_200_iters_small_NMF.png"><img alt="Basis images of NMF - Euclidean obtained after 200 iterations on reduced face images. " src="_images/orl_faces_200_iters_small_NMF.png" /></a>
+<p class="caption">Basis images of NMF - Euclidean obtained after 200 iterations on reduced face images. The images show that
+the bases trained by NMF are additive but not spatially localized for representation of faces. The Euclidean
+distance of NMF estimate from target matrix is 33283.360. Random VCol initialization algorithm is used.</p>
+</div>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/orl_faces_200_iters_small_LSNMF.png"><img alt="Basis images of LSNMF obtained after 200 iterations on reduced face images.  " src="_images/orl_faces_200_iters_small_LSNMF.png" /></a>
+<p class="caption">Basis images of LSNMF obtained after 200 iterations on reduced face images. The bases trained by LSNMF are additive. The
+Euclidean distance of LSNMF estimate from target matrix is 29631.784 and projected gradient norm, which is used as 
+objective function in LSNMF is 7.9. Random VCol initialization algorithm is used. In LSNMF there is parameter beta, 
+we set is to 0.1. Beta is the rate of reducing the step size to satisfy the sufficient decrease condition. Smaller
+beta reduces the step size aggressively but may result in step size that is too small and the cost per iteration is thus
+higher.</p>
+</div>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/orl_faces_5_iters_small_PSMF_prior5.png"><img alt="Basis images of PSMF obtained after 5 iterations on reduced face images and with set prior parameter to 5.  " src="_images/orl_faces_5_iters_small_PSMF_prior5.png" /></a>
+<p class="caption">Basis images of PSMF obtained after 5 iterations on reduced face images and with set prior parameter to 5. The
+bases trained from PSMF are both additive and spatially localized for representing faces. By setting prior to 5, in PSMF 
+the basis matrix is found under structural sparseness constraint that each row contains at most 5 non zero entries. This
+means, each row vector of target data matrix is explained by linear combination of at most 5 factors. Because we passed 
+prior as scalar and not list, uniform prior is taken, reflecting no prior knowledge on the distribution.</p>
+</div>
+<p>To run the example simply type:</p>
+<div class="highlight-python"><div class="highlight"><pre>python orl_images.py
+</pre></div>
+</div>
+<p>or call the module&#8217;s function:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">nimfa.examples</span>
+<span class="n">nimfa</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">orl_images</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This example uses <tt class="docutils literal"><span class="pre">matplotlib</span></tt> library for producing visual interpretation of basis vectors. It uses PIL 
+library for displaying face images.</p>
+</div>
+<dl class="function">
+<dt id="nimfa.examples.orl_images.factorize">
+<tt class="descclassname">nimfa.examples.orl_images.</tt><tt class="descname">factorize</tt><big>(</big><em>V</em><big>)</big><a class="headerlink" href="#nimfa.examples.orl_images.factorize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform LSNMF factorization on the ORL faces data matrix.</p>
+<p>Return basis and mixture matrices of the fitted factorization model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>V</strong> (<cite>numpy.matrix</cite>) &#8211; The ORL faces data matrix.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.orl_images.plot">
+<tt class="descclassname">nimfa.examples.orl_images.</tt><tt class="descname">plot</tt><big>(</big><em>W</em><big>)</big><a class="headerlink" href="#nimfa.examples.orl_images.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot basis vectors.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>W</strong> (<cite>numpy.matrix</cite>) &#8211; Basis matrix of the fitted factorization model.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.orl_images.preprocess">
+<tt class="descclassname">nimfa.examples.orl_images.</tt><tt class="descname">preprocess</tt><big>(</big><em>V</em><big>)</big><a class="headerlink" href="#nimfa.examples.orl_images.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess ORL faces data matrix as Stan Li, et. al.</p>
+<p>Return normalized and preprocessed data matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>V</strong> (<cite>numpy.matrix</cite>) &#8211; The ORL faces data matrix.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.orl_images.read">
+<tt class="descclassname">nimfa.examples.orl_images.</tt><tt class="descname">read</tt><big>(</big><big>)</big><a class="headerlink" href="#nimfa.examples.orl_images.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read face image data from the ORL database. The matrix&#8217;s shape is 2576 (pixels) x 400 (faces).</p>
+<p>Step through each subject and each image. Reduce the size of the images by a factor of 0.5.</p>
+<p>Return the ORL faces data matrix.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.orl_images.run">
+<tt class="descclassname">nimfa.examples.orl_images.</tt><tt class="descname">run</tt><big>(</big><big>)</big><a class="headerlink" href="#nimfa.examples.orl_images.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run LSNMF on ORL faces data set.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Nimfa</a></h1>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=marinkaz&repo=nimfa&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="nimfa.models.html">Models (<tt class="docutils literal"><span class="pre">models</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.methods.html">Methods (<tt class="docutils literal"><span class="pre">methods</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.utils.html">Utils (<tt class="docutils literal"><span class="pre">utils</span></tt>)</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="nimfa.examples.html">Examples (<tt class="docutils literal"><span class="pre">examples</span></tt>)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.synthetic.html">Simulated studies (<tt class="docutils literal"><span class="pre">examples.synthetic</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.all_aml.html">ALL AML Leukemia (<tt class="docutils literal"><span class="pre">examples.aml_all</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.medulloblastoma.html">Medulloblastoma (<tt class="docutils literal"><span class="pre">examples.medulloblastoma</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.cbcl_images.html">CBCL Images (<tt class="docutils literal"><span class="pre">examples.cbcl_images</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.documents.html">Documents (<tt class="docutils literal"><span class="pre">examples.documents</span></tt>)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">ORL Images (<tt class="docutils literal"><span class="pre">examples.orl_images</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.recommendations.html">Recommendations (<tt class="docutils literal"><span class="pre">examples.recommendations</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.gene_func_prediction.html">Gene Function Prediction (<tt class="docutils literal"><span class="pre">examples.gene_func_prediction</span></tt>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.datasets.html">Datasets (<tt class="docutils literal"><span class="pre">datasets</span></tt>)</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="nimfa.examples.html">Examples (<tt class="docutils literal"><span class="pre">examples</span></tt>)</a><ul>
+      <li>Previous: <a href="nimfa.examples.documents.html" title="previous chapter">Documents (<tt class="docutils literal"><span class="pre">examples.documents</span></tt>)</a></li>
+      <li>Next: <a href="nimfa.examples.recommendations.html" title="next chapter">Recommendations (<tt class="docutils literal"><span class="pre">examples.recommendations</span></tt>)</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, The Nimfa developers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/marinkaz/nimfa" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

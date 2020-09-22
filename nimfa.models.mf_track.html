@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Mf_track (models.mf_track) &mdash; Nimfa 1.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Nimfa 1.3.1 documentation" href="index.html" />
+    <link rel="up" title="Models (models)" href="nimfa.models.html" />
+    <link rel="next" title="Methods (methods)" href="nimfa.methods.html" />
+    <link rel="prev" title="Mf_fit (models.mf_fit)" href="nimfa.models.mf_fit.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-nimfa.models.mf_track"></span><div class="section" id="mf-track-models-mf-track">
+<h1>Mf_track (<tt class="docutils literal"><span class="pre">models.mf_track</span></tt>)<a class="headerlink" href="#mf-track-models-mf-track" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="nimfa.models.mf_track.Mf_track">
+<em class="property">class </em><tt class="descclassname">nimfa.models.mf_track.</tt><tt class="descname">Mf_track</tt><a class="headerlink" href="#nimfa.models.mf_track.Mf_track" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for tracking MF fitted model across multiple runs of the factorizations or tracking
+the residuals error across iterations of single/multiple runs.</p>
+<p>The purpose of this class is to store matrix factors from multiple runs of the algorithm which can then be used
+for performing quality and performance measures. Because of additional space consumption for storing multiple 
+matrix factors, tracking is used only if explicitly specified by user through runtime option. In summary, when
+tracking factors, the following is retained from each run:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>fitted factorization model depending on the factorization method;</li>
+<li>final value of objective function;</li>
+<li>performed number of iterations.</li>
+</ol>
+</div></blockquote>
+<p>Instead of tracking fitted factorization model, callback function can be set, which will be called after each 
+factorization run. For more details see <tt class="xref py py-mod docutils literal"><span class="pre">mf_run</span></tt>.</p>
+<p>The purpose of this class is to store residuals across iterations which can then be used for plotting the trajectory 
+of the residuals track or estimating proper number of iterations.</p>
+<dl class="method">
+<dt id="nimfa.models.mf_track.Mf_track.get_error">
+<tt class="descname">get_error</tt><big>(</big><em>run=0</em><big>)</big><a class="headerlink" href="#nimfa.models.mf_track.Mf_track.get_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return residuals track from one run of the factorization.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>run</strong> (<cite>int</cite>) &#8211; Specify the run of which error track is desired. By default <tt class="docutils literal"><span class="pre">run</span></tt> is 1.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.mf_track.Mf_track.get_factor">
+<tt class="descname">get_factor</tt><big>(</big><em>run=0</em><big>)</big><a class="headerlink" href="#nimfa.models.mf_track.Mf_track.get_factor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return matrix factorization factors from run <a href="#id1"><span class="problematic" id="id2">:param:`run`</span></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>run</strong> (<cite>int</cite>) &#8211; Saved factorization factors (and method specific model data) of
+<tt class="docutils literal"><span class="pre">run</span></tt>&#8216;th run are returned.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.mf_track.Mf_track.track_error">
+<tt class="descname">track_error</tt><big>(</big><em>run</em>, <em>residuals</em><big>)</big><a class="headerlink" href="#nimfa.models.mf_track.Mf_track.track_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add residuals error after one iteration.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>run</strong> (<cite>int</cite>) &#8211; Specify the run to which <tt class="docutils literal"><span class="pre">residuals</span></tt> belongs. Error tracking can be
+also used if multiple runs are enabled.</li>
+<li><strong>residuals</strong> (<cite>float</cite>) &#8211; Residuals between the target matrix and its MF estimate.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.models.mf_track.Mf_track.track_factor">
+<tt class="descname">track_factor</tt><big>(</big><em>run</em>, <em>**track_model</em><big>)</big><a class="headerlink" href="#nimfa.models.mf_track.Mf_track.track_factor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add matrix factorization factors (and method specific model data) after one factorization run.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>run</strong> (<em>&#8216;int&#8217;</em>) &#8211; Specify the run to which <tt class="docutils literal"><span class="pre">track_model</span></tt> belongs.</li>
+<li><strong>track_model</strong> (<em>algorithm specific</em>) &#8211; Matrix factorization factors.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="nimfa.models.mf_track.t_model">
+<em class="property">class </em><tt class="descclassname">nimfa.models.mf_track.</tt><tt class="descname">t_model</tt><big>(</big><em>td</em><big>)</big><a class="headerlink" href="#nimfa.models.mf_track.t_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tracking factors model.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Nimfa</a></h1>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=marinkaz&repo=nimfa&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="nimfa.models.html">Models (<tt class="docutils literal"><span class="pre">models</span></tt>)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.nmf.html">Nmf (<tt class="docutils literal"><span class="pre">models.nmf</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.nmf_std.html">Nmf_std (<tt class="docutils literal"><span class="pre">models.nmf_std</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.nmf_ns.html">Nmf_ns (<tt class="docutils literal"><span class="pre">models.nmf_ns</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.nmf_mm.html">Nmf_mm (<tt class="docutils literal"><span class="pre">models.nmf_mm</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.smf.html">Smf (<tt class="docutils literal"><span class="pre">models.smf</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.models.mf_fit.html">Mf_fit (<tt class="docutils literal"><span class="pre">models.mf_fit</span></tt>)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Mf_track (<tt class="docutils literal"><span class="pre">models.mf_track</span></tt>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.methods.html">Methods (<tt class="docutils literal"><span class="pre">methods</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.utils.html">Utils (<tt class="docutils literal"><span class="pre">utils</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.examples.html">Examples (<tt class="docutils literal"><span class="pre">examples</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.datasets.html">Datasets (<tt class="docutils literal"><span class="pre">datasets</span></tt>)</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="nimfa.models.html">Models (<tt class="docutils literal"><span class="pre">models</span></tt>)</a><ul>
+      <li>Previous: <a href="nimfa.models.mf_fit.html" title="previous chapter">Mf_fit (<tt class="docutils literal"><span class="pre">models.mf_fit</span></tt>)</a></li>
+      <li>Next: <a href="nimfa.methods.html" title="next chapter">Methods (<tt class="docutils literal"><span class="pre">methods</span></tt>)</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, The Nimfa developers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/marinkaz/nimfa" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

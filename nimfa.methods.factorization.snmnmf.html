@@ -1,0 +1,760 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Snmnmf (methods.factorization.snmnmf) &mdash; Nimfa 1.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Nimfa 1.3.1 documentation" href="index.html" />
+    <link rel="up" title="Factorization (methods.factorization)" href="nimfa.methods.factorization.html" />
+    <link rel="next" title="Pmfcc (methods.factorization.pmfcc)" href="nimfa.methods.factorization.pmfcc.html" />
+    <link rel="prev" title="Snmf (methods.factorization.snmf)" href="nimfa.methods.factorization.snmf.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-nimfa.methods.factorization.snmnmf"></span><div class="section" id="snmnmf-methods-factorization-snmnmf">
+<h1>Snmnmf (<tt class="docutils literal"><span class="pre">methods.factorization.snmnmf</span></tt>)<a class="headerlink" href="#snmnmf-methods-factorization-snmnmf" title="Permalink to this headline">¶</a></h1>
+<p><strong>Sparse Network-Regularized Multiple Nonnegative Matrix Factorization
+(SNMNMF)</strong> <a class="reference internal" href="index.html#zhang2011" id="id1">[Zhang2011]</a>.</p>
+<p>It is semi-supervised learning method with constraints (e. g. in comodule
+identification, any variables linked in A or B, are more likely placed in the
+same comodule) to improve relevance and narrow down the search space.</p>
+<p>The advantage of this method is the integration of multiple matrices for
+multiple types of variables (standard NMF methods can be applied to a target
+matrix containing just one type of variable) together with prior knowledge
+(e. g. network representing relationship among variables).</p>
+<dl class="docutils">
+<dt>The objective function in <a class="reference internal" href="index.html#zhang2011" id="id2">[Zhang2011]</a> has three components:</dt>
+<dd><ol class="first last arabic simple">
+<li>first component models miRNA and gene expression profiles;</li>
+<li>second component models gene-gene network interactions;</li>
+<li>third component models predicted miRNA-gene interactions.</li>
+</ol>
+</dd>
+<dt>The inputs for the SNMNMF are:</dt>
+<dd><ol class="first last arabic simple">
+<li>two sets of expression profiles (represented by the matrices V and V1 of
+shape s x m, s x n, respectively) for miRNA and genes measured on the same
+set of samples;</li>
+<li>(PRIOR KNOWLEDGE) a gene-gene interaction network (represented by the
+matrix A of shape n x n), including protein-protein interactions and
+DNA-protein interactions; the network is presented in the form of the
+adjacency matrix of gene network;</li>
+<li>(PRIOR KNOWLEDGE) a list of predicted miRNA-gene regulatory interactions
+(represented by the matrix B of shape m x n) based on sequence data; the
+network is presented in the form of the adjacency matrix of a bipartite
+miRNA-gene network. Network regularized constraints are used to enforce
+&#8220;must-link&#8221; constraints and to ensure that genes with known interactions
+have similar coefficient profiles.</li>
+</ol>
+</dd>
+</dl>
+<p>Gene and miRNA expression matrices are simultaneously factored into a common
+basis matrix (W) and two coefficients matrices (H and H1). Additional knowledge
+is incorporated into this framework with network regularized constraints.
+Because of the imposed sparsity constraints easily interpretable solution is
+obtained. In <a class="reference internal" href="index.html#zhang2011" id="id3">[Zhang2011]</a> decomposed matrix components are used to provide
+information about miRNA-gene regulatory comodules. They identified the comodules
+based on shared components (a column in basis matrix W) with significant
+association values in the corresponding rows of coefficients matrices, H1 and H2.</p>
+<p>In SNMNMF a strategy suggested by Kim and Park (2007) is adopted to make the
+coefficient matrices sparse.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In <a class="reference internal" href="index.html#zhang2011" id="id4">[Zhang2011]</a> <tt class="docutils literal"><span class="pre">H1</span></tt> and <tt class="docutils literal"><span class="pre">H2</span></tt> notation corresponds to the <tt class="docutils literal"><span class="pre">H</span></tt></p>
+</div>
+<p>and <tt class="docutils literal"><span class="pre">H1</span></tt> here, respectively.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="kn">as</span> <span class="nn">sp</span>
+
+<span class="kn">import</span> <span class="nn">nimfa</span>
+
+<span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">V1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">snmnmf</span> <span class="o">=</span> <span class="n">nimfa</span><span class="o">.</span><span class="n">Snmnmf</span><span class="p">(</span><span class="n">V</span><span class="o">=</span><span class="n">V</span><span class="p">,</span> <span class="n">V1</span><span class="o">=</span><span class="n">V1</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="s">&quot;random_c&quot;</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+                      <span class="n">A</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">((</span><span class="n">V1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">V1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span>
+                      <span class="n">B</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">((</span><span class="n">V</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">V1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+                      <span class="n">gamma_1</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">lamb</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">lamb_1</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+<span class="n">snmnmf_fit</span> <span class="o">=</span> <span class="n">snmnmf</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf">
+<em class="property">class </em><tt class="descclassname">nimfa.methods.factorization.snmnmf.</tt><tt class="descname">Snmnmf</tt><big>(</big><em>V</em>, <em>V1</em>, <em>seed=None</em>, <em>W=None</em>, <em>H=None</em>, <em>H1=None</em>, <em>rank=30</em>, <em>max_iter=30</em>, <em>min_residuals=1e-05</em>, <em>test_conv=None</em>, <em>n_run=1</em>, <em>callback=None</em>, <em>callback_init=None</em>, <em>track_factor=False</em>, <em>track_error=False</em>, <em>A=None</em>, <em>B=None</em>, <em>gamma=0.01</em>, <em>gamma_1=0.01</em>, <em>lamb=0.01</em>, <em>lamb_1=0.01</em>, <em>**options</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="nimfa.models.nmf_mm.html#nimfa.models.nmf_mm.Nmf_mm" title="nimfa.models.nmf_mm.Nmf_mm"><tt class="xref py py-class docutils literal"><span class="pre">nimfa.models.nmf_mm.Nmf_mm</span></tt></a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>V</strong> (Instance of the <tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> sparse matrices types,
+<tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt> or tuple of instances of
+the latter classes.) &#8211; The target matrix to estimate.</li>
+<li><strong>V1</strong> (Instance of the <tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> sparse matrices types,
+<tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt> or tuple of instances of
+the latter classes.) &#8211; The target matrix to estimate. Used by algorithms that consider
+more than one target matrix.</li>
+<li><strong>seed</strong> (<cite>str</cite> naming the method or <tt class="xref py py-class docutils literal"><span class="pre">methods.seeding.nndsvd.Nndsvd</span></tt>
+or None) &#8211; Specify method to seed the computation of a factorization. If
+specified <a href="#id5"><span class="problematic" id="id6">:param:`W`</span></a> and <a href="#id7"><span class="problematic" id="id8">:param:`H`</span></a> seeding must be None. If neither seeding
+method or initial fixed factorization is specified, random initialization is
+used.</li>
+<li><strong>W</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> or <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> or
+<tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt> or None) &#8211; Specify initial factorization of basis matrix W. Default is None.
+When specified, <a href="#id9"><span class="problematic" id="id10">:param:`seed`</span></a> must be None.</li>
+<li><strong>H</strong> (Instance of the <tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> sparse matrices types,
+<tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>, tuple of instances of the
+latter classes or None) &#8211; Specify initial factorization of mixture matrix H. Default is None.
+When specified, <a href="#id11"><span class="problematic" id="id12">:param:`seed`</span></a> must be None.</li>
+<li><strong>rank</strong> (<cite>int</cite>) &#8211; The factorization rank to achieve. Default is 30.</li>
+<li><strong>n_run</strong> (<cite>int</cite>) &#8211; It specifies the number of runs of the algorithm. Default is
+1. If multiple runs are performed, fitted factorization model with the
+lowest objective function value is retained.</li>
+<li><strong>callback</strong> (<cite>function</cite>) &#8211; Pass a callback function that is called after each run when
+performing multiple runs. This is useful if one wants to save summary
+measures or process the result before it gets discarded. The callback
+function is called with only one argument <tt class="xref py py-class docutils literal"><span class="pre">models.mf_fit.Mf_fit</span></tt> that
+contains the fitted model. Default is None.</li>
+<li><strong>callback_init</strong> (<cite>function</cite>) &#8211; Pass a callback function that is called after each
+initialization of the matrix factors. In case of multiple runs the function
+is called before each run (more precisely after initialization and before
+the factorization of each run). In case of single run, the passed callback
+function is called after the only initialization of the matrix factors.
+This is useful if one wants to obtain the initialized matrix factors for
+further analysis or additional info about initialized factorization model.
+The callback function is called with only one argument
+<tt class="xref py py-class docutils literal"><span class="pre">models.mf_fit.Mf_fit</span></tt> that (among others) contains also initialized
+matrix factors. Default is None.</li>
+<li><strong>track_factor</strong> (<cite>bool</cite>) &#8211; When <a href="#id13"><span class="problematic" id="id14">:param:`track_factor`</span></a> is specified, the fitted
+factorization model is tracked during multiple runs of the algorithm. This
+option is taken into account only when multiple runs are executed
+(<a href="#id15"><span class="problematic" id="id16">:param:`n_run`</span></a> &gt; 1). From each run of the factorization all matrix factors
+are retained, which can be very space consuming. If space is the problem
+setting the callback function with <a href="#id17"><span class="problematic" id="id18">:param:`callback`</span></a> is advised which is
+executed after each run. Tracking is useful for performing some quality or
+performance measures (e.g. cophenetic correlation, consensus matrix,
+dispersion). By default fitted model is not tracked.</li>
+<li><strong>track_error</strong> (<cite>bool</cite>) &#8211; Tracking the residuals error. Only the residuals from
+each iteration of the factorization are retained. Error tracking is not
+space consuming. By default residuals are not tracked and only the final
+residuals are saved. It can be used for plotting the trajectory of the
+residuals.</li>
+<li><strong>A</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil, dia
+or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>) &#8211; Adjacency matrix of gene-gene interaction network (dimension:
+V1.shape[1] x V1.shape[1]).</li>
+<li><strong>B</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil, dia or
+<tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>) &#8211; Adjacency matrix of a bipartite miRNA-gene network, predicted
+miRNA-target interactions (dimension: V.shape[1] x V1.shape[1]).</li>
+<li><strong>gamma</strong> (<cite>float</cite>) &#8211; Limit the growth of the basis matrix (W). Default is 0.01.</li>
+<li><strong>gamma_1</strong> (<cite>float</cite>) &#8211; Encourage sparsity of the mixture (coefficient) matrices (H
+and H1). Default is 0.01.</li>
+<li><strong>lamb</strong> (<cite>float</cite>) &#8211; Weight for the must-link constraints defined in <tt class="docutils literal"><span class="pre">A</span></tt>.
+Default is 0.01.</li>
+<li><strong>lamb_1</strong> (<cite>float</cite>) &#8211; Weight for the must-link constraints define in <tt class="docutils literal"><span class="pre">B</span></tt>.
+Default is 0.01.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Stopping criterion</strong></p>
+<p>Factorization terminates if any of specified criteria is satisfied.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>max_iter</strong> (<cite>int</cite>) &#8211; Maximum number of factorization iterations. Note that the
+number of iterations depends on the speed of method convergence. Default
+is 30.</li>
+<li><strong>min_residuals</strong> (<cite>float</cite>) &#8211; Minimal required improvement of the residuals from the
+previous iteration. They are computed between the target matrix and its MF
+estimate using the objective function associated to the MF algorithm.
+Default is None.</li>
+<li><strong>test_conv</strong> (<cite>int</cite>) &#8211; It indicates how often convergence test is done. By
+default convergence is tested each iteration.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.basis">
+<tt class="descname">basis</tt><big>(</big><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.basis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the matrix of basis vectors.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.coef">
+<tt class="descname">coef</tt><big>(</big><em>idx</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.coef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the matrix of mixture coefficients.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (<cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1 respectively)) &#8211; Name of the matrix (coefficient) matrix.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.connectivity">
+<tt class="descname">connectivity</tt><big>(</big><em>H=None</em>, <em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.connectivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the connectivity matrix for the samples based on their mixture coefficients.</p>
+<p>The connectivity matrix C is a symmetric matrix which shows the shared membership of the samples: entry C_ij is 1 iff sample i and 
+sample j belong to the same cluster, 0 otherwise. Sample assignment is determined by its largest metagene expression value.</p>
+<p>Return connectivity matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In factorizations following
+standard NMF model or nonsmooth NMF model <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.consensus">
+<tt class="descname">consensus</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.consensus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute consensus matrix as the mean connectivity matrix across multiple runs of the factorization. It has been
+proposed by <a class="reference internal" href="index.html#brunet2004" id="id19">[Brunet2004]</a> to help visualize and measure the stability of the clusters obtained by NMF.</p>
+<p>Tracking of matrix factors across multiple runs must be enabled for computing consensus matrix. For results
+of a single NMF run, the consensus matrix reduces to the connectivity matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In factorizations following
+standard NMF model or nonsmooth NMF model <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.coph_cor">
+<tt class="descname">coph_cor</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.coph_cor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute cophenetic correlation coefficient of consensus matrix, generally obtained from multiple NMF runs.</p>
+<p>The cophenetic correlation coefficient is measure which indicates the dispersion of the consensus matrix and is based 
+on the average of connectivity matrices. It measures the stability of the clusters obtained from NMF. 
+It is computed as the Pearson correlation of two distance matrices: the first is the distance between samples induced by the 
+consensus matrix; the second is the distance between samples induced by the linkage used in the reordering of the consensus 
+matrix <a class="reference internal" href="index.html#brunet2004" id="id20">[Brunet2004]</a>.</p>
+<p>Return real number. In a perfect consensus matrix, cophenetic correlation equals 1. When the entries in consensus matrix are
+scattered between 0 and 1, the cophenetic correlation is &lt; 1. We observe how this coefficient changes as factorization rank 
+increases. We select the first rank, where the magnitude of the cophenetic correlation coefficient begins to fall <a class="reference internal" href="index.html#brunet2004" id="id21">[Brunet2004]</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In factorizations following standard NMF model or nonsmooth NMF model
+<a href="#id22"><span class="problematic" id="id23">:param:`idx`</span></a> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.dim">
+<tt class="descname">dim</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.dim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return triple containing the dimension of the target matrix and matrix factorization rank.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In factorizations following
+standard NMF model or nonsmooth NMF model <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.dispersion">
+<tt class="descname">dispersion</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.dispersion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute dispersion coefficient of consensus matrix</p>
+<p>Dispersion coefficient <a class="reference internal" href="index.html#park2007" id="id24">[Park2007]</a> measures the reproducibility of clusters obtained
+from multiple NMF runs.</p>
+<p>Return the real value in [0,1]. Dispersion is 1 for a perfect consensus matrix and
+has value in [0,0] for a scattered consensus matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In standard NMF model or nonsmooth NMF
+model <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.distance">
+<tt class="descname">distance</tt><big>(</big><em>metric='euclidean'</em>, <em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the loss function value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>distance</strong> (<cite>str</cite> with values &#8216;euclidean&#8217; or &#8216;kl&#8217;) &#8211; Specify distance metric to be used. Possible are Euclidean
+and Kullback-Leibler (KL) divergence. Strictly, KL is not a metric.</li>
+<li><strong>idx</strong> (<cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1 respectively)) &#8211; Name of the matrix (coefficient) matrix.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.entropy">
+<tt class="descname">entropy</tt><big>(</big><em>membership=None</em>, <em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.entropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the entropy of the NMF model given a priori known groups of
+samples <a class="reference internal" href="index.html#park2007" id="id25">[Park2007]</a>.</p>
+<p>The entropy is a measure of performance of a clustering method in
+recovering classes defined by a list a priori known (true class labels).</p>
+<p>Return the real number. The smaller the entropy, the better the
+clustering performance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>membership</strong> (<cite>list</cite>) &#8211; Specify known class membership for each sample.</li>
+<li><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In factorizations following
+standard NMF model or nonsmooth NMF model <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.estimate_rank">
+<tt class="descname">estimate_rank</tt><big>(</big><em>rank_range=[30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50], n_run=10, idx=0, what='all'</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.estimate_rank" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choosing factorization parameters carefully is vital for success of a factorization.
+However, the most critical parameter is factorization rank. This method tries
+different values for ranks, performs factorizations, computes some quality
+measures of the results and chooses the best value according to <a class="reference internal" href="index.html#brunet2004" id="id26">[Brunet2004]</a>
+and <a class="reference internal" href="index.html#hutchins2008" id="id27">[Hutchins2008]</a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The process of rank estimation can be lengthy.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Matrix factors are tracked during rank estimation. This is needed
+for computing cophenetic correlation coefficient.</p>
+</div>
+<p>Return a <cite>dict</cite> (keys are values of rank from range, values are <a href="#id28"><span class="problematic" id="id29">`</span></a>dict`s of measures)
+of quality measures for each value in rank&#8217;s range. This can be passed to the
+visualization model, from which estimated rank can be established.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>rank_range</strong> (list or tuple like range of <cite>int</cite>) &#8211; Range of factorization ranks to try. Default is <tt class="docutils literal"><span class="pre">range(30,</span> <span class="pre">51)</span></tt>.</li>
+<li><strong>n_run</strong> (<cite>int</cite>) &#8211; The number of runs to be performed for each value in range. Default is 10.</li>
+<li><strong>what</strong> (list or tuple like of <cite>str</cite>) &#8211; <p>Specify quality measures of the results computed for each rank.
+By default, summary of the fitted factorization model is computed. Instead,
+user can supply list of strings that matches some of the following quality measures:</p>
+<blockquote>
+<div><ul>
+<li><cite>sparseness</cite></li>
+<li><cite>rss</cite></li>
+<li><cite>evar</cite></li>
+<li><cite>residuals</cite></li>
+<li><cite>connectivity</cite></li>
+<li><cite>dispersion</cite></li>
+<li><cite>cophenetic</cite></li>
+<li><cite>consensus</cite></li>
+<li><cite>euclidean</cite></li>
+<li><cite>kl</cite></li>
+</ul>
+</div></blockquote>
+</li>
+<li><strong>idx</strong> (<cite>str</cite> or <cite>int</cite>) &#8211; Name of the matrix (coefficient) matrix. Used only in the multiple
+NMF model. Default is 0 (first coefficient matrix).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.evar">
+<tt class="descname">evar</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.evar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the explained variance of the NMF estimate of the target matrix.</p>
+<p>This measure can be used for comparing the ability of models for accurately
+reproducing the original target matrix. Some methods specifically aim at
+minimizing the RSS and maximizing the explained variance while others not, which
+one should note when using this measure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In factorizations following
+standard NMF model or nonsmooth NMF model <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.factorize">
+<tt class="descname">factorize</tt><big>(</big><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.factorize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute matrix factorization.</p>
+<p>Return fitted factorization model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.fitted">
+<tt class="descname">fitted</tt><big>(</big><em>idx</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.fitted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the estimated target matrix according to the nonsmooth NMF algorithm model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (<cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1 respectively)) &#8211; Name of the matrix (coefficient) matrix.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.is_satisfied">
+<tt class="descname">is_satisfied</tt><big>(</big><em>p_obj</em>, <em>c_obj</em>, <em>iter</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.is_satisfied" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the satisfiability of the stopping criteria based on stopping
+parameters and objective function value.</p>
+<p>Return logical value denoting factorization continuation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>p_obj</strong> (<cite>float</cite>) &#8211; Objective function value from previous iteration.</li>
+<li><strong>c_obj</strong> (<cite>float</cite>) &#8211; Current objective function value.</li>
+<li><strong>iter</strong> (<cite>int</cite>) &#8211; Current iteration number.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.objective">
+<tt class="descname">objective</tt><big>(</big><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.objective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute three component objective function as defined in <a class="reference internal" href="index.html#zhang2011" id="id30">[Zhang2011]</a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.predict">
+<tt class="descname">predict</tt><big>(</big><em>what='samples'</em>, <em>prob=False</em>, <em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the dominant basis components. The dominant basis component is
+computed as the row index for which the entry is the maximum within the column.</p>
+<p>If <tt class="docutils literal"><span class="pre">prob</span></tt> is not specified, list is returned which contains computed index
+for each sample (feature). Otherwise tuple is returned where first element
+is a list as specified before and second element is a list of associated
+probabilities, relative contribution of the maximum entry within each column.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>what</strong> (<cite>str</cite>) &#8211; Specify target for dominant basis components computation. Two values
+are possible, &#8216;samples&#8217; or &#8216;features&#8217;. When what=&#8217;samples&#8217; is specified,
+dominant basis component for each sample is determined based on its associated
+entries in the mixture coefficient matrix (H). When what=&#8217;features&#8217; computation
+is performed on the transposed basis matrix (W.T).</li>
+<li><strong>prob</strong> (<cite>bool</cite> equivalent) &#8211; Specify dominant basis components probability inclusion.</li>
+<li><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In factorizations following
+standard NMF model or nonsmooth NMF model <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.purity">
+<tt class="descname">purity</tt><big>(</big><em>membership=None</em>, <em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.purity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the purity given a priori known groups of samples <a class="reference internal" href="index.html#park2007" id="id31">[Park2007]</a>.</p>
+<p>The purity is a measure of performance of a clustering method in recovering
+classes defined by a list a priori known (true class labels).</p>
+<p>Return the real number in [0,1]. The larger the purity, the better the
+clustering performance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>membership</strong> (<cite>list</cite>) &#8211; Specify known class membership for each sample.</li>
+<li><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In factorizations following
+standard NMF model or nonsmooth NMF model <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.residuals">
+<tt class="descname">residuals</tt><big>(</big><em>idx</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.residuals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return residuals matrix between the target matrix and its multiple NMF estimate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (<cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1 respectively)) &#8211; Name of the matrix (coefficient) matrix.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.rss">
+<tt class="descname">rss</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.rss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute Residual Sum of Squares (RSS) between NMF estimate and
+target matrix <a class="reference internal" href="index.html#hutchins2008" id="id32">[Hutchins2008]</a>.</p>
+<p>This measure can be used to estimate optimal factorization rank.
+<a class="reference internal" href="index.html#hutchins2008" id="id33">[Hutchins2008]</a> suggested to choose the first value where the RSS curve
+presents an inflection point. <a class="reference internal" href="index.html#frigyesi2008" id="id34">[Frigyesi2008]</a> suggested to use the
+smallest value at which the decrease in the RSS is lower than the
+decrease of the RSS obtained from random data.</p>
+<p>RSS tells us how much of the variation in the dependent variables our
+model did not explain.</p>
+<p>Return real value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In factorizations following
+standard NMF model or nonsmooth NMF model <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.score_features">
+<tt class="descname">score_features</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.score_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Score features in terms of their specificity to the basis vectors <a class="reference internal" href="index.html#park2007" id="id35">[Park2007]</a>.</p>
+<p>A row vector of the basis matrix (W) indicates contributions of a feature
+to the r (i.e. columns of W) latent components. It might be informative to
+investigate features that have strong component-specific membership values
+to the latent components.</p>
+<p>Return array with feature scores. Feature scores are real-valued from interval [0,1].
+Higher value indicates greater feature specificity.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In standard NMF model or nonsmooth NMF model
+<tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.select_features">
+<tt class="descname">select_features</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.select_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the most basis-specific features for each basis vector <a class="reference internal" href="index.html#park2007" id="id36">[Park2007]</a>.</p>
+<p><a class="reference internal" href="index.html#park2007" id="id37">[Park2007]</a> scoring schema and feature selection method is used. The features are
+first scored using the <a class="reference internal" href="#nimfa.methods.factorization.snmnmf.Snmnmf.score_features" title="nimfa.methods.factorization.snmnmf.Snmnmf.score_features"><tt class="xref py py-func docutils literal"><span class="pre">score_features()</span></tt></a>. Then only the features that fulfill
+both the following criteria are retained:</p>
+<ol class="arabic simple">
+<li>score greater than u + 3s, where u and s are the median and the median
+absolute deviation (MAD) of the scores, resp.,</li>
+<li>the maximum contribution to a basis component (i.e the maximal value in
+the corresponding row of the basis matrix (W)) is larger
+than the median of all contributions (i.e. of all elements of basis matrix (W)).</li>
+</ol>
+<p>Return a boolean array indicating whether features were selected.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In standard NMF model or nonsmooth NMF
+model <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.sparseness">
+<tt class="descname">sparseness</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.sparseness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute sparseness of matrix (basis vectors matrix, mixture coefficients) <a class="reference internal" href="index.html#hoyer2004" id="id38">[Hoyer2004]</a>.</p>
+<p>Sparseness of a vector quantifies how much energy is packed into its components.
+The sparseness of a vector is a real number in [0, 1], where sparser vector
+has value closer to 1. Sparseness is 1 iff the vector contains a single
+nonzero component and is equal to 0 iff all components of the vector are equal.</p>
+<p>Sparseness of a matrix is mean sparseness of its column vectors.</p>
+<p>Return tuple that contains sparseness of the basis and mixture coefficients matrices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (None or <cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1, respectively)) &#8211; Used in the multiple NMF model. In standard NMF model or nonsmooth NMF
+model <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.target">
+<tt class="descname">target</tt><big>(</big><em>idx</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.target" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the target matrix to estimate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (<cite>str</cite> with values &#8216;coef&#8217; or &#8216;coef1&#8217; (<cite>int</cite> value of 0 or 1 respectively)) &#8211; Name of the matrix (coefficient) matrix.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.snmnmf.Snmnmf.update">
+<tt class="descname">update</tt><big>(</big><em>iter</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.snmnmf.Snmnmf.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update basis and mixture matrix.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Nimfa</a></h1>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=marinkaz&repo=nimfa&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="nimfa.models.html">Models (<tt class="docutils literal"><span class="pre">models</span></tt>)</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="nimfa.methods.html">Methods (<tt class="docutils literal"><span class="pre">methods</span></tt>)</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="nimfa.methods.factorization.html">Factorization (<tt class="docutils literal"><span class="pre">methods.factorization</span></tt>)</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.bd.html">Bd (<tt class="docutils literal"><span class="pre">methods.factorization.bd</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.bmf.html">Bmf (<tt class="docutils literal"><span class="pre">methods.factorization.bmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.icm.html">Icm (<tt class="docutils literal"><span class="pre">methods.factorization.icm</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.lfnmf.html">Lfnmf (<tt class="docutils literal"><span class="pre">methods.factorization.lfnmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.lsnmf.html">Lsnmf (<tt class="docutils literal"><span class="pre">methods.factorization.lsnmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.nmf.html">Nmf (<tt class="docutils literal"><span class="pre">methods.factorization.nmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.nsnmf.html">Nsnmf (<tt class="docutils literal"><span class="pre">methods.factorization.nsnmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.pmf.html">Pmf (<tt class="docutils literal"><span class="pre">methods.factorization.pmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.psmf.html">Psmf (<tt class="docutils literal"><span class="pre">methods.factorization.psmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.snmf.html">Snmf (<tt class="docutils literal"><span class="pre">methods.factorization.snmf</span></tt>)</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="">Snmnmf (<tt class="docutils literal"><span class="pre">methods.factorization.snmnmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.pmfcc.html">Pmfcc (<tt class="docutils literal"><span class="pre">methods.factorization.pmfcc</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.sepnmf.html">SepNmf (<tt class="docutils literal"><span class="pre">methods.factorization.sepnmf</span></tt>)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.methods.seeding.html">Seeding (<tt class="docutils literal"><span class="pre">methods.seeding</span></tt>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.utils.html">Utils (<tt class="docutils literal"><span class="pre">utils</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.examples.html">Examples (<tt class="docutils literal"><span class="pre">examples</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.datasets.html">Datasets (<tt class="docutils literal"><span class="pre">datasets</span></tt>)</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="nimfa.methods.html">Methods (<tt class="docutils literal"><span class="pre">methods</span></tt>)</a><ul>
+  <li><a href="nimfa.methods.factorization.html">Factorization (<tt class="docutils literal"><span class="pre">methods.factorization</span></tt>)</a><ul>
+      <li>Previous: <a href="nimfa.methods.factorization.snmf.html" title="previous chapter">Snmf (<tt class="docutils literal"><span class="pre">methods.factorization.snmf</span></tt>)</a></li>
+      <li>Next: <a href="nimfa.methods.factorization.pmfcc.html" title="next chapter">Pmfcc (<tt class="docutils literal"><span class="pre">methods.factorization.pmfcc</span></tt>)</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, The Nimfa developers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/marinkaz/nimfa" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

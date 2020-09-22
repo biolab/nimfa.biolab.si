@@ -1,0 +1,470 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>methods (sa.methods) &mdash; Yeast Screen Data Analysis 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Yeast Screen Data Analysis 1.0 documentation" href="index.html" />
+    <link rel="up" title="SA (sa)" href="sa.html" />
+    <link rel="next" title="plotting (sa.plotting)" href="sa.plotting.html" />
+    <link rel="prev" title="MDS (sa.mds)" href="sa.mds.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sa.plotting.html" title="plotting (sa.plotting)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="sa.mds.html" title="MDS (sa.mds)"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Yeast Screen Data Analysis 1.0 documentation</a> &raquo;</li>
+          <li><a href="sa.html" accesskey="U">SA (<tt class="docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal"><span class="pre">sa</span></tt>)</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-sa.methods"></span><div class="section" id="methods-sa-methods">
+<h1>methods (<tt class="docutils literal"><span class="pre">sa.methods</span></tt>)<a class="headerlink" href="#methods-sa-methods" title="Permalink to this headline">¶</a></h1>
+<p>This script contains techniques for strains analysis.</p>
+<dl class="function">
+<dt id="sa.methods.analyze_repl">
+<tt class="descclassname">sa.methods.</tt><tt class="descname">analyze_repl</tt><big>(</big><em>input_file, plates, dnp, res_path, keys=['RT', '37'], save_dist_mat=False</em><big>)</big><a class="reference internal" href="_modules/sa/methods.html#analyze_repl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.methods.analyze_repl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimate the robustness of measurements by analyzing mutants that occur multiple times in the data set.</p>
+<p>Save for each ORF mean distance between all ORF pairs and list of between-replications distances to a file
+named <cite>distance_reps.csv</cite> in directory <a href="#id1"><span class="problematic" id="id2">:param:`res_path`</span></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>input_file</strong> (<cite>str</cite>) &#8211; File path to multi-occurring mutants specification.</li>
+<li><strong>plates</strong> (<cite>list</cite>) &#8211; Plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt></li>
+<li><strong>dnp</strong> (<cite>numpy.array</cite>) &#8211; Preprocessed computational profiles</li>
+<li><strong>res_path</strong> (<cite>str</cite>) &#8211; Full path to the directory where results are to be saved.</li>
+<li><strong>keys</strong> (<cite>list</cite>) &#8211; Names of TS (temperature sensitive mutants) plates&#8217; extensions. By default, these are [&#8220;RT&#8221;, &#8220;37&#8221;].</li>
+<li><strong>plot_dist_mat</strong> (<cite>bool</cite>) &#8211; Indicator whether to plot distance heatmap for each multiple times occurred mutant</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.methods.compute_distance">
+<tt class="descclassname">sa.methods.</tt><tt class="descname">compute_distance</tt><big>(</big><em>dnp</em>, <em>title</em>, <em>out_name</em>, <em>labels</em>, <em>labelsize=6</em>, <em>rot='vertical'</em><big>)</big><a class="reference internal" href="_modules/sa/methods.html#compute_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.methods.compute_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Considering the rows of <a href="#id3"><span class="problematic" id="id4">:param:`dnp`</span></a> as vectors, compute the euclidean distance matrix between each pair
+of vectors.</p>
+<p>Save computed distance to file named <a href="#id5"><span class="problematic" id="id6">:param:`out_name`</span></a> and return distance matrix.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.methods.correct_outlier_dec">
+<tt class="descclassname">sa.methods.</tt><tt class="descname">correct_outlier_dec</tt><big>(</big><em>X</em>, <em>base</em><big>)</big><a class="reference internal" href="_modules/sa/methods.html#correct_outlier_dec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.methods.correct_outlier_dec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Outlier decision function correction. More cells greater the increase in decision.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.methods.decompose_MDS">
+<tt class="descclassname">sa.methods.</tt><tt class="descname">decompose_MDS</tt><big>(</big><em>dnp</em>, <em>c_labels=None</em>, <em>out_dir=None</em>, <em>save_coordinates=True</em><big>)</big><a class="reference internal" href="_modules/sa/methods.html#decompose_MDS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.methods.decompose_MDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply metric MDS for a low dimensional representation of the data in which the distances respect well to
+the distances in the original high dimensional space.</p>
+<p>The method constructs a distance matrix with Euclidean distance and runs MDS. The similarities are immersed
+in 2 dimensions (n_components = 2). Final coordinates are plotted and saved to file 
+<cite>mds_scatterplot.pdf</cite> in <a href="#id7"><span class="problematic" id="id8">:param:`out_dir`</span></a> directory. Colors in the plot denotes classes (clusters) 
+passed in <a href="#id9"><span class="problematic" id="id10">:param:`c_labels`</span></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dnp</strong> (<cite>numpy.array</cite>) &#8211; Preprocessed computational profiles of strains.</li>
+<li><strong>c_labels</strong> (<cite>numpy.array</cite>) &#8211; Cluster indices of observations.</li>
+<li><strong>out_dir</strong> (<cite>str</cite>) &#8211; Full path to output directory where plot will be saved.</li>
+<li><strong>save_coordinates</strong> (<cite>bool</cite>) &#8211; Indicator whether to plot and save final coordinates. By default, it is set 
+to True</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returned are positions of the observations in the embedding space.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.methods.decompose_PCA">
+<tt class="descclassname">sa.methods.</tt><tt class="descname">decompose_PCA</tt><big>(</big><em>dnp</em>, <em>plate</em>, <em>n_components</em>, <em>title</em>, <em>out_name</em><big>)</big><a class="reference internal" href="_modules/sa/methods.html#decompose_PCA"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.methods.decompose_PCA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply PCA decomposition to the data to reduce the dimensionality.</p>
+<p>Decompose a multivariate data set in a set of successive orthogonal components that explain a 
+maximum amount of variance.</p>
+<p>In addition use the probabilistic PCA to provide a probabilistic interpretation of the PCA that can give
+a likelihood of the data based on the amount of the variance it explains.</p>
+<p>Return transformed data of shape [n_samples, n_components] and save 3D PCA projection to <a href="#id11"><span class="problematic" id="id12">:param:`out_name`</span></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.methods.decompose_manifold">
+<tt class="descclassname">sa.methods.</tt><tt class="descname">decompose_manifold</tt><big>(</big><em>dnp</em>, <em>n_components</em><big>)</big><a class="reference internal" href="_modules/sa/methods.html#decompose_manifold"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.methods.decompose_manifold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply Isomap algorithm to seek a lower dimensional embedding which maintains geodesic distances between all 
+points. Isometric mapping is nonlinear dimensionality reduction method.</p>
+<p>Manifold learning is an approach to nonlinear dimensionality reduction. The idea is that the dimensionality of the
+data set is only artificially high. Manifold learning is an attempt to generalize linear dimensionality reduction
+such as PCA to be sensitive to nonlinear structure in the data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dnp</strong> (<cite>numpy.array</cite>) &#8211; Preprocessed computational profiles of strains.</li>
+<li><strong>n_components</strong> &#8211; Number of coordinates for the manifold.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Return transformed data of shape [n_observations, n_components].</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.methods.detect_novelties_GMM">
+<tt class="descclassname">sa.methods.</tt><tt class="descname">detect_novelties_GMM</tt><big>(</big><em>dnp_wt, dnp_mt, plates_wt, plates_mt, out_dir, save_visualization=True, wt_name=['YOR202W']</em><big>)</big><a class="reference internal" href="_modules/sa/methods.html#detect_novelties_GMM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.methods.detect_novelties_GMM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Novelty detection using variational inference for the GMM (Gaussian Mixture Model).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dnp_wt</strong> (<cite>numpy.array</cite>) &#8211; Preprocessed computational profiles of WT strains.</li>
+<li><strong>dnp_mt</strong> (<cite>numpy.array</cite>) &#8211; Preprocesed computational profiles of MT strains.</li>
+<li><strong>plates_wt</strong> (<cite>list</cite>) &#8211; Plates data of WT strains as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>plates_mt</strong> (<cite>list</cite>) &#8211; Plates data of MT strains as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>out_dir</strong> (<cite>str</cite>) &#8211; Full path to output directory where novelty detection results will be saved.</li>
+<li><strong>save_visualization</strong> (<cite>bool</cite>) &#8211; Indicator whether to visualize training and test observations with 
+labels in a low dimensionl representation. By default, it is set to True.</li>
+<li><strong>wt_name</strong> (<cite>list</cite>) &#8211; Names of the wild-type ORFs.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>To  directory <a href="#id13"><span class="problematic" id="id14">:param:`out_dir`</span></a> is saved file named <cite>novelty_detection_GMM.csv</cite> which contains
+strain identifiers and predictions (predicted class for each observation and predicted posterior 
+probability of observation for each Gaussian state in the model) for all non-WT observations.</p>
+<p>To directory <a href="#id15"><span class="problematic" id="id16">:param:`out_dir`</span></a> is saved plot <cite>novelty_detection_GMM.pdf</cite> visualizing training 
+and test observations with learned labels if <a href="#id17"><span class="problematic" id="id18">:param:`save_visualization`</span></a> is set. A low (2D) dimensional 
+representation is obtained by MDS.</p>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">function <a class="reference internal" href="#sa.methods.detect_novelties_SVM" title="sa.methods.detect_novelties_SVM"><tt class="xref py py-func docutils literal"><span class="pre">sa.methods.detect_novelties_SVM()</span></tt></a>.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.methods.detect_novelties_SVM">
+<tt class="descclassname">sa.methods.</tt><tt class="descname">detect_novelties_SVM</tt><big>(</big><em>dnp_wt</em>, <em>dnp_mt</em>, <em>plates_wt</em>, <em>plates_mt</em>, <em>out_dir</em>, <em>save_visualization=True</em><big>)</big><a class="reference internal" href="_modules/sa/methods.html#detect_novelties_SVM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.methods.detect_novelties_SVM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Novelty detection to decide whether a new observation belongs to the same 
+distribution as existing observations or should be considered as different. The
+training data are profiles of WT strains (preprocessed, that is with removed outliers
+and standardized features). We are interested in detecting anomalies in mutant strains.</p>
+<p>Identification of strains with non-WT phenotype. In addition to clustering of WT and non-WT
+strains and analyzing cluster memberships, one can perform novelty detection to address whether
+new observation (non-WT strain) is so different from the training set (WT strains), that
+we can doubt it is regular (e.g. it comes from different distirbution).</p>
+<p>It is used one-class SVM, a semi supervised algorithm that learns a decision function 
+for novelty detection.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dnp_wt</strong> (<cite>numpy.array</cite>) &#8211; Preprocessed computational profiles of WT strains.</li>
+<li><strong>dnp_mt</strong> (<cite>numpy.array</cite>) &#8211; Preprocesed computational profiles of MT strains.</li>
+<li><strong>plates_wt</strong> (<cite>list</cite>) &#8211; Plates data of WT strains as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>plates_mt</strong> (<cite>list</cite>) &#8211; Plates data of MT strains as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>out_dir</strong> (<cite>str</cite>) &#8211; Full path to output directory where novelty detection results will be saved.</li>
+<li><strong>save_visualization</strong> (<cite>bool</cite>) &#8211; Indicator whether to visualize training and test observations with 
+labels in a low dimensionl representation. By default, it is set to True.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>To  directory <a href="#id19"><span class="problematic" id="id20">:param:`out_dir`</span></a> is saved file named <cite>novelty_detection_SVM.csv</cite> which contains
+strain identifiers and predictions (predicted class for each observation and observation distance
+to the separating hyperplane) for all non-WT observations. Predicted classes are +1 (regular novel
+observations) and -1 (abnormal novel observations). Higher distance to the separating hyperplane 
+indicates greater confidence in prediction.</p>
+<p>To directory <a href="#id21"><span class="problematic" id="id22">:param:`out_dir`</span></a> is saved plot <cite>novelty_detection_SVM.pdf</cite> visualizing training 
+and test observations with learned labels if <a href="#id23"><span class="problematic" id="id24">:param:`save_visualization`</span></a> is set. A low (2D) dimensional 
+representation is obtained by MDS.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If visualization option is enabled, optimization process in MDS can increase duration.</p>
+</div>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">See also function <a class="reference internal" href="#sa.methods.detect_novelties_GMM" title="sa.methods.detect_novelties_GMM"><tt class="xref py py-func docutils literal"><span class="pre">sa.methods.detect_novelties_GMM()</span></tt></a>.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.methods.detect_outliers">
+<tt class="descclassname">sa.methods.</tt><tt class="descname">detect_outliers</tt><big>(</big><em>dnp</em>, <em>plate</em>, <em>out_name=None</em>, <em>save=True</em><big>)</big><a class="reference internal" href="_modules/sa/methods.html#detect_outliers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.methods.detect_outliers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detect outliers by fitting an elliptic envelope and normalizing the decision function
+by the number of cells in strain.</p>
+<p>The goal is to separate a core of regular observations from some
+polluting ones and decide whether a new observation belongs to the same distribution as existing 
+observations (it is an inlier) or should be considered different (it is an outlier).</p>
+<p>The number of cells per strain used for computing feature values in observation additionally normalize the 
+decision function score.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dnp</strong> (<cite>numpy.array</cite>) &#8211; Preprocessed computational profiles</li>
+<li><strong>plates</strong> (<cite>list</cite>) &#8211; Plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt></li>
+<li><strong>out_name</strong> (<cite>str</cite>) &#8211; The full name of the file where outliers will be saved.</li>
+<li><strong>save</strong> (<cite>bool</cite>) &#8211; Indicator whether to save outliers&#8217; identification to files. True by default.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Return outlyingness of observations in <a href="#id25"><span class="problematic" id="id26">:param:`dnp`</span></a> and decision function according to the fitted model for elliptic
+envelope, respectively and reduced data set without outliers as tuple (reduced_plate, reduced_dnp).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.methods.fss_wrapper">
+<tt class="descclassname">sa.methods.</tt><tt class="descname">fss_wrapper</tt><big>(</big><em>dnp</em>, <em>plates</em>, <em>attr_names</em>, <em>out_dir</em><big>)</big><a class="reference internal" href="_modules/sa/methods.html#fss_wrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.methods.fss_wrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper approach to unsupervised feature subset selection.</p>
+<p>The idea is to cluster the data as best we can in each candidate feature subspace and 
+select the most &#8220;interesting&#8221; subspace with the minimum number of features. Each candidate subspace 
+is evaluated by assessing resulting clusters and feature subset using chosen feature selection criterion. 
+This process is repeated until the best feature subset with its corresponding clusters is found.</p>
+<dl class="docutils">
+<dt>The wrapper approach divides the task into three components:</dt>
+<dd><ol class="first last arabic simple">
+<li>feature search: sequential forward (greedy)</li>
+<li>clustering algorithm: k-means with inertia scoring</li>
+<li>feature subset evaluation: silhouette coefficient</li>
+</ol>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dnp</strong> (<cite>numpy.array</cite>) &#8211; Preprocessed computational profiles of strains.</li>
+<li><strong>plates</strong> (<cite>list</cite>) &#8211; Plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>attr_names</strong> (<cite>list</cite>) &#8211; Names of features corresponding to columns in <a href="#id27"><span class="problematic" id="id28">:param:`dnp`</span></a>.</li>
+<li><strong>out_dir</strong> (<cite>str</cite>) &#8211; Full path to output directory where feature subspace descriptions and cluster
+memberships will be saved.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>To directory <a href="#id29"><span class="problematic" id="id30">:param:`out_dir`</span></a> is saved file named <cite>fss_subsets_scores.csv</cite> which contains 
+description of feature subspaces (the name of features used in each candidate space) and 
+achieved mean silhouette coefficient.</p>
+<p>To directory <a href="#id31"><span class="problematic" id="id32">:param:`out_dir`</span></a> is saved file named <cite>fss_best_subset.csv</cite> which 
+contains description of feature subspace with highest silhouette coefficient and its score.</p>
+<p>To directory <a href="#id33"><span class="problematic" id="id34">:param:`out_dir`</span></a> is saved file named <cite>fss_best_clustering.csv</cite> which
+contains strain identifiers and their cluster memberships for all observations.</p>
+<p>Returned are predictions for all observations in <a href="#id35"><span class="problematic" id="id36">:param:`dnp`</span></a> (the cluster each observation belongs to) as 
+specified by the best evaluated feature subspace, score of best candidate feature space and the names of the 
+features from the best candidate space.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.methods.k_means">
+<tt class="descclassname">sa.methods.</tt><tt class="descname">k_means</tt><big>(</big><em>dnp, plates, k_range, out_name_silhouette=None, out_dir_predictions=None, out_name_predictions=None, save_silhouette=True, save_predictions=True, wt_name=['YOR202W']</em><big>)</big><a class="reference internal" href="_modules/sa/methods.html#k_means"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.methods.k_means" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply k-Means clustering to the data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dnp</strong> (<cite>numpy.array</cite>) &#8211; Preprocessed computational profiles of strains.</li>
+<li><strong>plates</strong> (<cite>list</cite>) &#8211; Plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>k</strong> (<cite>iterable</cite>) &#8211; The range used for testing the number of clusters.</li>
+<li><strong>out_name_silhouette</strong> (<cite>str</cite>) &#8211; Fully qualified name of file where silhouette plot will be saved.</li>
+<li><strong>out_dir_predictions</strong> (<cite>str</cite>) &#8211; Full path to output directory where files with clustering predictions will be
+stored.</li>
+<li><strong>out_name_predictions</strong> (<cite>str</cite>) &#8211; Identifier of data used in the name of the clustering predictions.</li>
+<li><strong>save_silhouette</strong> (<cite>bool</cite>) &#8211; Indicator whether to plot silhouette plot and save it to file <a href="#id37"><span class="problematic" id="id38">:param:`out_name`</span></a>. By
+default, it is set to True.</li>
+<li><strong>save_predictions</strong> (<cite>bool</cite>) &#8211; Indicator whether to save predictions (cluster membership for each observation) for each 
+number of clusters in <a href="#id39"><span class="problematic" id="id40">:param:`k_range`</span></a>.</li>
+<li><strong>wt_name</strong> (<cite>list</cite>) &#8211; Names of the wild-type ORFs.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>For each number of clusters compute the mean silhouette coefficient of all observations. Return clustering 
+results for clustering with highest mean silhouette coefficient.</p>
+<p>Mean silhouette coefficient close to 1 means the datum is appropriately clustered, coefficient close to -1
+means the observations have been assigned to wrong clusters.</p>
+<p>Returned are predictions for all observations in data (the closest cluster each observation belongs to),
+mean silhouette coefficient score of best clustering and a matrix of transformed data to cluster-distance 
+space of shape [n_observations, k]. In the new space, each dimension is the distance to the cluster centers.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.methods.normalize">
+<tt class="descclassname">sa.methods.</tt><tt class="descname">normalize</tt><big>(</big><em>dnp</em><big>)</big><a class="reference internal" href="_modules/sa/methods.html#normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.methods.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize observations individually to unit L2 norm.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dnp</strong> (<cite>numpy.array</cite>) &#8211; Computational profiles of strains.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.methods.outlier2cluster">
+<tt class="descclassname">sa.methods.</tt><tt class="descname">outlier2cluster</tt><big>(</big><em>out_labels</em>, <em>c_labels</em><big>)</big><a class="reference internal" href="_modules/sa/methods.html#outlier2cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.methods.outlier2cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine intersection between outliers and cluster mapping (percentage of outliers in each cluster).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>out_labels</strong> &#8211; Outliers labelling (1 = inlier, -1 = outlier).</td>
+</tr>
+</tbody>
+</table>
+<p>:type out_labels; <cite>numpy.array</cite>
+:param c_labels: Cluster indices of observations.
+:type c_labels: <cite>numpy.array</cite></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.methods.silhouette">
+<tt class="descclassname">sa.methods.</tt><tt class="descname">silhouette</tt><big>(</big><em>X</em>, <em>c_idx</em>, <em>K</em><big>)</big><a class="reference internal" href="_modules/sa/methods.html#silhouette"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.methods.silhouette" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the silhouette score for each observation in <a href="#id41"><span class="problematic" id="id42">:param:`X`</span></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>c_idx</strong> (<cite>list</cite>) &#8211; cluster indices for all observations in X.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.methods.standardize">
+<tt class="descclassname">sa.methods.</tt><tt class="descname">standardize</tt><big>(</big><em>dnp</em><big>)</big><a class="reference internal" href="_modules/sa/methods.html#standardize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.methods.standardize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Standardize features by removing the mean and scaling to unit variance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dnp</strong> (<cite>numpy.array</cite>) &#8211; Computational profiles of strains.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="sa.mds.html"
+                        title="previous chapter">MDS (<tt class="docutils literal docutils literal docutils literal"><span class="pre">sa.mds</span></tt>)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="sa.plotting.html"
+                        title="next chapter">plotting (<tt class="docutils literal"><span class="pre">sa.plotting</span></tt>)</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sa.plotting.html" title="plotting (sa.plotting)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="sa.mds.html" title="MDS (sa.mds)"
+             >previous</a> |</li>
+        <li><a href="index.html">Yeast Screen Data Analysis 1.0 documentation</a> &raquo;</li>
+          <li><a href="sa.html" >SA (<tt class="docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal"><span class="pre">sa</span></tt>)</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Marinka Zitnik.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.
+    </div>
+  </body>
+</html>

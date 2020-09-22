@@ -1,0 +1,23 @@
+###########
+SA (``sa``)
+###########
+
+.. automodule:: sa
+	:members:
+	:undoc-members:
+	:inherited-members:
+	:show-inheritance:
+
+
+.. toctree::
+   :maxdepth: 2
+   
+   sa.analysis
+   
+   sa.mds
+   
+   sa.methods
+   
+   sa.plotting
+   
+   sa.utilities

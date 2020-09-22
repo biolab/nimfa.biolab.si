@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Recommendations (examples.recommendations) &mdash; Nimfa 1.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Nimfa 1.3.1 documentation" href="index.html" />
+    <link rel="up" title="Examples (examples)" href="nimfa.examples.html" />
+    <link rel="next" title="Gene Function Prediction (examples.gene_func_prediction)" href="nimfa.examples.gene_func_prediction.html" />
+    <link rel="prev" title="ORL Images (examples.orl_images)" href="nimfa.examples.orl_images.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-nimfa.examples.recommendations"></span><div class="section" id="recommendations-examples-recommendations">
+<h1>Recommendations (<tt class="docutils literal"><span class="pre">examples.recommendations</span></tt>)<a class="headerlink" href="#recommendations-examples-recommendations" title="Permalink to this headline">¶</a></h1>
+<p>In this examples of collaborative filtering we consider movie recommendation using common MovieLens data set. It 
+represents typical cold start problem. A recommender system compares the user&#8217;s profile to reference
+characteristics from the user&#8217;s social environment. In the collaborative filtering approach, the recommender
+system identify users who share the same preference with the active user and propose items which the like-minded
+users favoured (and the active user has not yet seen).</p>
+<p>We used the MovieLens 100k data set in this example. This data set consists of 100 000 ratings (1-5) from 943
+users on 1682 movies. Each user has rated at least 20 movies. Simple demographic info for the users is included. 
+Factorization is performed on a split data set as provided by the collector of the data. The data is split into 
+two disjoint sets each consisting of training set and a test set with exactly 10 ratings per user.</p>
+<p>It is common that matrices in the field of recommendation systems are very sparse (ordinary user rates only a small
+fraction of items from the large items&#8217; set), therefore <tt class="docutils literal"><span class="pre">scipy.sparse</span></tt> matrix formats are used in this example.</p>
+<p>The configuration of this example is SNMF/R factorization method using Random Vcol algorithm for initialization.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">MovieLens movies&#8217; rating data set used in this example is not included in the <cite>datasets</cite> and need to be
+downloaded. Download links are listed in the <tt class="docutils literal"><span class="pre">datasets</span></tt>. Download compressed version of the MovieLens 100k. 
+To run the example, the extracted data set must exist in the <tt class="docutils literal"><span class="pre">MovieLens</span></tt> directory under <tt class="docutils literal"><span class="pre">datasets</span></tt>.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">No additional knowledge in terms of ratings&#8217; timestamps, information about items and their
+genres or demographic information about users is used in this example.</p>
+</div>
+<p>To run the example simply type:</p>
+<div class="highlight-python"><div class="highlight"><pre>python recommendations.py
+</pre></div>
+</div>
+<p>or call the module&#8217;s function:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">nimfa.examples</span>
+<span class="n">nimfa</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">recommendations</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This example uses <tt class="docutils literal"><span class="pre">matplotlib</span></tt> library for producing visual interpretation of the RMSE error measure.</p>
+</div>
+<dl class="function">
+<dt id="nimfa.examples.recommendations.factorize">
+<tt class="descclassname">nimfa.examples.recommendations.</tt><tt class="descname">factorize</tt><big>(</big><em>V</em><big>)</big><a class="headerlink" href="#nimfa.examples.recommendations.factorize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform SNMF/R factorization on the sparse MovieLens data matrix.</p>
+<p>Return basis and mixture matrices of the fitted factorization model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>V</strong> (<cite>numpy.matrix</cite>) &#8211; The MovieLens data matrix.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.recommendations.read">
+<tt class="descclassname">nimfa.examples.recommendations.</tt><tt class="descname">read</tt><big>(</big><em>data_set</em><big>)</big><a class="headerlink" href="#nimfa.examples.recommendations.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read movies&#8217; ratings data from MovieLens data set.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_set</strong> (<cite>str</cite>) &#8211; Name of the split data set to be read.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.recommendations.rmse">
+<tt class="descclassname">nimfa.examples.recommendations.</tt><tt class="descname">rmse</tt><big>(</big><em>W</em>, <em>H</em>, <em>data_set</em><big>)</big><a class="headerlink" href="#nimfa.examples.recommendations.rmse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the RMSE error rate on MovieLens data set.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>W</strong> (<cite>numpy.matrix</cite>) &#8211; Basis matrix of the fitted factorization model.</li>
+<li><strong>H</strong> (<cite>numpy.matrix</cite>) &#8211; Mixture matrix of the fitted factorization model.</li>
+<li><strong>data_set</strong> (<cite>str</cite>) &#8211; Name of the split data set to be read.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.recommendations.run">
+<tt class="descclassname">nimfa.examples.recommendations.</tt><tt class="descname">run</tt><big>(</big><big>)</big><a class="headerlink" href="#nimfa.examples.recommendations.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run SNMF/R on the MovieLens data set.</p>
+<p>Factorization is run on <cite>ua.base</cite>, <cite>ua.test</cite> and <cite>ub.base</cite>, <cite>ub.test</cite> data set. This is MovieLens&#8217;s data set split 
+of the data into training and test set. Both test data sets are disjoint and with exactly 10 ratings per user
+in the test set.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Nimfa</a></h1>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=marinkaz&repo=nimfa&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="nimfa.models.html">Models (<tt class="docutils literal"><span class="pre">models</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.methods.html">Methods (<tt class="docutils literal"><span class="pre">methods</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.utils.html">Utils (<tt class="docutils literal"><span class="pre">utils</span></tt>)</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="nimfa.examples.html">Examples (<tt class="docutils literal"><span class="pre">examples</span></tt>)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.synthetic.html">Simulated studies (<tt class="docutils literal"><span class="pre">examples.synthetic</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.all_aml.html">ALL AML Leukemia (<tt class="docutils literal"><span class="pre">examples.aml_all</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.medulloblastoma.html">Medulloblastoma (<tt class="docutils literal"><span class="pre">examples.medulloblastoma</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.cbcl_images.html">CBCL Images (<tt class="docutils literal"><span class="pre">examples.cbcl_images</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.documents.html">Documents (<tt class="docutils literal"><span class="pre">examples.documents</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.orl_images.html">ORL Images (<tt class="docutils literal"><span class="pre">examples.orl_images</span></tt>)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Recommendations (<tt class="docutils literal"><span class="pre">examples.recommendations</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.gene_func_prediction.html">Gene Function Prediction (<tt class="docutils literal"><span class="pre">examples.gene_func_prediction</span></tt>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.datasets.html">Datasets (<tt class="docutils literal"><span class="pre">datasets</span></tt>)</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="nimfa.examples.html">Examples (<tt class="docutils literal"><span class="pre">examples</span></tt>)</a><ul>
+      <li>Previous: <a href="nimfa.examples.orl_images.html" title="previous chapter">ORL Images (<tt class="docutils literal"><span class="pre">examples.orl_images</span></tt>)</a></li>
+      <li>Next: <a href="nimfa.examples.gene_func_prediction.html" title="next chapter">Gene Function Prediction (<tt class="docutils literal"><span class="pre">examples.gene_func_prediction</span></tt>)</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, The Nimfa developers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/marinkaz/nimfa" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

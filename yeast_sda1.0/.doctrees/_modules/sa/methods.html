@@ -1,0 +1,873 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>sa.methods &mdash; Yeast Screen Data Analysis 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Yeast Screen Data Analysis 1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Yeast Screen Data Analysis 1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for sa.methods</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">########################</span>
+<span class="sd">methods (``sa.methods``)</span>
+<span class="sd">########################</span>
+
+<span class="sd">This script contains techniques for strains analysis.</span>
+<span class="sd">    </span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">sklearn.preprocessing</span>
+<span class="kn">import</span> <span class="nn">sklearn.decomposition</span>
+<span class="kn">import</span> <span class="nn">sklearn.cluster</span>
+<span class="kn">import</span> <span class="nn">sklearn.covariance</span>
+<span class="kn">import</span> <span class="nn">sklearn.manifold</span>
+<span class="kn">import</span> <span class="nn">sklearn.mixture</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">silhouette_score</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">svm</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics.pairwise</span> <span class="kn">import</span> <span class="n">euclidean_distances</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cm</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">font_manager</span>
+
+<span class="kn">import</span> <span class="nn">utilities</span> <span class="kn">as</span> <span class="nn">utils</span>
+<span class="kn">import</span> <span class="nn">plotting</span>
+
+<span class="c">#distance</span>
+
+<div class="viewcode-block" id="compute_distance"><a class="viewcode-back" href="../../sa.methods.html#sa.methods.compute_distance">[docs]</a><span class="k">def</span> <span class="nf">compute_distance</span><span class="p">(</span><span class="n">dnp</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">labelsize</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">rot</span> <span class="o">=</span> <span class="s">&quot;vertical&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Considering the rows of :param:`dnp` as vectors, compute the euclidean distance matrix between each pair</span>
+<span class="sd">    of vectors.</span>
+<span class="sd">    </span>
+<span class="sd">    Save computed distance to file named :param:`out_name` and return distance matrix.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">print</span> <span class="s">&quot;Computing distance matrix&quot;</span>
+    <span class="n">dist_matrix</span> <span class="o">=</span> <span class="n">euclidean_distances</span><span class="p">(</span><span class="n">dnp</span><span class="p">,</span> <span class="n">dnp</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Mean euclidean distance between observations: </span><span class="si">%5.3f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dist_matrix</span><span class="p">)</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+    <span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+    <span class="n">imax</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">dist_matrix</span><span class="p">,</span> <span class="n">interpolation</span> <span class="o">=</span> <span class="s">&quot;nearest&quot;</span><span class="p">)</span> 
+    
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&quot;Heatmap (euclidean distances) for </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">title</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s">&quot;joined&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">title</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">dnp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">labels</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">dnp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">labels</span><span class="p">,</span> <span class="n">rotation</span> <span class="o">=</span> <span class="n">rot</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="s">&quot;x&quot;</span><span class="p">,</span> <span class="n">labelsize</span> <span class="o">=</span> <span class="n">labelsize</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="s">&quot;y&quot;</span><span class="p">,</span> <span class="n">labelsize</span> <span class="o">=</span> <span class="n">labelsize</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">tick_left</span><span class="p">()</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">tick_bottom</span><span class="p">()</span>
+    <span class="c">#the smallest values are lighter and the larger values are darker shades of grey</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">imax</span><span class="p">)</span>
+    
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">out_name</span> <span class="o">+</span> <span class="s">&quot;_heatmap.pdf&quot;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Heatmap saved to file: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">fname</span> 
+    <span class="k">return</span> <span class="n">dist_matrix</span>
+</div>
+<div class="viewcode-block" id="analyze_repl"><a class="viewcode-back" href="../../sa.methods.html#sa.methods.analyze_repl">[docs]</a><span class="k">def</span> <span class="nf">analyze_repl</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">plates</span><span class="p">,</span> <span class="n">dnp</span><span class="p">,</span> <span class="n">res_path</span><span class="p">,</span> <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;RT&quot;</span><span class="p">,</span> <span class="s">&quot;37&quot;</span><span class="p">],</span> <span class="n">save_dist_mat</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span> 
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Estimate the robustness of measurements by analyzing mutants that occur multiple times in the data set.</span>
+<span class="sd">    </span>
+<span class="sd">    Save for each ORF mean distance between all ORF pairs and list of between-replications distances to a file</span>
+<span class="sd">    named `distance_reps.csv` in directory :param:`res_path`. </span>
+<span class="sd">    </span>
+<span class="sd">    :param input_file: File path to multi-occurring mutants specification.</span>
+<span class="sd">    :type input_file: `str` </span>
+<span class="sd">    :param plates: Plates data as returned from :mod:`utilities.read`</span>
+<span class="sd">    :type plates: `list`</span>
+<span class="sd">    :param dnp: Preprocessed computational profiles</span>
+<span class="sd">    :type dnp: `numpy.array`</span>
+<span class="sd">    :param res_path: Full path to the directory where results are to be saved.</span>
+<span class="sd">    :type res_path: `str`</span>
+<span class="sd">    :param keys: Names of TS (temperature sensitive mutants) plates&#39; extensions. By default, these are [&quot;RT&quot;, &quot;37&quot;].</span>
+<span class="sd">    :type keys: `list`</span>
+<span class="sd">    :param plot_dist_mat: Indicator whether to plot distance heatmap for each multiple times occurred mutant</span>
+<span class="sd">    :type plot_dist_mat: `bool`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">print</span> <span class="s">&quot;Analysing repeating mutants&quot;</span>
+    <span class="n">names</span><span class="p">,</span> <span class="n">reps</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">read_repl</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
+    <span class="n">dnp_d</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">plates2dict</span><span class="p">(</span><span class="n">plates</span><span class="p">,</span> <span class="n">dnp</span><span class="p">)</span>
+    <span class="n">orf2p</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">orf</span><span class="p">,</span> <span class="n">pn</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="n">reps</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">pn</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dnp_d</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">Missed in plates data&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">orf</span><span class="p">,</span> <span class="n">pn</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">orf2p</span><span class="p">[</span><span class="n">orf</span><span class="p">][(</span><span class="n">pn</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">)]</span> <span class="o">=</span>  <span class="n">dnp_d</span><span class="p">[(</span><span class="n">pn</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">)]</span>
+
+    <span class="k">print</span> <span class="s">&quot;Number of missed duplicates in plate data </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">i</span>
+    <span class="n">orf_reps</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">reps_distl</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">res_path</span> <span class="o">+</span> <span class="s">&quot;distance_reps.csv&quot;</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">orf</span><span class="p">,</span> <span class="n">multi_occ</span> <span class="ow">in</span> <span class="n">orf2p</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">multi_occ</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="k">continue</span>
+        <span class="n">orf_reps</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">met</span><span class="p">,</span> <span class="n">profiles</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">multi_occ</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="n">reps_dnp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">profiles</span><span class="p">)</span>
+        <span class="n">reps_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tril</span><span class="p">(</span><span class="n">euclidean_distances</span><span class="p">(</span><span class="n">reps_dnp</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:],</span> <span class="n">reps_dnp</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">reps_dist_hvp</span> <span class="o">=</span> <span class="n">reps_dist</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">reps_dist</span><span class="p">)]</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">,</span><span class="si">%5.4f</span><span class="s">,(</span><span class="si">%s</span><span class="s">)</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">orf</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">reps_dist_hvp</span><span class="p">),</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">reps_dist_hvp</span><span class="p">))))</span>
+        <span class="n">reps_distl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reps_dist_hvp</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">save_dist_mat</span><span class="p">:</span>
+            <span class="n">out_name</span> <span class="o">=</span> <span class="n">res_path</span> <span class="o">+</span> <span class="n">orf</span>
+            <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pnrc</span><span class="p">)</span> <span class="k">for</span> <span class="n">pnrc</span> <span class="ow">in</span> <span class="n">met</span><span class="p">]</span>
+            <span class="n">compute_distance</span><span class="p">(</span><span class="n">reps_dnp</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">orf</span><span class="p">,</span> <span class="n">out_name</span> <span class="o">=</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">,</span> <span class="n">labelsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span> <span class="n">rot</span> <span class="o">=</span> <span class="s">&quot;horizontal&quot;</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">Multiple occurring mutants </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">orf</span>
+    <span class="k">print</span> <span class="s">&quot;Replicates exists for </span><span class="si">%d</span><span class="s"> ORFs&quot;</span> <span class="o">%</span> <span class="n">orf_reps</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="c">#plot of two overlayed histograms: (1) distances between replicates of same mutants, (2) distances between all observations</span>
+    <span class="c">#do not take into account the number of cells (cells #) field when computing distances</span>
+    <span class="n">tot_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tril</span><span class="p">(</span><span class="n">euclidean_distances</span><span class="p">(</span><span class="n">dnp</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:],</span> <span class="n">dnp</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">tot_dist_hv</span> <span class="o">=</span> <span class="n">tot_dist</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">tot_dist</span><span class="p">)]</span>
+    <span class="n">reps_dist_hv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">reps_distl</span><span class="p">))</span>
+    
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+    <span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+    <span class="n">rn</span> <span class="o">=</span> <span class="n">reps_dist_hv</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">tn</span> <span class="o">=</span> <span class="n">tot_dist_hv</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">print</span> <span class="s">&quot;Mean observation distance in total: </span><span class="si">%5.3f</span><span class="s">, No. dist. </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">tot_dist_hv</span><span class="p">),</span> <span class="n">tn</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Mean observation distance between replicates: </span><span class="si">%5.3f</span><span class="s">, No. dist. </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">reps_dist_hv</span><span class="p">),</span> <span class="n">rn</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span> <span class="p">[</span><span class="n">tot_dist_hv</span><span class="p">,</span> <span class="n">reps_dist_hv</span><span class="p">],</span> <span class="mi">100</span><span class="p">,</span> <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">rn</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">tn</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">tot_dist_hv</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">reps_dist_hv</span><span class="p">)],</span> 
+                                 <span class="n">histtype</span><span class="o">=</span><span class="s">&#39;bar&#39;</span><span class="p">,</span>
+                                 <span class="n">label</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;All observations (mean=</span><span class="si">%5.3f</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">tot_dist_hv</span><span class="p">),</span> 
+                                          <span class="s">&quot;Multiple occurring observations (mean=</span><span class="si">%5.3f</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">reps_dist_hv</span><span class="p">)],</span>
+                                 <span class="n">color</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;green&quot;</span><span class="p">,</span> <span class="s">&quot;orange&quot;</span><span class="p">])</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&quot;Distance&quot;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&quot;Observation pairs&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">res_path</span> <span class="o">+</span> <span class="s">&quot;distance_reps_tot_hist.pdf&quot;</span><span class="p">)</span>
+ 
+<span class="c">#outlier detection</span>
+</div>
+<div class="viewcode-block" id="detect_outliers"><a class="viewcode-back" href="../../sa.methods.html#sa.methods.detect_outliers">[docs]</a><span class="k">def</span> <span class="nf">detect_outliers</span><span class="p">(</span><span class="n">dnp</span><span class="p">,</span> <span class="n">plate</span><span class="p">,</span> <span class="n">out_name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">save</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Detect outliers by fitting an elliptic envelope and normalizing the decision function</span>
+<span class="sd">    by the number of cells in strain. </span>
+<span class="sd">    </span>
+<span class="sd">    The goal is to separate a core of regular observations from some</span>
+<span class="sd">    polluting ones and decide whether a new observation belongs to the same distribution as existing </span>
+<span class="sd">    observations (it is an inlier) or should be considered different (it is an outlier).</span>
+<span class="sd">    </span>
+<span class="sd">    The number of cells per strain used for computing feature values in observation additionally normalize the </span>
+<span class="sd">    decision function score. </span>
+<span class="sd">    </span>
+<span class="sd">    :param dnp: Preprocessed computational profiles</span>
+<span class="sd">    :type dnp: `numpy.array`</span>
+<span class="sd">    :param plates: Plates data as returned from :mod:`utilities.read`</span>
+<span class="sd">    :type plates: `list`</span>
+<span class="sd">    :param out_name: The full name of the file where outliers will be saved.</span>
+<span class="sd">    :type out_name: `str`</span>
+<span class="sd">    :param save: Indicator whether to save outliers&#39; identification to files. True by default.</span>
+<span class="sd">    :type save: `bool`</span>
+<span class="sd">    </span>
+<span class="sd">    Return outlyingness of observations in :param:`dnp` and decision function according to the fitted model for elliptic</span>
+<span class="sd">    envelope, respectively and reduced data set without outliers as tuple (reduced_plate, reduced_dnp).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">print</span> <span class="s">&quot;Detecting outliers&quot;</span>
+    <span class="n">envelope</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">covariance</span><span class="o">.</span><span class="n">EllipticEnvelope</span><span class="p">(</span><span class="n">contamination</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">)</span>
+    
+    <span class="k">print</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">Fitting elliptic envelope&quot;</span>
+    <span class="n">envelope</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dnp</span><span class="p">)</span>
+    
+    <span class="c">#distance of the samples dnp to the separating hyperplane</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dnp</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="n">dec_envelope</span> <span class="o">=</span> <span class="n">correct_outlier_dec</span><span class="p">(</span><span class="n">envelope</span><span class="o">.</span><span class="n">decision_function</span><span class="p">(</span><span class="n">dnp</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">base</span><span class="p">)</span>
+    
+    <span class="c">#predicted values: 1 (inliers), -1 (outliers)</span>
+    <span class="n">y_pred_envelope</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span> <span class="k">if</span> <span class="n">s</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">dec_envelope</span><span class="p">])</span>
+    
+    <span class="k">print</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">Outliers by elliptic env. (wo corr):&quot;</span>
+    <span class="n">env_idx_wo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">envelope</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dnp</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> 
+    <span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t\t</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">plate</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">plate</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">env_idx_wo</span><span class="p">)</span>
+    
+    <span class="k">print</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">Outliers by elliptic env. (w corr):&quot;</span>
+    <span class="n">env_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">y_pred_envelope</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> 
+    <span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t\t</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">plate</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">plate</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">env_idx</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;Saving outliers to file: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">out_name</span>
+        <span class="n">fout</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_name</span><span class="p">,</span> <span class="s">&quot;a&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">env_idx_wo</span><span class="p">:</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">plate</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">plate</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]]))</span>
+        <span class="n">fout</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="c">#reduced data set according to elliptic envelope without weight correction</span>
+    <span class="n">r_plate</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ex</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">plate</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">env_idx_wo</span><span class="p">]</span>
+    <span class="n">r_dnp</span> <span class="o">=</span> <span class="n">dnp</span><span class="p">[[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">dnp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">env_idx_wo</span><span class="p">],</span> <span class="p">:]</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">r_plate</span><span class="p">)</span> <span class="o">==</span> <span class="n">r_dnp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">&quot;Dimension mismatch. Plate data and computational features dimension does not match.&quot;</span>
+    
+    <span class="k">return</span> <span class="p">(</span><span class="n">y_pred_envelope</span><span class="p">,</span> <span class="n">dec_envelope</span><span class="p">),</span> <span class="p">(</span><span class="n">r_plate</span><span class="p">,</span> <span class="n">r_dnp</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="correct_outlier_dec"><a class="viewcode-back" href="../../sa.methods.html#sa.methods.correct_outlier_dec">[docs]</a><span class="k">def</span> <span class="nf">correct_outlier_dec</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">base</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Outlier decision function correction. More cells greater the increase in decision.&quot;&quot;&quot;</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">X</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">X</span> <span class="o">-</span> <span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="outlier2cluster"><a class="viewcode-back" href="../../sa.methods.html#sa.methods.outlier2cluster">[docs]</a><span class="k">def</span> <span class="nf">outlier2cluster</span><span class="p">(</span><span class="n">out_labels</span><span class="p">,</span> <span class="n">c_labels</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine intersection between outliers and cluster mapping (percentage of outliers in each cluster). </span>
+<span class="sd">    </span>
+<span class="sd">    :param out_labels: Outliers labelling (1 = inlier, -1 = outlier).</span>
+<span class="sd">    :type out_labels; `numpy.array`</span>
+<span class="sd">    :param c_labels: Cluster indices of observations.</span>
+<span class="sd">    :type c_labels: `numpy.array`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">print</span> <span class="s">&quot;Cluster to outliers intersection&quot;</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">c_labels</span><span class="p">)</span>
+    <span class="n">out_idx</span> <span class="o">=</span> <span class="n">out_labels</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
+    
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">K</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">print</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">cls: </span><span class="si">%d</span><span class="se">\t</span><span class="s">intersect: </span><span class="si">%5.3f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="n">c_labels</span><span class="p">[</span><span class="n">out_idx</span><span class="p">]</span> <span class="o">==</span> <span class="n">c</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">c_labels</span> <span class="o">==</span> <span class="n">c</span><span class="p">)))</span>
+
+<span class="c">#preprocessing</span>
+</div>
+<div class="viewcode-block" id="standardize"><a class="viewcode-back" href="../../sa.methods.html#sa.methods.standardize">[docs]</a><span class="k">def</span> <span class="nf">standardize</span><span class="p">(</span><span class="n">dnp</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Standardize features by removing the mean and scaling to unit variance.</span>
+<span class="sd">    </span>
+<span class="sd">    :param dnp:  Computational profiles of strains.</span>
+<span class="sd">    :type dnp: `numpy.array`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">print</span> <span class="s">&quot;Standardization&quot;</span>
+    <span class="n">scaler</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">Scaler</span><span class="p">(</span><span class="n">copy</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+    <span class="n">scaler</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dnp</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dnp</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="normalize"><a class="viewcode-back" href="../../sa.methods.html#sa.methods.normalize">[docs]</a><span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">dnp</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalize observations individually to unit L2 norm.</span>
+<span class="sd">    </span>
+<span class="sd">    :param dnp: Computational profiles of strains.</span>
+<span class="sd">    :type dnp: `numpy.array`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">print</span> <span class="s">&quot;Normalization&quot;</span>
+    <span class="n">normalizer</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">Normalizer</span><span class="p">(</span><span class="n">norm</span> <span class="o">=</span> <span class="s">&quot;l2&quot;</span><span class="p">,</span> <span class="n">copy</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+    <span class="n">normalizer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dnp</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">normalizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dnp</span><span class="p">)</span>
+
+<span class="c">#dimensionality reduction techniques</span>
+</div>
+<div class="viewcode-block" id="decompose_PCA"><a class="viewcode-back" href="../../sa.methods.html#sa.methods.decompose_PCA">[docs]</a><span class="k">def</span> <span class="nf">decompose_PCA</span><span class="p">(</span><span class="n">dnp</span><span class="p">,</span> <span class="n">plate</span><span class="p">,</span> <span class="n">n_components</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">out_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply PCA decomposition to the data to reduce the dimensionality. </span>
+<span class="sd">    </span>
+<span class="sd">    Decompose a multivariate data set in a set of successive orthogonal components that explain a </span>
+<span class="sd">    maximum amount of variance. </span>
+<span class="sd">    </span>
+<span class="sd">    In addition use the probabilistic PCA to provide a probabilistic interpretation of the PCA that can give</span>
+<span class="sd">    a likelihood of the data based on the amount of the variance it explains.</span>
+<span class="sd">    </span>
+<span class="sd">    Return transformed data of shape [n_samples, n_components] and save 3D PCA projection to :param:`out_name`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pca</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">decomposition</span><span class="o">.</span><span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span> <span class="o">=</span> <span class="n">n_components</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Fitting probabilistic PCA&quot;</span>
+    <span class="n">pca</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dnp</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Explained variance ratio:&quot;</span>
+    <span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="si">%s</span><span class="s">: </span><span class="si">%5.3f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pca</span><span class="o">.</span><span class="n">explained_variance_ratio_</span><span class="p">))</span>
+    <span class="n">trans_pca</span> <span class="o">=</span> <span class="n">pca</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dnp</span><span class="p">)</span>
+    <span class="n">plotting</span><span class="o">.</span><span class="n">plot_pca_projection</span><span class="p">(</span><span class="n">trans_pca</span><span class="p">,</span> <span class="n">plate</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">out_name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">trans_pca</span>
+</div>
+<div class="viewcode-block" id="decompose_manifold"><a class="viewcode-back" href="../../sa.methods.html#sa.methods.decompose_manifold">[docs]</a><span class="k">def</span> <span class="nf">decompose_manifold</span><span class="p">(</span><span class="n">dnp</span><span class="p">,</span> <span class="n">n_components</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply Isomap algorithm to seek a lower dimensional embedding which maintains geodesic distances between all </span>
+<span class="sd">    points. Isometric mapping is nonlinear dimensionality reduction method.</span>
+<span class="sd">    </span>
+<span class="sd">    Manifold learning is an approach to nonlinear dimensionality reduction. The idea is that the dimensionality of the</span>
+<span class="sd">    data set is only artificially high. Manifold learning is an attempt to generalize linear dimensionality reduction</span>
+<span class="sd">    such as PCA to be sensitive to nonlinear structure in the data.  </span>
+<span class="sd">    </span>
+<span class="sd">    :param dnp: Preprocessed computational profiles of strains.</span>
+<span class="sd">    :type dnp: `numpy.array`</span>
+<span class="sd">    :param n_components: Number of coordinates for the manifold.</span>
+<span class="sd">    :type n_componets: `int`</span>
+
+<span class="sd">    Return transformed data of shape [n_observations, n_components].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">isomap</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">manifold</span><span class="o">.</span><span class="n">Isomap</span><span class="p">(</span><span class="n">n_neighbors</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dnp</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">n_components</span> <span class="o">=</span> <span class="n">n_components</span><span class="p">)</span>
+    <span class="n">isomap</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dnp</span><span class="p">)</span>
+    <span class="n">dnpi</span> <span class="o">=</span> <span class="n">isomap</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dnp</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dnpi</span>
+      </div>
+<div class="viewcode-block" id="decompose_MDS"><a class="viewcode-back" href="../../sa.methods.html#sa.methods.decompose_MDS">[docs]</a><span class="k">def</span> <span class="nf">decompose_MDS</span><span class="p">(</span><span class="n">dnp</span><span class="p">,</span> <span class="n">c_labels</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">out_dir</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">save_coordinates</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply metric MDS for a low dimensional representation of the data in which the distances respect well to</span>
+<span class="sd">    the distances in the original high dimensional space.</span>
+<span class="sd">    </span>
+<span class="sd">    The method constructs a distance matrix with Euclidean distance and runs MDS. The similarities are immersed</span>
+<span class="sd">    in 2 dimensions (n_components = 2). Final coordinates are plotted and saved to file </span>
+<span class="sd">    `mds_scatterplot.pdf` in :param:`out_dir` directory. Colors in the plot denotes classes (clusters) </span>
+<span class="sd">    passed in :param:`c_labels`.  </span>
+<span class="sd">    </span>
+<span class="sd">    :param dnp: Preprocessed computational profiles of strains.</span>
+<span class="sd">    :type dnp: `numpy.array`</span>
+<span class="sd">    :param c_labels: Cluster indices of observations.</span>
+<span class="sd">    :type c_labels: `numpy.array`</span>
+<span class="sd">    :param out_dir: Full path to output directory where plot will be saved.</span>
+<span class="sd">    :type out_dir: `str`</span>
+<span class="sd">    :param save_coordinates: Indicator whether to plot and save final coordinates. By default, it is set </span>
+<span class="sd">                            to True</span>
+<span class="sd">    :type save_coordinates: `bool`</span>
+<span class="sd">    </span>
+<span class="sd">    Returned are positions of the observations in the embedding space. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">print</span> <span class="s">&quot;Computing Euclidean distances&quot;</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="mi">3000</span>
+    <span class="n">dnp</span> <span class="o">=</span> <span class="n">dnp</span><span class="p">[:</span><span class="n">K</span> <span class="k">if</span> <span class="n">dnp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">K</span> <span class="k">else</span> <span class="n">dnp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">:]</span>
+    <span class="n">dist_matrix</span> <span class="o">=</span> <span class="n">euclidean_distances</span><span class="p">(</span><span class="n">dnp</span><span class="p">)</span>
+    <span class="kn">import</span> <span class="nn">mds</span>
+    <span class="k">print</span> <span class="s">&quot;Starting MDS computation&quot;</span>
+    <span class="n">p_mds</span> <span class="o">=</span> <span class="n">mds</span><span class="o">.</span><span class="n">MDS</span><span class="p">(</span><span class="n">n_components</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">n_init</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">max_iter</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Fitting MDS&quot;</span>
+    <span class="n">embd</span> <span class="o">=</span> <span class="n">p_mds</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">dist_matrix</span><span class="p">)</span>
+    
+    <span class="c">#plottting</span>
+    <span class="k">if</span> <span class="n">save_coordinates</span><span class="p">:</span> 
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span> <span class="c">#, projection=&#39;3d&#39;)</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">dnp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">embd</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">embd</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c_labels</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+        
+        <span class="n">K</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">c_labels</span><span class="p">))</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">proxies</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+            <span class="n">sel</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">k</span><span class="p">,</span> <span class="n">points</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">([</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sel</span><span class="p">],</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sel</span><span class="p">],</span> <span class="n">c</span> <span class="o">=</span> <span class="n">cols</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:])</span>
+            <span class="n">proxies</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">plt</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">fc</span><span class="o">=</span><span class="n">cols</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:]),</span> <span class="s">&quot;Cluster </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">k</span><span class="p">))</span>
+        
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">+</span> <span class="s">&quot;mds_scatterplot_</span><span class="si">%d</span><span class="s">_2d.pdf&quot;</span> <span class="o">%</span> <span class="n">dnp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">proxies</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">proxies</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span> <span class="n">scatterpoints</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s">&quot;MDS scatterplot saved to file: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">fname</span> 
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">embd</span>
+
+<span class="c">#clustering</span>
+</div>
+<div class="viewcode-block" id="k_means"><a class="viewcode-back" href="../../sa.methods.html#sa.methods.k_means">[docs]</a><span class="k">def</span> <span class="nf">k_means</span><span class="p">(</span><span class="n">dnp</span><span class="p">,</span> <span class="n">plates</span><span class="p">,</span> <span class="n">k_range</span><span class="p">,</span> <span class="n">out_name_silhouette</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">out_dir_predictions</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> 
+            <span class="n">out_name_predictions</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">save_silhouette</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">save_predictions</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply k-Means clustering to the data.</span>
+<span class="sd">    </span>
+<span class="sd">    :param dnp: Preprocessed computational profiles of strains.</span>
+<span class="sd">    :type dnp: `numpy.array`</span>
+<span class="sd">    :param plates: Plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type plates: `list`</span>
+<span class="sd">    :param k: The range used for testing the number of clusters.</span>
+<span class="sd">    :type k: `iterable`</span>
+<span class="sd">    :param out_name_silhouette: Fully qualified name of file where silhouette plot will be saved.</span>
+<span class="sd">    :type out_name_silhouette: `str`</span>
+<span class="sd">    :param out_dir_predictions: Full path to output directory where files with clustering predictions will be</span>
+<span class="sd">                                stored.</span>
+<span class="sd">    :type out_dir_predictions: `str`</span>
+<span class="sd">    :param out_name_predictions: Identifier of data used in the name of the clustering predictions.</span>
+<span class="sd">    :type out_name_predictions: `str`</span>
+<span class="sd">    :param save_silhouette: Indicator whether to plot silhouette plot and save it to file :param:`out_name`. By</span>
+<span class="sd">                            default, it is set to True.</span>
+<span class="sd">    :type save_silhouette: `bool`</span>
+<span class="sd">    :param save_predictions: Indicator whether to save predictions (cluster membership for each observation) for each </span>
+<span class="sd">                            number of clusters in :param:`k_range`.</span>
+<span class="sd">    :type save_predictions: `bool`</span>
+<span class="sd">    </span>
+<span class="sd">    For each number of clusters compute the mean silhouette coefficient of all observations. Return clustering </span>
+<span class="sd">    results for clustering with highest mean silhouette coefficient. </span>
+<span class="sd">    </span>
+<span class="sd">    Mean silhouette coefficient close to 1 means the datum is appropriately clustered, coefficient close to -1</span>
+<span class="sd">    means the observations have been assigned to wrong clusters.</span>
+<span class="sd">    </span>
+<span class="sd">    Returned are predictions for all observations in data (the closest cluster each observation belongs to),</span>
+<span class="sd">    mean silhouette coefficient score of best clustering and a matrix of transformed data to cluster-distance </span>
+<span class="sd">    space of shape [n_observations, k]. In the new space, each dimension is the distance to the cluster centers.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">k_best</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">score_best</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">print</span> <span class="s">&quot;Starting K-means clustering&quot;</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">k_range</span><span class="p">:</span>
+        <span class="n">kmeans</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">KMeans</span><span class="p">(</span><span class="n">k</span> <span class="o">=</span> <span class="n">k</span><span class="p">,</span> <span class="n">n_init</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">n_jobs</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">kmeans</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dnp</span><span class="p">)</span>
+        <span class="n">pred</span> <span class="o">=</span> <span class="n">kmeans</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dnp</span><span class="p">)</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="n">silhouette</span><span class="p">(</span><span class="n">dnp</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+        <span class="n">mscore</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">save_silhouette</span><span class="p">:</span>
+            <span class="n">plotting</span><span class="o">.</span><span class="n">plot_silhouette</span><span class="p">(</span><span class="n">scores</span> <span class="o">=</span> <span class="n">scores</span><span class="p">,</span> <span class="n">c_idx</span> <span class="o">=</span> <span class="n">pred</span><span class="p">,</span> <span class="n">K</span> <span class="o">=</span> <span class="n">k</span><span class="p">,</span> <span class="n">out_name</span> <span class="o">=</span> <span class="n">out_name_silhouette</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">save_predictions</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_dir_predictions</span> <span class="o">+</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">_clustering_</span><span class="si">%d</span><span class="s">.csv&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">out_name_predictions</span><span class="p">,</span> <span class="n">k</span><span class="p">),</span> <span class="s">&quot;w&quot;</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pred</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">plates</span><span class="p">),</span> <span class="s">&quot;Error. Number of predictions does not match with observations in plates.&quot;</span>
+            <span class="n">NK</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">pred</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">NK</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">wtn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="mi">1</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">plates</span><span class="p">)</span> <span class="k">if</span> <span class="n">el</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;YOR202W&quot;</span> <span class="ow">and</span> <span class="n">pred</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">j</span><span class="p">])</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;Cluster </span><span class="si">%d</span><span class="s">: size = </span><span class="si">%d</span><span class="s"> (WT = </span><span class="si">%d</span><span class="s">)</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">pred</span> <span class="o">==</span> <span class="n">j</span><span class="p">),</span> <span class="n">wtn</span><span class="p">))</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;ORF&quot;</span><span class="p">,</span> <span class="s">&quot;plate&quot;</span><span class="p">,</span> <span class="s">&quot;date&quot;</span><span class="p">,</span> <span class="s">&quot;row&quot;</span><span class="p">,</span> <span class="s">&quot;col&quot;</span><span class="p">,</span> <span class="s">&quot;cluster&quot;</span><span class="p">])))</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">strain</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">plates</span><span class="p">):</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">,</span><span class="si">%d</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">strain</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+</span> <span class="n">strain</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">]),</span> <span class="n">pred</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            
+        <span class="k">print</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">k: </span><span class="si">%d</span><span class="se">\t</span><span class="s">score: </span><span class="si">%5.3f</span><span class="se">\t</span><span class="s">size: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">mscore</span><span class="p">,</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%d</span><span class="s">:</span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">pred</span> <span class="k">if</span> <span class="n">el</span> <span class="o">==</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">k</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">mscore</span> <span class="o">&gt;</span> <span class="n">score_best</span><span class="p">:</span>
+            <span class="n">score_best</span> <span class="o">=</span> <span class="n">mscore</span>
+            <span class="n">k_best</span> <span class="o">=</span> <span class="n">k</span>
+            <span class="n">pred_best</span> <span class="o">=</span> <span class="n">pred</span>
+            <span class="n">trans_best</span> <span class="o">=</span> <span class="n">kmeans</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dnp</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Best K-means with k: </span><span class="si">%d</span><span class="s"> and score: </span><span class="si">%5.3f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k_best</span><span class="p">,</span> <span class="n">score_best</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pred_best</span><span class="p">,</span> <span class="n">score_best</span><span class="p">,</span> <span class="n">trans_best</span>
+</div>
+<div class="viewcode-block" id="silhouette"><a class="viewcode-back" href="../../sa.methods.html#sa.methods.silhouette">[docs]</a><span class="k">def</span> <span class="nf">silhouette</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">c_idx</span><span class="p">,</span> <span class="n">K</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the silhouette score for each observation in :param:`X`.</span>
+<span class="sd">    </span>
+<span class="sd">    :param c_idx: cluster indices for all observations in X.</span>
+<span class="sd">    :type c_idx: `list`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dist_matrix</span> <span class="o">=</span> <span class="n">euclidean_distances</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+    <span class="n">k_idx</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">c_idx</span> <span class="o">==</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">K</span><span class="p">)]</span>
+    
+    <span class="c">#compute a, b for each observation</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="c">#instances in the same cluster other than instance itself</span>
+        <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">dist_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">ind</span><span class="p">]</span> <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">k_idx</span><span class="p">[</span><span class="n">c_idx</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="k">if</span> <span class="n">ind</span> <span class="o">!=</span> <span class="n">i</span><span class="p">])</span>
+        <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">else</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="c">#instances in other clusters</span>
+        <span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dist_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">ind</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">k_idx</span><span class="p">)</span> <span class="k">if</span> <span class="n">c_idx</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">k</span><span class="p">])</span>
+        <span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">else</span> <span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">b</span><span class="o">-</span><span class="n">a</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+
+<span class="c">#feature selection for unsupervised learning </span>
+</div>
+<div class="viewcode-block" id="fss_wrapper"><a class="viewcode-back" href="../../sa.methods.html#sa.methods.fss_wrapper">[docs]</a><span class="k">def</span> <span class="nf">fss_wrapper</span><span class="p">(</span><span class="n">dnp</span><span class="p">,</span> <span class="n">plates</span><span class="p">,</span> <span class="n">attr_names</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapper approach to unsupervised feature subset selection. </span>
+<span class="sd">    </span>
+<span class="sd">    The idea is to cluster the data as best we can in each candidate feature subspace and </span>
+<span class="sd">    select the most &quot;interesting&quot; subspace with the minimum number of features. Each candidate subspace </span>
+<span class="sd">    is evaluated by assessing resulting clusters and feature subset using chosen feature selection criterion. </span>
+<span class="sd">    This process is repeated until the best feature subset with its corresponding clusters is found. </span>
+<span class="sd">    </span>
+<span class="sd">    The wrapper approach divides the task into three components:</span>
+<span class="sd">        #. feature search: sequential forward (greedy)</span>
+<span class="sd">        #. clustering algorithm: k-means with inertia scoring</span>
+<span class="sd">        #. feature subset evaluation: silhouette coefficient</span>
+<span class="sd">        </span>
+<span class="sd">    :param dnp: Preprocessed computational profiles of strains. </span>
+<span class="sd">    :type dnp: `numpy.array`</span>
+<span class="sd">    :param plates: Plates data as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type plates: `list`</span>
+<span class="sd">    :param attr_names: Names of features corresponding to columns in :param:`dnp`.</span>
+<span class="sd">    :type attr_names: `list`</span>
+<span class="sd">    :param out_dir: Full path to output directory where feature subspace descriptions and cluster</span>
+<span class="sd">                    memberships will be saved.</span>
+<span class="sd">    :type out_dir: `str`</span>
+<span class="sd">    </span>
+<span class="sd">    To directory :param:`out_dir` is saved file named `fss_subsets_scores.csv` which contains </span>
+<span class="sd">    description of feature subspaces (the name of features used in each candidate space) and </span>
+<span class="sd">    achieved mean silhouette coefficient.</span>
+<span class="sd">    </span>
+<span class="sd">    To directory :param:`out_dir` is saved file named `fss_best_subset.csv` which </span>
+<span class="sd">    contains description of feature subspace with highest silhouette coefficient and its score.</span>
+<span class="sd">    </span>
+<span class="sd">    To directory :param:`out_dir` is saved file named `fss_best_clustering.csv` which</span>
+<span class="sd">    contains strain identifiers and their cluster memberships for all observations.</span>
+<span class="sd">    </span>
+<span class="sd">    Returned are predictions for all observations in :param:`dnp` (the cluster each observation belongs to) as </span>
+<span class="sd">    specified by the best evaluated feature subspace, score of best candidate feature space and the names of the </span>
+<span class="sd">    features from the best candidate space. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">attr_cur</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">score_cur</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1e6</span>
+    
+    <span class="n">attr_best</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">pred_best</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">score_best</span> <span class="o">=</span> <span class="n">score_cur</span>
+    
+    <span class="n">attr2idx</span> <span class="o">=</span> <span class="p">{</span><span class="n">attr</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">attr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">attr_names</span><span class="p">)}</span>
+    <span class="n">f_subsets</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_dir</span> <span class="o">+</span> <span class="s">&quot;fss_subsets_scores.csv&quot;</span><span class="p">,</span> <span class="s">&quot;wr&quot;</span><span class="p">)</span>
+    <span class="n">f_bsubset</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_dir</span> <span class="o">+</span> <span class="s">&quot;fss_best_subset.csv&quot;</span><span class="p">,</span> <span class="s">&quot;wr&quot;</span><span class="p">)</span>
+    <span class="n">f_bcls</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_dir</span> <span class="o">+</span> <span class="s">&quot;fss_best_clustering.csv&quot;</span><span class="p">,</span> <span class="s">&quot;wr&quot;</span><span class="p">)</span>
+    <span class="n">f_bcls</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;ORF&quot;</span><span class="p">,</span> <span class="s">&quot;plate&quot;</span><span class="p">,</span> <span class="s">&quot;date&quot;</span><span class="p">,</span> <span class="s">&quot;row&quot;</span><span class="p">,</span> <span class="s">&quot;col&quot;</span><span class="p">,</span> <span class="s">&quot;cluster&quot;</span><span class="p">]))</span>
+    
+    <span class="k">print</span> <span class="s">&quot;Starting with FSS wrapper approach&quot;</span>
+    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">50</span><span class="p">):</span>
+        <span class="n">res_tmp</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">seq</span><span class="p">,</span> <span class="n">tot</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">attr_names</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">attr_cur</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">attr_names</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">attr_cur</span><span class="p">):</span>
+            <span class="n">seq</span> <span class="o">+=</span><span class="mi">1</span>
+            <span class="n">idxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">attr2idx</span><span class="p">[</span><span class="n">at</span><span class="p">]</span> <span class="k">for</span> <span class="n">at</span> <span class="ow">in</span> <span class="n">attr_cur</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">attr2idx</span><span class="p">[</span><span class="n">attr</span><span class="p">]]</span>
+            <span class="n">dnp_fss</span> <span class="o">=</span> <span class="n">dnp</span><span class="p">[:,</span> <span class="n">idxs</span><span class="p">]</span>
+            
+            <span class="n">k_tmp</span> <span class="o">=</span> <span class="p">[]</span> 
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">):</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">inertia</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">k_means</span><span class="p">(</span><span class="n">dnp_fss</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="n">k</span><span class="p">,</span> <span class="n">n_init</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="n">k_tmp</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">inertia</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+            <span class="n">k_tmp</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+            
+            <span class="n">pred</span> <span class="o">=</span> <span class="n">k_tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">fidx</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">k_tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]):</span>
+                <span class="n">ridx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">pred</span> <span class="o">==</span> <span class="n">i</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">ridx</span><span class="p">)</span>
+                <span class="n">fidx</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ridx</span><span class="p">[:</span><span class="mi">200</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ridx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">200</span> <span class="k">else</span> <span class="n">ridx</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">silhouette_score</span><span class="p">(</span><span class="n">dnp</span><span class="p">[</span><span class="n">fidx</span><span class="p">,</span> <span class="p">:],</span> <span class="n">pred</span><span class="p">[</span><span class="n">fidx</span><span class="p">],</span> <span class="n">metric</span> <span class="o">=</span> <span class="s">&quot;euclidean&quot;</span><span class="p">)</span>
+            <span class="k">print</span> <span class="s">&quot;</span><span class="se">\t\t</span><span class="s">adding </span><span class="si">%d</span><span class="s">/</span><span class="si">%d</span><span class="s"> attr: </span><span class="si">%s</span><span class="s"> gives silhouette: </span><span class="si">%5.3f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">tot</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span>
+            <span class="n">res_tmp</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">score</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">pred</span><span class="p">))</span>
+            
+        <span class="n">res_tmp</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">reverse</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="c">#sequentially add one feature a time. The feature added is the one that </span>
+        <span class="c">#provides the largest criterion value when used in combination with the </span>
+        <span class="c">#features chosen.</span>
+        <span class="k">print</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">Current feature space: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">attr_cur</span><span class="p">)</span>
+        <span class="n">attr_cur</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">res_tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">print</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">Added feature: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">res_tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">score_cur</span> <span class="o">=</span> <span class="n">res_tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">f_subsets</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%5.4f</span><span class="s">,</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">score_cur</span><span class="p">,</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">attr_cur</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">score_cur</span> <span class="o">&gt;</span> <span class="n">score_best</span><span class="p">:</span>
+            <span class="n">attr_best</span> <span class="o">=</span> <span class="n">attr_cur</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">score_best</span> <span class="o">=</span> <span class="n">score_cur</span>
+            <span class="n">pred_best</span> <span class="o">=</span> <span class="n">res_tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> 
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+            <span class="c">#print &quot;The FSS is stopped because adding more features does not improve feature criteria.&quot;</span>
+            <span class="c">#break</span>
+        <span class="k">print</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">Finished step: </span><span class="si">%d</span><span class="s">, best score: </span><span class="si">%5.4f</span><span class="s">, space: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">score_best</span><span class="p">,</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">attr_best</span><span class="p">))</span>
+        <span class="k">print</span> 
+    <span class="n">f_bsubset</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%5.4f</span><span class="s">,</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">score_best</span><span class="p">,</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">attr_best</span><span class="p">)))</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pred_best</span><span class="p">)</span> <span class="o">==</span> <span class="n">dnp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">plates</span><span class="p">),</span> <span class="s">&quot;Dimension mismatch.&quot;</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">strain</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">plates</span><span class="p">):</span>
+        <span class="n">cls</span> <span class="o">=</span> <span class="n">pred_best</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">f_bcls</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">,</span><span class="si">%d</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">strain</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+</span> <span class="n">strain</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">]),</span> <span class="n">cls</span><span class="p">))</span>
+    
+    <span class="n">f_subsets</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">f_bsubset</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">f_bcls</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">pred_best</span><span class="p">,</span> <span class="n">score_best</span><span class="p">,</span> <span class="n">attr_best</span>
+    
+<span class="c">#novelty detection</span>
+</div>
+<div class="viewcode-block" id="detect_novelties_SVM"><a class="viewcode-back" href="../../sa.methods.html#sa.methods.detect_novelties_SVM">[docs]</a><span class="k">def</span> <span class="nf">detect_novelties_SVM</span><span class="p">(</span><span class="n">dnp_wt</span><span class="p">,</span> <span class="n">dnp_mt</span><span class="p">,</span> <span class="n">plates_wt</span><span class="p">,</span> <span class="n">plates_mt</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">save_visualization</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Novelty detection to decide whether a new observation belongs to the same </span>
+<span class="sd">    distribution as existing observations or should be considered as different. The</span>
+<span class="sd">    training data are profiles of WT strains (preprocessed, that is with removed outliers</span>
+<span class="sd">    and standardized features). We are interested in detecting anomalies in mutant strains.</span>
+<span class="sd">    </span>
+<span class="sd">    Identification of strains with non-WT phenotype. In addition to clustering of WT and non-WT</span>
+<span class="sd">    strains and analyzing cluster memberships, one can perform novelty detection to address whether</span>
+<span class="sd">    new observation (non-WT strain) is so different from the training set (WT strains), that</span>
+<span class="sd">    we can doubt it is regular (e.g. it comes from different distirbution). </span>
+<span class="sd">    </span>
+<span class="sd">    It is used one-class SVM, a semi supervised algorithm that learns a decision function </span>
+<span class="sd">    for novelty detection.</span>
+<span class="sd">    </span>
+<span class="sd">    :param dnp_wt: Preprocessed computational profiles of WT strains.</span>
+<span class="sd">    :type dnp_wt: `numpy.array`</span>
+<span class="sd">    :param dnp_mt: Preprocesed computational profiles of MT strains. </span>
+<span class="sd">    :type dnp_mt: `numpy.array`</span>
+<span class="sd">    :param plates_wt: Plates data of WT strains as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type plates_wt: `list`</span>
+<span class="sd">    :param plates_mt: Plates data of MT strains as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type plates_mt: `list`</span>
+<span class="sd">    :param out_dir: Full path to output directory where novelty detection results will be saved.  </span>
+<span class="sd">    :type out_dir: `str`</span>
+<span class="sd">    :param save_visualization: Indicator whether to visualize training and test observations with </span>
+<span class="sd">                      labels in a low dimensionl representation. By default, it is set to True. </span>
+<span class="sd">    :type save_visualization: `bool`</span>
+<span class="sd">    </span>
+<span class="sd">    To  directory :param:`out_dir` is saved file named `novelty_detection_SVM.csv` which contains</span>
+<span class="sd">    strain identifiers and predictions (predicted class for each observation and observation distance</span>
+<span class="sd">    to the separating hyperplane) for all non-WT observations. Predicted classes are +1 (regular novel</span>
+<span class="sd">    observations) and -1 (abnormal novel observations). Higher distance to the separating hyperplane </span>
+<span class="sd">    indicates greater confidence in prediction. </span>
+<span class="sd">    </span>
+<span class="sd">    To directory :param:`out_dir` is saved plot `novelty_detection_SVM.pdf` visualizing training </span>
+<span class="sd">    and test observations with learned labels if :param:`save_visualization` is set. A low (2D) dimensional </span>
+<span class="sd">    representation is obtained by MDS.</span>
+<span class="sd">    </span>
+<span class="sd">    .. note:: If visualization option is enabled, optimization process in MDS can increase duration.  </span>
+<span class="sd">    </span>
+<span class="sd">    .. seealso:: function :func:`detect_novelties_GMM`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">dnp_wt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">plates_wt</span><span class="p">),</span> <span class="s">&quot;Dimension mismatch&quot;</span>
+    <span class="k">assert</span> <span class="n">dnp_mt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">plates_mt</span><span class="p">),</span> <span class="s">&quot;Dimension mismatch&quot;</span>
+
+    <span class="k">print</span> <span class="s">&quot;Fitting one-class SVM&quot;</span>
+    <span class="n">clf</span> <span class="o">=</span> <span class="n">svm</span><span class="o">.</span><span class="n">OneClassSVM</span><span class="p">(</span><span class="n">nu</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">kernel</span> <span class="o">=</span> <span class="s">&quot;sigmoid&quot;</span><span class="p">,</span> <span class="n">gamma</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">)</span>
+    <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dnp_wt</span><span class="p">)</span>
+    
+    <span class="k">print</span> <span class="s">&quot;Predicting one-class SVM for WT and MT strains&quot;</span>
+    <span class="n">pred_wt</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dnp_wt</span><span class="p">)</span>
+    <span class="n">pred_mt</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dnp_mt</span><span class="p">)</span>
+    <span class="c">#distance of the samples to the separating hyperplane</span>
+    <span class="n">dec_fun</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">decision_function</span><span class="p">(</span><span class="n">dnp_mt</span><span class="p">)</span>
+    
+    <span class="k">print</span> <span class="s">&quot;Training error (spurious WT strains): </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">pred_wt</span><span class="p">[</span><span class="n">pred_wt</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
+    <span class="k">print</span> <span class="s">&quot;Normal MT strains: </span><span class="si">%d</span><span class="s"> &quot;</span> <span class="o">%</span> <span class="n">pred_mt</span><span class="p">[</span><span class="n">pred_mt</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> 
+    <span class="k">print</span> <span class="s">&quot;Abnormal MT strains: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">pred_mt</span><span class="p">[</span><span class="n">pred_mt</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
+    
+    <span class="c">#save predictions to file </span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">+</span> <span class="s">&quot;novelty_detection_SVM.csv&quot;</span>
+    <span class="k">print</span> <span class="s">&quot;Saving one-class SVM novelties predictions to file: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">fname</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;ORF&quot;</span><span class="p">,</span> <span class="s">&quot;plate&quot;</span><span class="p">,</span> <span class="s">&quot;date&quot;</span><span class="p">,</span> <span class="s">&quot;row&quot;</span><span class="p">,</span> <span class="s">&quot;col&quot;</span><span class="p">,</span> <span class="s">&quot;class&quot;</span><span class="p">,</span> <span class="s">&quot;score&quot;</span><span class="p">]))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pred_mt</span><span class="p">)):</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">,</span><span class="si">%d</span><span class="s">,</span><span class="si">%5.5f</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">plates_mt</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+</span> <span class="n">plates_mt</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">]),</span> <span class="n">pred_mt</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dec_fun</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="c">#####cluster abnormal MT strains</span>
+    <span class="n">dnp_mt_abn</span> <span class="o">=</span> <span class="n">dnp_mt</span><span class="p">[</span><span class="n">pred_mt</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">idx_mt_abn</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pred_mt</span><span class="p">))</span> <span class="k">if</span> <span class="n">pred_mt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">plates_mt_abn</span> <span class="o">=</span> <span class="p">[</span><span class="n">el</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">plates_mt</span><span class="p">)</span> <span class="k">if</span> <span class="n">pred_mt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    
+    <span class="n">kmeans</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">KMeans</span><span class="p">(</span><span class="n">k</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">n_init</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">n_jobs</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">kmeans</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dnp_mt_abn</span><span class="p">)</span>
+    <span class="n">pred_mt_abn</span> <span class="o">=</span> <span class="n">kmeans</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dnp_mt_abn</span><span class="p">)</span>
+    
+    <span class="n">embd_wt</span> <span class="o">=</span> <span class="n">decompose_MDS</span><span class="p">(</span><span class="n">dnp_wt</span><span class="p">,</span> <span class="n">save_coordinates</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+    <span class="n">embd_mt</span> <span class="o">=</span> <span class="n">decompose_MDS</span><span class="p">(</span><span class="n">dnp_mt</span><span class="p">,</span> <span class="n">save_coordinates</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+    
+    <span class="n">idx_c0</span> <span class="o">=</span> <span class="p">[</span><span class="n">idx_mt_abn</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idx_mt_abn</span><span class="p">))</span> <span class="k">if</span> <span class="n">pred_mt_abn</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">idx_c1</span> <span class="o">=</span> <span class="p">[</span><span class="n">idx_mt_abn</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idx_mt_abn</span><span class="p">))</span> <span class="k">if</span> <span class="n">pred_mt_abn</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">idx_c2</span> <span class="o">=</span> <span class="p">[</span><span class="n">idx_mt_abn</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idx_mt_abn</span><span class="p">))</span> <span class="k">if</span> <span class="n">pred_mt_abn</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">]</span>
+    
+    <span class="k">for</span> <span class="n">cls</span><span class="p">,</span> <span class="n">idxs</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="n">idx_c0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">idx_c1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">idx_c2</span><span class="p">)]:</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">+</span> <span class="s">&quot;novelty_detection_abnormal_MT_cluster</span><span class="si">%d</span><span class="s">_SVM.csv&quot;</span> <span class="o">%</span> <span class="n">cls</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;ORF&quot;</span><span class="p">,</span> <span class="s">&quot;plate&quot;</span><span class="p">,</span> <span class="s">&quot;date&quot;</span><span class="p">,</span> <span class="s">&quot;row&quot;</span><span class="p">,</span> <span class="s">&quot;col&quot;</span><span class="p">,</span> <span class="s">&quot;class&quot;</span><span class="p">,</span> <span class="s">&quot;score&quot;</span><span class="p">]))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idxs</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">,</span><span class="si">%d</span><span class="s">,</span><span class="si">%5.5f</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">plates_mt</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+</span> <span class="n">plates_mt</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">]),</span> <span class="n">pred_mt</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dec_fun</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="n">n</span> <span class="o">=</span> <span class="n">embd_mt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">idx_c0</span> <span class="o">=</span> <span class="p">[</span><span class="n">el</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">idx_c0</span> <span class="k">if</span> <span class="n">el</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">]</span>
+    <span class="n">idx_c1</span> <span class="o">=</span> <span class="p">[</span><span class="n">el</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">idx_c1</span> <span class="k">if</span> <span class="n">el</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">]</span>
+    <span class="n">idx_c2</span> <span class="o">=</span> <span class="p">[</span><span class="n">el</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">idx_c2</span> <span class="k">if</span> <span class="n">el</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">]</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&quot;Profiles of abnormal MT strains clustered (yellow, magenta, blue)&quot;</span><span class="p">)</span>
+    <span class="n">b1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">embd_wt</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">embd_wt</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span> <span class="o">=</span> <span class="s">&quot;green&quot;</span><span class="p">)</span>
+    <span class="n">b2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">embd_mt</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">embd_mt</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span> <span class="o">=</span> <span class="s">&quot;orange&quot;</span><span class="p">)</span>
+    <span class="n">c0</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">embd_mt</span><span class="p">[</span><span class="n">idx_c0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">embd_mt</span><span class="p">[</span><span class="n">idx_c0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span> <span class="o">=</span> <span class="s">&quot;yellow&quot;</span><span class="p">)</span>
+    <span class="n">c1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">embd_mt</span><span class="p">[</span><span class="n">idx_c1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">embd_mt</span><span class="p">[</span><span class="n">idx_c1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span> <span class="o">=</span> <span class="s">&quot;magenta&quot;</span><span class="p">)</span>
+    <span class="n">c2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">embd_mt</span><span class="p">[</span><span class="n">idx_c2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">embd_mt</span><span class="p">[</span><span class="n">idx_c2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span> <span class="o">=</span> <span class="s">&quot;blue&quot;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s">&#39;tight&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">embd_wt</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">embd_mt</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]]),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">embd_wt</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">embd_mt</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]])))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">embd_wt</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">embd_mt</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]]),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">embd_wt</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">embd_mt</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]])))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="n">b1</span><span class="p">,</span> <span class="n">b2</span><span class="p">,</span> <span class="n">c0</span><span class="p">,</span> <span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">],</span>
+              <span class="p">[</span><span class="s">&quot;WT strains&quot;</span><span class="p">,</span> <span class="s">&quot;regular MT strains&quot;</span><span class="p">,</span> <span class="s">&quot;abnormal MT strains 0&quot;</span><span class="p">,</span> <span class="s">&quot;abnormal MT strains 1&quot;</span><span class="p">,</span> <span class="s">&quot;abnormal MT strains 2&quot;</span><span class="p">],</span>
+              <span class="n">loc</span><span class="o">=</span><span class="s">&quot;upper left&quot;</span><span class="p">,</span> <span class="n">prop</span> <span class="o">=</span> <span class="n">font_manager</span><span class="o">.</span><span class="n">FontProperties</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">11</span><span class="p">))</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">+</span> <span class="s">&quot;novelty_detection_abnormal_MT_clusters_SVM.pdf&quot;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+    <span class="c">##### </span>
+        
+    <span class="c">#visualize</span>
+    <span class="k">if</span> <span class="n">save_visualization</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;Low dimensional projection and one-class SVM visualization.&quot;</span>
+        <span class="n">embd_wt</span> <span class="o">=</span> <span class="n">decompose_MDS</span><span class="p">(</span><span class="n">dnp_wt</span><span class="p">,</span> <span class="n">save_coordinates</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="n">embd_mt</span> <span class="o">=</span> <span class="n">decompose_MDS</span><span class="p">(</span><span class="n">dnp_mt</span><span class="p">,</span> <span class="n">save_coordinates</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+        
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&quot;Novelty Detection&quot;</span><span class="p">)</span>
+        <span class="n">b1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">embd_wt</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">embd_wt</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span> <span class="o">=</span> <span class="s">&quot;green&quot;</span><span class="p">)</span>
+        <span class="n">b2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">embd_mt</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">embd_mt</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span> <span class="o">=</span> <span class="s">&quot;orange&quot;</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">embd_mt</span><span class="p">[</span><span class="n">pred_mt</span><span class="p">[:</span><span class="n">embd_mt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">embd_mt</span><span class="p">[</span><span class="n">pred_mt</span><span class="p">[:</span><span class="n">embd_mt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span> <span class="o">=</span> <span class="s">&quot;red&quot;</span><span class="p">)</span>
+    
+        <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s">&#39;tight&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">embd_wt</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">embd_mt</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]]),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">embd_wt</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">embd_mt</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]])))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">embd_wt</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">embd_mt</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]]),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">embd_wt</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">embd_mt</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]])))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="n">b1</span><span class="p">,</span> <span class="n">b2</span><span class="p">,</span> <span class="n">c</span><span class="p">],</span>
+                  <span class="p">[</span><span class="s">&quot;WT strains&quot;</span><span class="p">,</span> <span class="s">&quot;regular MT strains&quot;</span><span class="p">,</span> <span class="s">&quot;abnormal MT strains&quot;</span><span class="p">],</span>
+                  <span class="n">loc</span><span class="o">=</span><span class="s">&quot;upper left&quot;</span><span class="p">,</span> <span class="n">prop</span> <span class="o">=</span> <span class="n">font_manager</span><span class="o">.</span><span class="n">FontProperties</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">11</span><span class="p">))</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">+</span> <span class="s">&quot;novelty_detection_SVM.pdf&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;Saving one-class SVM novelties detection plot to file: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">fname</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="detect_novelties_GMM"><a class="viewcode-back" href="../../sa.methods.html#sa.methods.detect_novelties_GMM">[docs]</a><span class="k">def</span> <span class="nf">detect_novelties_GMM</span><span class="p">(</span><span class="n">dnp_wt</span><span class="p">,</span> <span class="n">dnp_mt</span><span class="p">,</span> <span class="n">plates_wt</span><span class="p">,</span> <span class="n">plates_mt</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">save_visualization</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Novelty detection using variational inference for the GMM (Gaussian Mixture Model). </span>
+<span class="sd">    </span>
+<span class="sd">    :param dnp_wt: Preprocessed computational profiles of WT strains.</span>
+<span class="sd">    :type dnp_wt: `numpy.array`</span>
+<span class="sd">    :param dnp_mt: Preprocesed computational profiles of MT strains. </span>
+<span class="sd">    :type dnp_mt: `numpy.array`</span>
+<span class="sd">    :param plates_wt: Plates data of WT strains as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type plates_wt: `list`</span>
+<span class="sd">    :param plates_mt: Plates data of MT strains as returned from :mod:`utilities.read`.</span>
+<span class="sd">    :type plates_mt: `list`</span>
+<span class="sd">    :param out_dir: Full path to output directory where novelty detection results will be saved.  </span>
+<span class="sd">    :type out_dir: `str`</span>
+<span class="sd">    :param save_visualization: Indicator whether to visualize training and test observations with </span>
+<span class="sd">                      labels in a low dimensionl representation. By default, it is set to True. </span>
+<span class="sd">    :type save_visualization: `bool`</span>
+<span class="sd">    </span>
+<span class="sd">    To  directory :param:`out_dir` is saved file named `novelty_detection_GMM.csv` which contains</span>
+<span class="sd">    strain identifiers and predictions (predicted class for each observation and predicted posterior </span>
+<span class="sd">    probability of observation for each Gaussian state in the model) for all non-WT observations. </span>
+<span class="sd">    </span>
+<span class="sd">    To directory :param:`out_dir` is saved plot `novelty_detection_GMM.pdf` visualizing training </span>
+<span class="sd">    and test observations with learned labels if :param:`save_visualization` is set. A low (2D) dimensional </span>
+<span class="sd">    representation is obtained by MDS.</span>
+<span class="sd">    </span>
+<span class="sd">    .. seealso:: function :func:`detect_novelties_SVM`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">dnp_wt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">plates_wt</span><span class="p">),</span> <span class="s">&quot;Dimension mismatch&quot;</span>
+    <span class="k">assert</span> <span class="n">dnp_mt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">plates_mt</span><span class="p">),</span> <span class="s">&quot;Dimension mismatch&quot;</span>
+    
+    <span class="k">print</span> <span class="s">&quot;Fitting GMM&quot;</span>
+    <span class="n">clf</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">mixture</span><span class="o">.</span><span class="n">GMM</span><span class="p">(</span><span class="n">n_components</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">covariance_type</span> <span class="o">=</span> <span class="s">&quot;full&quot;</span><span class="p">)</span>
+    <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dnp_wt</span><span class="p">)</span>
+    
+    <span class="k">print</span> <span class="s">&quot;Predicting GMM for WT strains&quot;</span>
+    <span class="c">#predict labels for data</span>
+    <span class="n">pred_wt</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dnp_wt</span><span class="p">)</span>
+    <span class="c">#predict posterior probability of data under each Gaussian in the model</span>
+    <span class="n">proba_wt</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">dnp_wt</span><span class="p">)</span>
+    
+    <span class="k">print</span> <span class="s">&quot;Predicting GMM for MT strains&quot;</span>
+    <span class="c">#predict labels for data</span>
+    <span class="n">pred_mt</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dnp_mt</span><span class="p">)</span>
+    <span class="c">#predict posterior probability of data under each Gaussian in the model</span>
+    <span class="n">proba_mt</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">dnp_mt</span><span class="p">)</span>
+
+    <span class="n">cls</span> <span class="o">=</span> <span class="p">[]</span>    
+    <span class="k">print</span> <span class="s">&quot;No. of available components: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">clf</span><span class="o">.</span><span class="n">n_components</span>
+    <span class="k">print</span> <span class="s">&quot;Components sizes:&quot;</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">clf</span><span class="o">.</span><span class="n">n_components</span><span class="p">):</span>
+        <span class="n">wtn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="mi">1</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">plates_wt</span><span class="p">)</span> <span class="k">if</span> <span class="n">el</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;YOR202W&quot;</span> <span class="ow">and</span> <span class="n">pred_mt</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="n">i</span><span class="p">])</span>
+        <span class="n">cls</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">pred_mt</span> <span class="o">==</span> <span class="n">i</span><span class="p">),</span> <span class="n">i</span><span class="p">))</span>
+        <span class="k">print</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s"> comp. no. </span><span class="si">%d</span><span class="s">: size = </span><span class="si">%d</span><span class="s"> (WT = </span><span class="si">%d</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">cls</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">wtn</span><span class="p">)</span>
+    <span class="n">cls</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="n">cls</span> <span class="o">=</span> <span class="n">cls</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    
+    <span class="c">#save predictions to file</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">+</span> <span class="s">&quot;novelty_detection_GMM.csv&quot;</span>
+    <span class="k">print</span> <span class="s">&quot;Saving GMM predictions to file: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">fname</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;ORF&quot;</span><span class="p">,</span> <span class="s">&quot;plate&quot;</span><span class="p">,</span> <span class="s">&quot;date&quot;</span><span class="p">,</span> <span class="s">&quot;row&quot;</span><span class="p">,</span> <span class="s">&quot;col&quot;</span><span class="p">,</span> <span class="s">&quot;class&quot;</span><span class="p">,</span> <span class="s">&quot;proba&quot;</span><span class="p">]))</span>
+    <span class="k">for</span> <span class="n">plates</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">proba</span> <span class="ow">in</span> <span class="p">[[</span><span class="n">plates_mt</span><span class="p">,</span> <span class="n">pred_mt</span><span class="p">,</span> <span class="n">proba_mt</span><span class="p">],</span> <span class="p">[</span><span class="n">plates_wt</span><span class="p">,</span> <span class="n">pred_wt</span><span class="p">,</span> <span class="n">proba_wt</span><span class="p">]]:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pred</span><span class="p">)):</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">,</span><span class="si">%d</span><span class="s">,</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">plates</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+</span> <span class="n">plates</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">]),</span> <span class="n">pred</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;</span><span class="si">%5.5f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">el</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">proba</span><span class="p">[</span><span class="n">i</span><span class="p">]])))</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="c">#visualize</span>
+    <span class="k">if</span> <span class="n">save_visualization</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;Low dimensional projection and GMM visualization.&quot;</span>
+        <span class="n">embd_wt</span> <span class="o">=</span> <span class="n">decompose_MDS</span><span class="p">(</span><span class="n">dnp_wt</span><span class="p">,</span> <span class="n">save_coordinates</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="n">embd_mt</span> <span class="o">=</span> <span class="n">decompose_MDS</span><span class="p">(</span><span class="n">dnp_mt</span><span class="p">,</span> <span class="n">save_coordinates</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+        
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&quot;Novelty Detection&quot;</span><span class="p">)</span>
+        <span class="n">b1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">embd_wt</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">embd_wt</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span> <span class="o">=</span> <span class="s">&quot;green&quot;</span><span class="p">)</span>
+        <span class="n">b2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">embd_mt</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">embd_mt</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span> <span class="o">=</span> <span class="s">&quot;orange&quot;</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">embd_mt</span><span class="p">[</span><span class="n">pred_mt</span><span class="p">[:</span><span class="n">embd_mt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">==</span> <span class="n">cls</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">embd_mt</span><span class="p">[</span><span class="n">pred_mt</span><span class="p">[:</span><span class="n">embd_mt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">==</span> <span class="n">cls</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span> <span class="o">=</span> <span class="s">&quot;red&quot;</span><span class="p">)</span>
+    
+        <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s">&#39;tight&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">embd_wt</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">embd_mt</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]]),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">embd_wt</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">embd_mt</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]])))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">embd_wt</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">embd_mt</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]]),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">embd_wt</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">embd_mt</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]])))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="n">b1</span><span class="p">,</span> <span class="n">b2</span><span class="p">,</span> <span class="n">c</span><span class="p">],</span>
+                  <span class="p">[</span><span class="s">&quot;WT strains&quot;</span><span class="p">,</span> <span class="s">&quot;regular MT strains&quot;</span><span class="p">,</span> <span class="s">&quot;abnormal MT strains&quot;</span><span class="p">],</span>
+                  <span class="n">loc</span><span class="o">=</span><span class="s">&quot;upper left&quot;</span><span class="p">,</span> <span class="n">prop</span> <span class="o">=</span> <span class="n">font_manager</span><span class="o">.</span><span class="n">FontProperties</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">11</span><span class="p">))</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">+</span> <span class="s">&quot;novelty_detection_GMM.pdf&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;Saving GMM novelties detection plot to file: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">fname</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Yeast Screen Data Analysis 1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Marinka Zitnik.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.
+    </div>
+  </body>
+</html>

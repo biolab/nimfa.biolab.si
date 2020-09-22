@@ -1,0 +1,381 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Gene Function Prediction (examples.gene_func_prediction) &mdash; Nimfa 1.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Nimfa 1.3.1 documentation" href="index.html" />
+    <link rel="up" title="Examples (examples)" href="nimfa.examples.html" />
+    <link rel="next" title="Datasets (datasets)" href="nimfa.datasets.html" />
+    <link rel="prev" title="Recommendations (examples.recommendations)" href="nimfa.examples.recommendations.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-nimfa.examples.gene_func_prediction"></span><div class="section" id="gene-function-prediction-examples-gene-func-prediction">
+<h1>Gene Function Prediction (<tt class="docutils literal"><span class="pre">examples.gene_func_prediction</span></tt>)<a class="headerlink" href="#gene-function-prediction-examples-gene-func-prediction" title="Permalink to this headline">¶</a></h1>
+<p>As a background reading before this example, we recommend user to read <a class="reference internal" href="index.html#schietgat2010" id="id1">[Schietgat2010]</a> and <a class="reference internal" href="index.html#schachtner2008" id="id2">[Schachtner2008]</a> where
+the authors study the use of decision tree based models for predicting the multiple gene functions and unsupervised 
+matrix factorization techniques to extract marker genes from gene expression profiles for classification into
+diagnostic categories, respectively.</p>
+<p>This example from functional genomics deals with predicting gene functions. Two main characteristics of gene function 
+prediction task are:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>single gene can have multiple functions,</li>
+<li>the functions are organized in a hierarchy, in particular in a hierarchy structered as a rooted tree &#8211; MIPS
+Functional Catalogue. A gene related to some function is automatically related to all its ancestor 
+functions. Data set used in this example originates from S. cerevisiae and has annotations from the MIPS 
+Functional Catalogue.</li>
+</ol>
+</div></blockquote>
+<p>The latter problem setting describes hierarchical multi-label classification (HMC).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The S. cerevisiae FunCat annotated data set used in this example is not included in the <cite>datasets</cite>. If you 
+wish to perform the gene function prediction experiments, start by downloading the data set. In particular
+D1 (FC) seq data set must be available for the example to run.  Download links are listed in the 
+<tt class="docutils literal"><span class="pre">datasets</span></tt>. To run the example, uncompress the data and put it into corresponding data directory, namely 
+the extracted data set must exist in the <tt class="docutils literal"><span class="pre">S_cerevisiae_FC</span></tt> directory under <tt class="docutils literal"><span class="pre">datasets</span></tt>. Once you have 
+the data installed, you are ready to start running the experiments.</p>
+</div>
+<p>Here is the outline of this gene function prediction task.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Reading S. cerevisiae sequence data, i. e. train, validation and test set. Reading meta data,  
+attributes&#8217; labels and class labels. Weights are used to distinguish direct and indirect class 
+memberships of genes in gene function classes according to FunCat annotations.</li>
+<li>Preprocessing, i. e. normalizing data matrix of test data and data matrix of joined train and validation
+data.</li>
+<li>Factorization of train data matrix. We used SNMF/L factorization algorithm for train data.</li>
+<li>Factorization of test data matrix. We used SNMF/L factorization algorithm for train data.</li>
+<li>Application of rules for class assignments. Three rules can be used, average correlation and maximal 
+correlation, as in <a class="reference internal" href="index.html#schachtner2008" id="id3">[Schachtner2008]</a> and threshold maximal correlation. All class assignments rules
+are generalized to meet the hierarchy constraint imposed by the rooted tree structure of MIPS Functional 
+Catalogue.</li>
+<li>Precision-recall (PR) evaluation measures.</li>
+</ol>
+</div></blockquote>
+<p>To run the example simply type:</p>
+<div class="highlight-python"><div class="highlight"><pre>python gene_func_prediction.py
+</pre></div>
+</div>
+<p>or call the module&#8217;s function:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">nimfa.examples</span>
+<span class="n">nimfa</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">gene_func_prediction</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This example uses <tt class="docutils literal"><span class="pre">matplotlib</span></tt> library for producing visual interpretation.</p>
+</div>
+<dl class="function">
+<dt id="nimfa.examples.gene_func_prediction.assign_labels">
+<tt class="descclassname">nimfa.examples.gene_func_prediction.</tt><tt class="descname">assign_labels</tt><big>(</big><em>corrs</em>, <em>train</em>, <em>idx2class</em>, <em>method=0.0</em><big>)</big><a class="headerlink" href="#nimfa.examples.gene_func_prediction.assign_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply rules for class assignments. In <a class="reference internal" href="index.html#schachtner2008" id="id4">[Schachtner2008]</a> two rules are proposed, average correlation and maximal 
+correlation. Here, both the rules are implemented and can be specified through :param:<a href="#id5"><span class="problematic" id="id6">`</span></a>method``parameter. In addition to 
+these the threshold maximal correlation rule is possible as well. Class assignments rules are generalized to 
+multi-label classification incorporating hierarchy constraints.</p>
+<dl class="docutils">
+<dt>User can specify the usage of one of the following rules:</dt>
+<dd><ol class="first last arabic simple">
+<li>average correlation,</li>
+<li>maximal correlation,</li>
+<li>threshold maximal correlation.</li>
+</ol>
+</dd>
+</dl>
+<p>Though any method based on similarity measures can be used, we estimate correlation coefficients. Let w be the
+gene profile of test basis matrix for which we want to predict gene functions. For each class C a separate 
+index set A of indices is created, where A encompasses all indices m, for which m-th profile of train basis 
+matrix has label C. Index set B contains all remaining indices. Now, the average correlation coefficient between w
+and elements of A is computed, similarly average correlation coefficient between w and elements of B. Finally, 
+w is assigned label C if the former correlation over the respective index set is greater than the 
+latter correlation.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Described rule assigns the class label according to an average correlation of test vector with all
+vectors belonging to one or the other index set. Minor modification of this rule is to assign the class
+label according to the maximal correlation occurring between the test vector and the members of each
+index set.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">As noted before the main problem of this example is the HMC (hierarchical multi-label classification) 
+setting. Therefore we generalized the concepts from articles describing the use of factorization
+for binary classification problems to multi-label classification. Additionally, we use the weights
+for class memberships to incorporate hierarchical structure of MIPS MIPS Functional
+Catalogue.</p>
+</div>
+<p>Return mapping of gene functions to genes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>corrs</strong> (<cite>dict</cite>) &#8211; Estimated correlation coefficients between profiles of train basis matrix and profiles of test 
+basis matrix.</li>
+<li><strong>train</strong> (<cite>dict</cite>) &#8211; Class information of train data set.</li>
+<li><strong>idx2class</strong> (<cite>dict</cite>) &#8211; Mapping between classes&#8217; indices and classes&#8217; labels.</li>
+<li><strong>method</strong> (<cite>float</cite> or <cite>str</cite>) &#8211; Type of rule for class assignments. Possible are average correlation, maximal correlation by 
+specifying <tt class="docutils literal"><span class="pre">average</span></tt> or <tt class="docutils literal"><span class="pre">maximal</span></tt> respectively. In addition threshold maximal correlation is
+supported. If threshold rule is desired, threshold is specified instead. By default 
+threshold rule is applied.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><cite>dict</cite></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.gene_func_prediction.compute_correlations">
+<tt class="descclassname">nimfa.examples.gene_func_prediction.</tt><tt class="descname">compute_correlations</tt><big>(</big><em>train</em>, <em>test</em><big>)</big><a class="headerlink" href="#nimfa.examples.gene_func_prediction.compute_correlations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimate correlation coefficients between profiles of train basis matrix and profiles of test basis matrix.</p>
+<p>Return the estimated correlation coefficients of the features (variables).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>train</strong> (<cite>dict</cite>) &#8211; Factorization matrix factors of train data set.</li>
+<li><strong>test</strong> (<cite>dict</cite>) &#8211; Factorization matrix factors of test data set.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><cite>numpy.matrix</cite></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.gene_func_prediction.factorize">
+<tt class="descclassname">nimfa.examples.gene_func_prediction.</tt><tt class="descname">factorize</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#nimfa.examples.gene_func_prediction.factorize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform factorization on S. cerevisiae FunCat annotated sequence data set (D1 FC seq).</p>
+<p>Return factorized data, this is matrix factors as result of factorization (basis and mixture matrix).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> (<cite>tuple</cite>) &#8211; Transformed data set containing attributes&#8217; values, class information and possibly additional meta information.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.gene_func_prediction.plot">
+<tt class="descclassname">nimfa.examples.gene_func_prediction.</tt><tt class="descname">plot</tt><big>(</big><em>func2gene</em>, <em>test</em>, <em>idx2class</em><big>)</big><a class="headerlink" href="#nimfa.examples.gene_func_prediction.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Report the performance with the precision-recall (PR) based evaluation measures.</p>
+<p>Beside PR also ROC based evaluations have been used before to evaluate gene function prediction approaches. PR
+based better suits the characteristics of the common HMC task, in which many classes are infrequent with a small
+number of genes having particular function. That is for most classes the number of negative instances exceeds
+the number of positive instances. Therefore it is sometimes preferred to recognize the positive instances instead
+of correctly predicting the negative ones (i. e. gene does not have a particular function). That means that ROC
+curve might be less suited for the task as they reward a learner if it correctly predicts negative instances.</p>
+<p>Return PR evaluations measures</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>labels</strong> (<cite>dict</cite>) &#8211; Mapping of genes to their predicted gene functions.</li>
+<li><strong>test</strong> (<cite>dict</cite>) &#8211; Class information of test data set.</li>
+<li><strong>idx2class</strong> (<cite>dict</cite>) &#8211; Mapping between classes&#8217; indices and classes&#8217; labels.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><cite>tuple</cite></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.gene_func_prediction.preprocess">
+<tt class="descclassname">nimfa.examples.gene_func_prediction.</tt><tt class="descname">preprocess</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#nimfa.examples.gene_func_prediction.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess S.cerevisiae FunCat annotated sequence data set (D1 FC seq). Preprocessing step includes data 
+normalization.</p>
+<p>Return preprocessed data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> (<cite>tuple</cite>) &#8211; Transformed data set containing attributes&#8217; values, class information and possibly additional meta information.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.gene_func_prediction.read">
+<tt class="descclassname">nimfa.examples.gene_func_prediction.</tt><tt class="descname">read</tt><big>(</big><big>)</big><a class="headerlink" href="#nimfa.examples.gene_func_prediction.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read S. cerevisiae FunCat annotated sequence data set (D1 FC seq).</p>
+<p>Return attributes&#8217; values and class information of the test data set and joined train and validation data set. Additional mapping functions 
+are returned mapping attributes&#8217; names and classes&#8217; names to indices.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.gene_func_prediction.run">
+<tt class="descclassname">nimfa.examples.gene_func_prediction.</tt><tt class="descname">run</tt><big>(</big><big>)</big><a class="headerlink" href="#nimfa.examples.gene_func_prediction.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the gene function prediction example on the S. cerevisiae sequence data set (D1 FC seq).</p>
+<dl class="docutils">
+<dt>The methodology is as follows:</dt>
+<dd><ol class="first last arabic simple">
+<li>Reading S. cerevisiae sequence data, i. e. train, validation and test set. Reading meta data,  
+attributes&#8217; labels and class labels.</li>
+<li>Preprocessing, i. e. normalizing data matrix of test data and data matrix of joined train and validation
+data.</li>
+<li>Factorization of train data matrix. We used SNMF/L factorization algorithm for train data.</li>
+<li>Factorization of test data matrix. We used SNMF/L factorization algorithm for train data.</li>
+<li>Application of rules for class assignments. Three rules can be used, average correlation and maximal 
+correlation, as in <a class="reference internal" href="index.html#schachtner2008" id="id7">[Schachtner2008]</a> and threshold maximal correlation. All class assignments rules
+are generalized to meet the hierarchy constraint imposed by the rooted tree structure of MIPS Functional 
+Catalogue.</li>
+<li>PR evaluation measures.</li>
+</ol>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.examples.gene_func_prediction.transform_data">
+<tt class="descclassname">nimfa.examples.gene_func_prediction.</tt><tt class="descname">transform_data</tt><big>(</big><em>path</em>, <em>include_meta=False</em><big>)</big><a class="headerlink" href="#nimfa.examples.gene_func_prediction.transform_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read data in the ARFF format and transform it to suitable matrix for factorization process. For each feature update direct and indirect 
+class information exploiting properties of Functional Catalogue hierarchy.</p>
+<p>Return attributes&#8217; values and class information. If <a href="#id8"><span class="problematic" id="id9">:param:`include_meta`</span></a> is specified additional mapping functions are provided with 
+mapping from indices to attributes&#8217; names and indices to classes&#8217; names.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path</strong> (<cite>str</cite>) &#8211; Path of directory with sequence data set (D1 FC seq).</li>
+<li><strong>include_meta</strong> (<cite>bool</cite>) &#8211; Specify if the header of the ARFF file should be skipped. The header of the ARFF file 
+contains the name of the relation, a list of the attributes and their types. Default
+value is False.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Nimfa</a></h1>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=marinkaz&repo=nimfa&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="nimfa.models.html">Models (<tt class="docutils literal"><span class="pre">models</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.methods.html">Methods (<tt class="docutils literal"><span class="pre">methods</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.utils.html">Utils (<tt class="docutils literal"><span class="pre">utils</span></tt>)</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="nimfa.examples.html">Examples (<tt class="docutils literal"><span class="pre">examples</span></tt>)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.synthetic.html">Simulated studies (<tt class="docutils literal"><span class="pre">examples.synthetic</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.all_aml.html">ALL AML Leukemia (<tt class="docutils literal"><span class="pre">examples.aml_all</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.medulloblastoma.html">Medulloblastoma (<tt class="docutils literal"><span class="pre">examples.medulloblastoma</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.cbcl_images.html">CBCL Images (<tt class="docutils literal"><span class="pre">examples.cbcl_images</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.documents.html">Documents (<tt class="docutils literal"><span class="pre">examples.documents</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.orl_images.html">ORL Images (<tt class="docutils literal"><span class="pre">examples.orl_images</span></tt>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.examples.recommendations.html">Recommendations (<tt class="docutils literal"><span class="pre">examples.recommendations</span></tt>)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Gene Function Prediction (<tt class="docutils literal"><span class="pre">examples.gene_func_prediction</span></tt>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.datasets.html">Datasets (<tt class="docutils literal"><span class="pre">datasets</span></tt>)</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="nimfa.examples.html">Examples (<tt class="docutils literal"><span class="pre">examples</span></tt>)</a><ul>
+      <li>Previous: <a href="nimfa.examples.recommendations.html" title="previous chapter">Recommendations (<tt class="docutils literal"><span class="pre">examples.recommendations</span></tt>)</a></li>
+      <li>Next: <a href="nimfa.datasets.html" title="next chapter">Datasets (<tt class="docutils literal"><span class="pre">datasets</span></tt>)</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, The Nimfa developers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/marinkaz/nimfa" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,5 @@
+.. automodule:: sa.analysis
+	:members:
+	:undoc-members:
+	:inherited-members:
+	:show-inheritance:

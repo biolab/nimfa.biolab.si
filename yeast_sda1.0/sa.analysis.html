@@ -1,0 +1,345 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>analysis (sa.analysis) &mdash; Yeast Screen Data Analysis 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Yeast Screen Data Analysis 1.0 documentation" href="index.html" />
+    <link rel="up" title="SA (sa)" href="sa.html" />
+    <link rel="next" title="MDS (sa.mds)" href="sa.mds.html" />
+    <link rel="prev" title="SA (sa)" href="sa.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sa.mds.html" title="MDS (sa.mds)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="sa.html" title="SA (sa)"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Yeast Screen Data Analysis 1.0 documentation</a> &raquo;</li>
+          <li><a href="sa.html" accesskey="U">SA (<tt class="docutils literal docutils literal docutils literal docutils literal"><span class="pre">sa</span></tt>)</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-sa.analysis"></span><div class="section" id="analysis-sa-analysis">
+<h1>analysis (<tt class="docutils literal"><span class="pre">sa.analysis</span></tt>)<a class="headerlink" href="#analysis-sa-analysis" title="Permalink to this headline">¶</a></h1>
+<p>This script performs statistical analysis of strains inside plate and in-between plates.</p>
+<dl class="function">
+<dt id="sa.analysis.fss">
+<tt class="descclassname">sa.analysis.</tt><tt class="descname">fss</tt><big>(</big><em>data_del</em>, <em>data_ts</em>, <em>data_sg</em>, <em>res_path</em><big>)</big><a class="reference internal" href="_modules/sa/analysis.html#fss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.analysis.fss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Feature subset selection for unsupervised learning. Feature subset selection (FSS) and clustering
+based on feature subspace with highest score. A low dimensional representation (MDS) of best 
+clustering is saved to directory <a href="#id1"><span class="problematic" id="id2">:param:`res_path`</span></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data_del</strong> (<cite>tuple</cite> (meta_data, plates_data)) &#8211; Deletion collection plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>data_ts</strong> (<cite>tuple</cite> (meta_data, plates_data)) &#8211; TS collection plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>data_sg</strong> (<cite>tuple</cite> (meta_data, plates_data)) &#8211; SG collection plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>res_path</strong> (<cite>str</cite>) &#8211; Full path to the directory where results are to be saved.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">See also functions <a class="reference internal" href="sa.methods.html#sa.methods.fss_wrapper" title="sa.methods.fss_wrapper"><tt class="xref py py-func docutils literal"><span class="pre">sa.methods.fss_wrapper()</span></tt></a>, <a class="reference internal" href="sa.methods.html#sa.methods.decompose_MDS" title="sa.methods.decompose_MDS"><tt class="xref py py-func docutils literal"><span class="pre">sa.methods.decompose_MDS()</span></tt></a> and
+<a class="reference internal" href="sa.utilities.html#sa.utilities.std_prep" title="sa.utilities.std_prep"><tt class="xref py py-func docutils literal"><span class="pre">sa.utilities.std_prep()</span></tt></a>. </p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.analysis.fss_post_cluster">
+<tt class="descclassname">sa.analysis.</tt><tt class="descname">fss_post_cluster</tt><big>(</big><em>data_del</em>, <em>data_ts</em>, <em>data_sg</em>, <em>fss_subset_path</em>, <em>fss_cluster_path</em>, <em>res_path</em><big>)</big><a class="reference internal" href="_modules/sa/analysis.html#fss_post_cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.analysis.fss_post_cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read clustering predictions and description of feature subspace. Run MDS optimization
+and save plotted coordinates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data_del</strong> (<cite>tuple</cite> (meta_data, plates_data)) &#8211; Deletion collection plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>data_ts</strong> (<cite>tuple</cite> (meta_data, plates_data)) &#8211; TS collection plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>data_sg</strong> (<cite>tuple</cite> (meta_data, plates_data)) &#8211; SG collection plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>fss_subset_path</strong> (<cite>str</cite>) &#8211; Full path to the file with feature space description 
+as obtained by <tt class="xref py py-mod docutils literal"><span class="pre">analysis.fss</span></tt>.</li>
+<li><strong>fss_cluster_path</strong> (<cite>str</cite>) &#8211; Full path to the file with predictions for observations
+as obtained by <tt class="xref py py-mod docutils literal"><span class="pre">analysis.fss</span></tt>.</li>
+<li><strong>res_path</strong> (<cite>str</cite>) &#8211; Full path to the directory where results are to be saved.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">See also functions <a class="reference internal" href="sa.methods.html#sa.methods.decompose_MDS" title="sa.methods.decompose_MDS"><tt class="xref py py-func docutils literal"><span class="pre">sa.methods.decompose_MDS()</span></tt></a> and <a class="reference internal" href="sa.utilities.html#sa.utilities.std_prep" title="sa.utilities.std_prep"><tt class="xref py py-func docutils literal"><span class="pre">sa.utilities.std_prep()</span></tt></a>. </p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.analysis.strains_1p_WT">
+<tt class="descclassname">sa.analysis.</tt><tt class="descname">strains_1p_WT</tt><big>(</big><em>meta</em>, <em>plate</em>, <em>res_path</em>, <em>plot_attr_hist=True</em><big>)</big><a class="reference internal" href="_modules/sa/analysis.html#strains_1p_WT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.analysis.strains_1p_WT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyze WT strains from one plate. First, filter out MT strains, e.g. retain strains with ORF equal to YOR202W. 
+Continue by standardizing the features and detecting outliers using elliptic envelope method. Detected outliers are saved
+to file named <cite>&lt;plate-title&gt;_outliers.csv</cite>.</p>
+<p>Euclidean distances are computed between WT strains and plotted as heat map. Additionally, mean distances between
+all strains (WT strains without outliers and MT strains) are plotted in a heat map as located on the plate.</p>
+<p>WT strains are clustered to reveal possible structures and assess their homogeneity. Also, the intersection between clusters and
+WT outliers is printed to the screen. PCA is computed in explained variance is printed.</p>
+<p>Standardized plate data are saved in Orange and CSV format.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>meta</strong> (<cite>tuple</cite>) &#8211; Meta data for one plate, <cite>(file_name, attr_names)</cite>, as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>plate</strong> (<cite>list</cite>) &#8211; Plate data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>res_path</strong> (<cite>str</cite>) &#8211; Full path to the directory where results are to be saved.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">See also functions <a class="reference internal" href="sa.methods.html#sa.methods.standardize" title="sa.methods.standardize"><tt class="xref py py-func docutils literal"><span class="pre">sa.methods.standardize()</span></tt></a>, <a class="reference internal" href="sa.plotting.html#sa.plotting.plot_hist_with_norm_fit" title="sa.plotting.plot_hist_with_norm_fit"><tt class="xref py py-func docutils literal"><span class="pre">sa.plotting.plot_hist_with_norm_fit()</span></tt></a>, 
+<a class="reference internal" href="sa.methods.html#sa.methods.detect_outliers" title="sa.methods.detect_outliers"><tt class="xref py py-func docutils literal"><span class="pre">sa.methods.detect_outliers()</span></tt></a>, <a class="reference internal" href="sa.plotting.html#sa.plotting.plot_plate_by_mean_well_distance" title="sa.plotting.plot_plate_by_mean_well_distance"><tt class="xref py py-func docutils literal"><span class="pre">sa.plotting.plot_plate_by_mean_well_distance()</span></tt></a>, 
+<a class="reference internal" href="sa.methods.html#sa.methods.k_means" title="sa.methods.k_means"><tt class="xref py py-func docutils literal"><span class="pre">sa.methods.k_means()</span></tt></a>, <a class="reference internal" href="sa.methods.html#sa.methods.outlier2cluster" title="sa.methods.outlier2cluster"><tt class="xref py py-func docutils literal"><span class="pre">sa.methods.outlier2cluster()</span></tt></a>, <a class="reference internal" href="sa.methods.html#sa.methods.decompose_PCA" title="sa.methods.decompose_PCA"><tt class="xref py py-func docutils literal"><span class="pre">sa.methods.decompose_PCA()</span></tt></a>,
+<a class="reference internal" href="sa.utilities.html#sa.utilities.to_orange" title="sa.utilities.to_orange"><tt class="xref py py-func docutils literal"><span class="pre">sa.utilities.to_orange()</span></tt></a> and <a class="reference internal" href="sa.utilities.html#sa.utilities.to_csv" title="sa.utilities.to_csv"><tt class="xref py py-func docutils literal"><span class="pre">sa.utilities.to_csv()</span></tt></a>.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.analysis.strains_Np_MT">
+<tt class="descclassname">sa.analysis.</tt><tt class="descname">strains_Np_MT</tt><big>(</big><em>data_del, data_ts, data_sg, repeats_path, res_path, repeats_keys=['RT', '37'], standardize=True</em><big>)</big><a class="reference internal" href="_modules/sa/analysis.html#strains_Np_MT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.analysis.strains_Np_MT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find mutants with significantly different profiles than wild-type cells by estimating
+distance between WT strains, MT strains, WT and MT strains and assess significance with 
+permutation test.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data_del</strong> (<cite>tuple</cite> (meta_data, plates_data)) &#8211; Deletion collection plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>data_ts</strong> (<cite>tuple</cite> (meta_data, plates_data)) &#8211; TS collection plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>data_sg</strong> (<cite>tuple</cite> (meta_data, plates_data)) &#8211; SG collection plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>repeats_path</strong> (<cite>str</cite>) &#8211; Full path to file with multi-occuring mutant strains specification.</li>
+<li><strong>res_path</strong> (<cite>str</cite>) &#8211; Full path to the directory where results are to be saved.</li>
+<li><strong>repeats_keys</strong> (<cite>list</cite>) &#8211; Names of TS (temperature sensitive mutant strains) plates&#8217; extensions. By default these are [&#8220;RT&#8221;, &#8220;37&#8221;].</li>
+<li><strong>standardize</strong> (<cite>bool</cite>) &#8211; Indicator whether to work with standardized or original features. By default, data set is standardized.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">See also functions <a class="reference internal" href="sa.plotting.html#sa.plotting.plot_hist_mean_MT_WT_distance" title="sa.plotting.plot_hist_mean_MT_WT_distance"><tt class="xref py py-func docutils literal"><span class="pre">sa.plotting.plot_hist_mean_MT_WT_distance()</span></tt></a>, <a class="reference internal" href="sa.plotting.html#sa.plotting.plot_hist_WT_WT_distance" title="sa.plotting.plot_hist_WT_WT_distance"><tt class="xref py py-func docutils literal"><span class="pre">sa.plotting.plot_hist_WT_WT_distance()</span></tt></a>, 
+<a class="reference internal" href="sa.plotting.html#sa.plotting.plot_hist_mean_MT_WT__WT_WT_distance" title="sa.plotting.plot_hist_mean_MT_WT__WT_WT_distance"><tt class="xref py py-func docutils literal"><span class="pre">sa.plotting.plot_hist_mean_MT_WT__WT_WT_distance()</span></tt></a> and <a class="reference internal" href="sa.plotting.html#sa.plotting.plot_hist_signif_MT_WT" title="sa.plotting.plot_hist_signif_MT_WT"><tt class="xref py py-func docutils literal"><span class="pre">sa.plotting.plot_hist_signif_MT_WT()</span></tt></a>.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.analysis.strains_Np_WT">
+<tt class="descclassname">sa.analysis.</tt><tt class="descname">strains_Np_WT</tt><big>(</big><em>meta</em>, <em>plates</em>, <em>res_path</em><big>)</big><a class="reference internal" href="_modules/sa/analysis.html#strains_Np_WT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.analysis.strains_Np_WT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyze WT strains from many plates by combining them in one set.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>meta</strong> (<cite>list</cite>) &#8211; Meta data, <cite>[(file_name1, attr_names1), (file_name2 attr_names2) ...]</cite>, as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>plates</strong> (<cite>list</cite>) &#8211; Plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>res_path</strong> (<cite>str</cite>) &#8211; Full path to the directory where results are to be saved.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">See also functions <a class="reference internal" href="sa.methods.html#sa.methods.standardize" title="sa.methods.standardize"><tt class="xref py py-func docutils literal"><span class="pre">sa.methods.standardize()</span></tt></a>, <a class="reference internal" href="sa.methods.html#sa.methods.detect_outliers" title="sa.methods.detect_outliers"><tt class="xref py py-func docutils literal"><span class="pre">sa.methods.detect_outliers()</span></tt></a>, 
+<a class="reference internal" href="sa.methods.html#sa.methods.k_means" title="sa.methods.k_means"><tt class="xref py py-func docutils literal"><span class="pre">sa.methods.k_means()</span></tt></a>, <a class="reference internal" href="sa.methods.html#sa.methods.outlier2cluster" title="sa.methods.outlier2cluster"><tt class="xref py py-func docutils literal"><span class="pre">sa.methods.outlier2cluster()</span></tt></a>, <a class="reference internal" href="sa.methods.html#sa.methods.decompose_PCA" title="sa.methods.decompose_PCA"><tt class="xref py py-func docutils literal"><span class="pre">sa.methods.decompose_PCA()</span></tt></a>,
+<a class="reference internal" href="sa.utilities.html#sa.utilities.to_orange" title="sa.utilities.to_orange"><tt class="xref py py-func docutils literal"><span class="pre">sa.utilities.to_orange()</span></tt></a> and <a class="reference internal" href="sa.utilities.html#sa.utilities.to_csv" title="sa.utilities.to_csv"><tt class="xref py py-func docutils literal"><span class="pre">sa.utilities.to_csv()</span></tt></a>.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.analysis.strains_Np_novelty_MT">
+<tt class="descclassname">sa.analysis.</tt><tt class="descname">strains_Np_novelty_MT</tt><big>(</big><em>data_del</em>, <em>data_ts</em>, <em>data_sg</em>, <em>res_path</em><big>)</big><a class="reference internal" href="_modules/sa/analysis.html#strains_Np_novelty_MT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.analysis.strains_Np_novelty_MT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find mutants with significantly different profiles than wild-type cells by novelty 
+detection using one-class SVM and GMM.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data_del</strong> (<cite>tuple</cite> (meta_data, plates_data)) &#8211; Deletion collection plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>data_ts</strong> (<cite>tuple</cite> (meta_data, plates_data)) &#8211; TS collection plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>data_sg</strong> (<cite>tuple</cite> (meta_data, plates_data)) &#8211; SG collection plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>res_path</strong> (<cite>str</cite>) &#8211; Full path to the directory where results are to be saved.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">See also functions <a class="reference internal" href="sa.methods.html#sa.methods.detect_novelties_SVM" title="sa.methods.detect_novelties_SVM"><tt class="xref py py-func docutils literal"><span class="pre">sa.methods.detect_novelties_SVM()</span></tt></a> and <a class="reference internal" href="sa.methods.html#sa.methods.detect_novelties_GMM" title="sa.methods.detect_novelties_GMM"><tt class="xref py py-func docutils literal"><span class="pre">sa.methods.detect_novelties_GMM()</span></tt></a>. </p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.analysis.strains_coll">
+<tt class="descclassname">sa.analysis.</tt><tt class="descname">strains_coll</tt><big>(</big><em>data_del</em>, <em>data_ts</em>, <em>data_sg</em>, <em>res_path</em><big>)</big><a class="reference internal" href="_modules/sa/analysis.html#strains_coll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.analysis.strains_coll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess plates from each collection (standardizing features and remove outlier WT strains)
+and compute distances between strains from the same and different collections. Histograms
+of distances between collections are saved to directory <a href="#id3"><span class="problematic" id="id4">:param:`res_path`</span></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data_del</strong> (<cite>tuple</cite> (meta_data, plates_data)) &#8211; Deletion collection plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>data_ts</strong> (<cite>tuple</cite> (meta_data, plates_data)) &#8211; TS collection plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>data_sg</strong> (<cite>tuple</cite> (meta_data, plates_data)) &#8211; SG collection plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>res_path</strong> (<cite>str</cite>) &#8211; Full path to the directory where results are to be saved.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">See also function <a class="reference internal" href="sa.plotting.html#sa.plotting.plot_hist_coll" title="sa.plotting.plot_hist_coll"><tt class="xref py py-func docutils literal"><span class="pre">sa.plotting.plot_hist_coll()</span></tt></a>.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.analysis.strains_repl">
+<tt class="descclassname">sa.analysis.</tt><tt class="descname">strains_repl</tt><big>(</big><em>data_del, data_ts, data_sg, repeats_path, res_path, repeats_keys=['RT', '37']</em><big>)</big><a class="reference internal" href="_modules/sa/analysis.html#strains_repl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.analysis.strains_repl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyze mutants that occur multiple times in the data set. First standardize data and then analyze 
+distance distribution of replicate observations and all observations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data_del</strong> (<cite>tuple</cite> (meta_data, plates_data)) &#8211; Deletion collection plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>data_ts</strong> (<cite>tuple</cite> (meta_data, plates_data)) &#8211; TS collection plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>data_sg</strong> (<cite>tuple</cite> (meta_data, plates_data)) &#8211; SG collection plates data as returned from <tt class="xref py py-mod docutils literal"><span class="pre">utilities.read</span></tt>.</li>
+<li><strong>repeats_path</strong> (<cite>str</cite>) &#8211; Full path to file with multi-occurring mutants specification.</li>
+<li><strong>res_path</strong> (<cite>str</cite>) &#8211; Full path to the directory where results are to be saved.</li>
+<li><strong>repeats_keys</strong> (<cite>list</cite>) &#8211; Names of TS (temperature sensitive mutants) plates&#8217; extensions. By default these are [&#8220;RT&#8221;, &#8220;37&#8221;].</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">See also function <a class="reference internal" href="sa.methods.html#sa.methods.analyze_repl" title="sa.methods.analyze_repl"><tt class="xref py py-func docutils literal"><span class="pre">sa.methods.analyze_repl()</span></tt></a>.</p>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="sa.html"
+                        title="previous chapter">SA (<tt class="docutils literal docutils literal docutils literal"><span class="pre">sa</span></tt>)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="sa.mds.html"
+                        title="next chapter">MDS (<tt class="docutils literal"><span class="pre">sa.mds</span></tt>)</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sa.mds.html" title="MDS (sa.mds)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="sa.html" title="SA (sa)"
+             >previous</a> |</li>
+        <li><a href="index.html">Yeast Screen Data Analysis 1.0 documentation</a> &raquo;</li>
+          <li><a href="sa.html" >SA (<tt class="docutils literal docutils literal docutils literal docutils literal"><span class="pre">sa</span></tt>)</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Marinka Zitnik.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.
+    </div>
+  </body>
+</html>

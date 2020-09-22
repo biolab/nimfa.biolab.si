@@ -1,0 +1,314 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>MDS (sa.mds) &mdash; Yeast Screen Data Analysis 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Yeast Screen Data Analysis 1.0 documentation" href="index.html" />
+    <link rel="up" title="SA (sa)" href="sa.html" />
+    <link rel="next" title="methods (sa.methods)" href="sa.methods.html" />
+    <link rel="prev" title="analysis (sa.analysis)" href="sa.analysis.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sa.methods.html" title="methods (sa.methods)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="sa.analysis.html" title="analysis (sa.analysis)"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Yeast Screen Data Analysis 1.0 documentation</a> &raquo;</li>
+          <li><a href="sa.html" accesskey="U">SA (<tt class="docutils literal docutils literal docutils literal docutils literal docutils literal"><span class="pre">sa</span></tt>)</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-sa.mds"></span><div class="section" id="mds-sa-mds">
+<h1>MDS (<tt class="docutils literal"><span class="pre">sa.mds</span></tt>)<a class="headerlink" href="#mds-sa-mds" title="Permalink to this headline">¶</a></h1>
+<p>Multi dimensional scaling.</p>
+<dl class="class">
+<dt id="sa.mds.MDS">
+<em class="property">class </em><tt class="descclassname">sa.mds.</tt><tt class="descname">MDS</tt><big>(</big><em>n_components=2</em>, <em>metric=True</em>, <em>n_init=4</em>, <em>max_iter=300</em>, <em>verbose=0</em>, <em>eps=0.001</em>, <em>n_jobs=1</em>, <em>random_state=None</em><big>)</big><a class="reference internal" href="_modules/sa/mds.html#MDS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.mds.MDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">sklearn.base.BaseEstimator</span></tt></p>
+<p>Multidimensional scaling</p>
+<dl class="docutils">
+<dt>metric <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional, default: True</span></dt>
+<dd>compute metric or nonmetric SMACOF (Scaling by Majorizing a
+Complicated Function) algorithm</dd>
+<dt>n_components <span class="classifier-delimiter">:</span> <span class="classifier">int, optional, default: 2</span></dt>
+<dd>number of dimension in which to immerse the similarities
+overridden if initial array is provided.</dd>
+<dt>n_init <span class="classifier-delimiter">:</span> <span class="classifier">int, optional, default: 4</span></dt>
+<dd>Number of time the smacof algorithm will be run with different
+initialisation. The final results will be the best output of the
+n_init consecutive runs in terms of stress.</dd>
+<dt>max_iter <span class="classifier-delimiter">:</span> <span class="classifier">int, optional, default: 300</span></dt>
+<dd>Maximum number of iterations of the SMACOF algorithm for a single run</dd>
+<dt>verbose <span class="classifier-delimiter">:</span> <span class="classifier">int, optional, default: 0</span></dt>
+<dd>level of verbosity</dd>
+<dt>eps <span class="classifier-delimiter">:</span> <span class="classifier">float, optional, default: 1e-6</span></dt>
+<dd>relative tolerance w.r.t stress to declare converge</dd>
+<dt>n_jobs <span class="classifier-delimiter">:</span> <span class="classifier">int, optional, default: 1</span></dt>
+<dd><p class="first">The number of jobs to use for the computation. This works by breaking
+down the pairwise matrix into n_jobs even slices and computing them in
+parallel.</p>
+<p class="last">If -1 all CPUs are used. If 1 is given, no parallel computing code is
+used at all, which is useful for debuging. For n_jobs below -1,
+(n_cpus + 1 - n_jobs) are used. Thus for n_jobs = -2, all CPUs but one
+are used.</p>
+</dd>
+<dt>random_state <span class="classifier-delimiter">:</span> <span class="classifier">integer or numpy.RandomState, optional</span></dt>
+<dd>The generator used to initialize the centers. If an integer is
+given, it fixes the seed. Defaults to the global numpy random
+number generator.</dd>
+</dl>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">embedding_</span></tt> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape [n_components, n_samples]</span></dt>
+<dd>Stores the position of the dataset in the embedding space</dd>
+<dt><tt class="docutils literal"><span class="pre">stress_</span></tt> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>The final value of the stress (sum of squared distance of the
+disparities and the distances for all constrained points)</dd>
+</dl>
+<p>&#8220;Modern Multidimensional Scaling - Theory and Applications&#8221; Borg, I.;
+Groenen P. Springer Series in Statistics (1997)</p>
+<p>&#8220;Nonmetric multidimensional scaling: a numerical method&#8221; Kruskal, J.
+Psychometrika, 29 (1964)</p>
+<p>&#8220;Multidimensional scaling by optimizing goodness of fit to a nonmetric
+hypothesis&#8221; Kruskal, J. Psychometrika, 29, (1964)</p>
+<dl class="method">
+<dt id="sa.mds.MDS.fit">
+<tt class="descname">fit</tt><big>(</big><em>X</em>, <em>init=None</em>, <em>y=None</em><big>)</big><a class="reference internal" href="_modules/sa/mds.html#MDS.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.mds.MDS.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the position of the points in the embedding space</p>
+<dl class="docutils">
+<dt>X: array, shape=[n_samples, n_samples], symetric</dt>
+<dd>Proximity matrice</dd>
+<dt>init: {None or ndarray, shape (n_samples,)}</dt>
+<dd>if None, randomly chooses the initial configuration
+if ndarray, initialize the SMACOF algorithm with this array</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sa.mds.MDS.fit_transform">
+<tt class="descname">fit_transform</tt><big>(</big><em>X</em>, <em>init=None</em>, <em>y=None</em><big>)</big><a class="reference internal" href="_modules/sa/mds.html#MDS.fit_transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.mds.MDS.fit_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the data from X, and returns the embedded coordinates</p>
+<dl class="docutils">
+<dt>X: array, shape=[n_samples, n_samples], symetric</dt>
+<dd>Proximity matrice</dd>
+<dt>init: {None or ndarray, shape (n_samples,)}</dt>
+<dd>if None, randomly chooses the initial configuration
+if ndarray, initialize the SMACOF algorithm with this array</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sa.mds.MDS.get_params">
+<tt class="descname">get_params</tt><big>(</big><em>deep=True</em><big>)</big><a class="headerlink" href="#sa.mds.MDS.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameters for the estimator</p>
+<dl class="docutils">
+<dt>deep: boolean, optional</dt>
+<dd>If True, will return the parameters for this estimator and
+contained subobjects that are estimators.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sa.mds.MDS.set_params">
+<tt class="descname">set_params</tt><big>(</big><em>**params</em><big>)</big><a class="headerlink" href="#sa.mds.MDS.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters of the estimator.</p>
+<p>The method works on simple estimators as well as on nested objects
+(such as pipelines). The former have parameters of the form
+<tt class="docutils literal"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></tt> so that it&#8217;s possible to update each
+component of a nested object.</p>
+<p>self</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.mds.pool_adjacent_violators">
+<tt class="descclassname">sa.mds.</tt><tt class="descname">pool_adjacent_violators</tt><big>(</big><em>distances</em>, <em>similarities</em>, <em>max_iter=300</em>, <em>verbose=0</em><big>)</big><a class="reference internal" href="_modules/sa/mds.html#pool_adjacent_violators"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.mds.pool_adjacent_violators" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pool adjancent violators</p>
+<p>Computes an isotonic regression of distances on similarities.</p>
+<dl class="docutils">
+<dt>distances: ndarray, shape (n, 1)</dt>
+<dd>array to fit</dd>
+<dt>similarities: ndarray, shape (n, 1)</dt>
+<dd>array on which to fit</dd>
+<dt>max_iter: int, optional, default:300</dt>
+<dd>Set the maximum number of iteration</dd>
+<dt>verbose: int, optional, default: 0</dt>
+<dd>set the level of verbosity</dd>
+</dl>
+<p>distances: ndarray, shape (n, 1)</p>
+<p>&#8220;Modern Multidimensional Scaling - Theory and Applications&#8221; Borg, I.;
+Groenen P. Springer Series in Statistics (1997)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sa.mds.smacof">
+<tt class="descclassname">sa.mds.</tt><tt class="descname">smacof</tt><big>(</big><em>similarities</em>, <em>metric=True</em>, <em>n_components=2</em>, <em>init=None</em>, <em>n_init=8</em>, <em>n_jobs=1</em>, <em>max_iter=300</em>, <em>verbose=0</em>, <em>eps=0.001</em>, <em>random_state=None</em><big>)</big><a class="reference internal" href="_modules/sa/mds.html#smacof"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sa.mds.smacof" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes multidimensional scaling using SMACOF (Scaling by Majorizing a
+Complicated Function) algorithm</p>
+<p>The SMACOF algorithm is a multidimensional scaling algorithm: it minimizes
+a objective function, the <em>stress</em>, using a majorization technique. The
+Stress Majorization, also known as the Guttman Transform, guarantees a
+monotone convergence of Stress, and is more powerful than traditional
+technics such as gradient descent.</p>
+<p>The SMACOF algorithm for metric MDS can summarized by the following steps:</p>
+<ol class="arabic simple">
+<li>Set an initial start configuration, randomly or not.</li>
+<li>Compute the stress</li>
+<li>Compute the Guttman Transform</li>
+<li>Iterate 2 and 3 until convergence.</li>
+</ol>
+<p>The nonmetric algorithm adds a monotonic regression steps before computing
+the stress.</p>
+<dl class="docutils">
+<dt>similarities <span class="classifier-delimiter">:</span> <span class="classifier">symmetric ndarray, shape (n_samples, n_samples)</span></dt>
+<dd>similarities between the points</dd>
+<dt>metric <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional, default: True</span></dt>
+<dd>compute metric or nonmetric SMACOF algorithm</dd>
+<dt>n_components <span class="classifier-delimiter">:</span> <span class="classifier">int, optional, default: 2</span></dt>
+<dd>number of dimension in which to immerse the similarities
+overridden if initial array is provided.</dd>
+<dt>init <span class="classifier-delimiter">:</span> <span class="classifier">{None or ndarray of shape (n_samples, n_components)}</span></dt>
+<dd>if None, randomly chooses the initial configuration
+if ndarray, initialize the SMACOF algorithm with this array</dd>
+<dt>n_init <span class="classifier-delimiter">:</span> <span class="classifier">int, optional, default: 8</span></dt>
+<dd>Number of time the smacof algorithm will be run with different
+initialisation. The final results will be the best output of the
+n_init consecutive runs in terms of stress.</dd>
+</dl>
+<p>n_jobs : int, optional, default: 1</p>
+<blockquote>
+<div><p>The number of jobs to use for the computation. This works by breaking
+down the pairwise matrix into n_jobs even slices and computing them in
+parallel.</p>
+<p>If -1 all CPUs are used. If 1 is given, no parallel computing code is
+used at all, which is useful for debuging. For n_jobs below -1,
+(n_cpus + 1 - n_jobs) are used. Thus for n_jobs = -2, all CPUs but one
+are used.</p>
+</div></blockquote>
+<dl class="docutils">
+<dt>max_iter <span class="classifier-delimiter">:</span> <span class="classifier">int, optional, default: 300</span></dt>
+<dd>Maximum number of iterations of the SMACOF algorithm for a single run</dd>
+<dt>verbose <span class="classifier-delimiter">:</span> <span class="classifier">int, optional, default: 0</span></dt>
+<dd>level of verbosity</dd>
+<dt>eps <span class="classifier-delimiter">:</span> <span class="classifier">float, optional, default: 1e-6</span></dt>
+<dd>relative tolerance w.r.t stress to declare converge</dd>
+<dt>random_state <span class="classifier-delimiter">:</span> <span class="classifier">integer or numpy.RandomState, optional</span></dt>
+<dd>The generator used to initialize the centers. If an integer is
+given, it fixes the seed. Defaults to the global numpy random
+number generator.</dd>
+</dl>
+<dl class="docutils">
+<dt>X <span class="classifier-delimiter">:</span> <span class="classifier">ndarray (n_samples,n_components)</span></dt>
+<dd>Coordinates of the n_samples points in a n_components-space</dd>
+<dt>stress <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>The final value of the stress (sum of squared distance of the
+disparities and the distances for all constrained points)</dd>
+</dl>
+<p>&#8220;Modern Multidimensional Scaling - Theory and Applications&#8221; Borg, I.;
+Groenen P. Springer Series in Statistics (1997)</p>
+<p>&#8220;Nonmetric multidimensional scaling: a numerical method&#8221; Kruskal, J.
+Psychometrika, 29 (1964)</p>
+<p>&#8220;Multidimensional scaling by optimizing goodness of fit to a nonmetric
+hypothesis&#8221; Kruskal, J. Psychometrika, 29, (1964)</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="sa.analysis.html"
+                        title="previous chapter">analysis (<tt class="docutils literal docutils literal docutils literal"><span class="pre">sa.analysis</span></tt>)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="sa.methods.html"
+                        title="next chapter">methods (<tt class="docutils literal"><span class="pre">sa.methods</span></tt>)</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sa.methods.html" title="methods (sa.methods)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="sa.analysis.html" title="analysis (sa.analysis)"
+             >previous</a> |</li>
+        <li><a href="index.html">Yeast Screen Data Analysis 1.0 documentation</a> &raquo;</li>
+          <li><a href="sa.html" >SA (<tt class="docutils literal docutils literal docutils literal docutils literal docutils literal"><span class="pre">sa</span></tt>)</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Marinka Zitnik.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.
+    </div>
+  </body>
+</html>

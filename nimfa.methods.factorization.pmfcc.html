@@ -1,0 +1,369 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Pmfcc (methods.factorization.pmfcc) &mdash; Nimfa 1.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Nimfa 1.3.1 documentation" href="index.html" />
+    <link rel="up" title="Factorization (methods.factorization)" href="nimfa.methods.factorization.html" />
+    <link rel="next" title="SepNmf (methods.factorization.sepnmf)" href="nimfa.methods.factorization.sepnmf.html" />
+    <link rel="prev" title="Snmnmf (methods.factorization.snmnmf)" href="nimfa.methods.factorization.snmnmf.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-nimfa.methods.factorization.pmfcc"></span><div class="section" id="pmfcc-methods-factorization-pmfcc">
+<h1>Pmfcc (<tt class="docutils literal"><span class="pre">methods.factorization.pmfcc</span></tt>)<a class="headerlink" href="#pmfcc-methods-factorization-pmfcc" title="Permalink to this headline">¶</a></h1>
+<p><strong>Penalized Matrix Factorization for Constrained Clustering
+(PMFCC)</strong> <a class="reference internal" href="index.html#fwang2008" id="id1">[FWang2008]</a>.</p>
+<p>PMFCC is used for semi-supervised co-clustering. Intra-type information is
+represented as constraints to guide the factorization process. The constraints
+are of two types: (i) must-link: two data points belong to the same class,
+(ii) cannot-link: two data points cannot belong to the same class.</p>
+<p>PMFCC solves the following problem. Given a target matrix
+V = [v_1, v_2, ..., v_n], it produces W = [f_1, f_2, ... f_rank], containing
+cluster centers and matrix H of data point cluster membership values.</p>
+<p>Cost function includes centroid distortions and any associated constraint
+violations. Compared to the traditional NMF cost function, the only difference
+is the inclusion of the penalty term.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">nimfa</span>
+
+<span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">pmfcc</span> <span class="o">=</span> <span class="n">nimfa</span><span class="o">.</span><span class="n">Pmfcc</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="s">&quot;random_vcol&quot;</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+                    <span class="n">theta</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">V</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">V</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+<span class="n">pmfcc_fit</span> <span class="o">=</span> <span class="n">pmfcc</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="nimfa.methods.factorization.pmfcc.Pmfcc">
+<em class="property">class </em><tt class="descclassname">nimfa.methods.factorization.pmfcc.</tt><tt class="descname">Pmfcc</tt><big>(</big><em>V</em>, <em>seed=None</em>, <em>W=None</em>, <em>H=None</em>, <em>rank=30</em>, <em>max_iter=30</em>, <em>min_residuals=1e-05</em>, <em>test_conv=None</em>, <em>n_run=1</em>, <em>callback=None</em>, <em>callback_init=None</em>, <em>track_factor=False</em>, <em>track_error=False</em>, <em>Theta=None</em>, <em>**options</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.pmfcc.Pmfcc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="nimfa.models.smf.html#nimfa.models.smf.Smf" title="nimfa.models.smf.Smf"><tt class="xref py py-class docutils literal"><span class="pre">nimfa.models.smf.Smf</span></tt></a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>V</strong> (Instance of the <tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> sparse matrices types,
+<tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt> or tuple of instances of
+the latter classes.) &#8211; The target matrix to estimate.</li>
+<li><strong>seed</strong> (<cite>str</cite> naming the method or <tt class="xref py py-class docutils literal"><span class="pre">methods.seeding.nndsvd.Nndsvd</span></tt>
+or None) &#8211; Specify method to seed the computation of a factorization. If
+specified <a href="#id2"><span class="problematic" id="id3">:param:`W`</span></a> and <a href="#id4"><span class="problematic" id="id5">:param:`H`</span></a> seeding must be None. If neither seeding
+method or initial fixed factorization is specified, random initialization is
+used.</li>
+<li><strong>W</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> or <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> or
+<tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt> or None) &#8211; Specify initial factorization of basis matrix W. Default is None.
+When specified, <a href="#id6"><span class="problematic" id="id7">:param:`seed`</span></a> must be None.</li>
+<li><strong>H</strong> (Instance of the <tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> sparse matrices types,
+<tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>, tuple of instances of the
+latter classes or None) &#8211; Specify initial factorization of mixture matrix H. Default is None.
+When specified, <a href="#id8"><span class="problematic" id="id9">:param:`seed`</span></a> must be None.</li>
+<li><strong>rank</strong> (<cite>int</cite>) &#8211; The factorization rank to achieve. Default is 30.</li>
+<li><strong>n_run</strong> (<cite>int</cite>) &#8211; It specifies the number of runs of the algorithm. Default is
+1. If multiple runs are performed, fitted factorization model with the
+lowest objective function value is retained.</li>
+<li><strong>callback</strong> (<cite>function</cite>) &#8211; Pass a callback function that is called after each run when
+performing multiple runs. This is useful if one wants to save summary
+measures or process the result before it gets discarded. The callback
+function is called with only one argument <tt class="xref py py-class docutils literal"><span class="pre">models.mf_fit.Mf_fit</span></tt> that
+contains the fitted model. Default is None.</li>
+<li><strong>callback_init</strong> (<cite>function</cite>) &#8211; Pass a callback function that is called after each
+initialization of the matrix factors. In case of multiple runs the function
+is called before each run (more precisely after initialization and before
+the factorization of each run). In case of single run, the passed callback
+function is called after the only initialization of the matrix factors.
+This is useful if one wants to obtain the initialized matrix factors for
+further analysis or additional info about initialized factorization model.
+The callback function is called with only one argument
+<tt class="xref py py-class docutils literal"><span class="pre">models.mf_fit.Mf_fit</span></tt> that (among others) contains also initialized
+matrix factors. Default is None.</li>
+<li><strong>track_factor</strong> (<cite>bool</cite>) &#8211; When <a href="#id10"><span class="problematic" id="id11">:param:`track_factor`</span></a> is specified, the fitted
+factorization model is tracked during multiple runs of the algorithm. This
+option is taken into account only when multiple runs are executed
+(<a href="#id12"><span class="problematic" id="id13">:param:`n_run`</span></a> &gt; 1). From each run of the factorization all matrix factors
+are retained, which can be very space consuming. If space is the problem
+setting the callback function with <a href="#id14"><span class="problematic" id="id15">:param:`callback`</span></a> is advised which is
+executed after each run. Tracking is useful for performing some quality or
+performance measures (e.g. cophenetic correlation, consensus matrix,
+dispersion). By default fitted model is not tracked.</li>
+<li><strong>track_error</strong> (<cite>bool</cite>) &#8211; Tracking the residuals error. Only the residuals from
+each iteration of the factorization are retained. Error tracking is not
+space consuming. By default residuals are not tracked and only the final
+residuals are saved. It can be used for plotting the trajectory of the
+residuals.</li>
+<li><strong>Theta</strong> (<cite>numpy.matrix</cite>) &#8211; Constraint matrix (dimension: V.shape[1] x X.shape[1]). It
+contains known must-link (negative) and cannot-link (positive) constraints.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Stopping criterion</strong></p>
+<p>Factorization terminates if any of specified criteria is satisfied.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>max_iter</strong> (<cite>int</cite>) &#8211; Maximum number of factorization iterations. Note that the
+number of iterations depends on the speed of method convergence. Default
+is 30.</li>
+<li><strong>min_residuals</strong> (<cite>float</cite>) &#8211; Minimal required improvement of the residuals from the
+previous iteration. They are computed between the target matrix and its MF
+estimate using the objective function associated to the MF algorithm.
+Default is None.</li>
+<li><strong>test_conv</strong> (<cite>int</cite>) &#8211; It indicates how often convergence test is done. By
+default convergence is tested each iteration.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="nimfa.methods.factorization.pmfcc.Pmfcc.basis">
+<tt class="descname">basis</tt><big>(</big><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.pmfcc.Pmfcc.basis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the matrix of basis vectors (factor 1 matrix).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.pmfcc.Pmfcc.coef">
+<tt class="descname">coef</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.pmfcc.Pmfcc.coef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the matrix of mixture coefficients (factor 2 matrix).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (<a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><em>None</em></a>) &#8211; Used in the multiple MF model. In standard MF <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.pmfcc.Pmfcc.distance">
+<tt class="descname">distance</tt><big>(</big><em>metric='euclidean'</em>, <em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.pmfcc.Pmfcc.distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the loss function value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>distance</strong> (<cite>str</cite> with values &#8216;euclidean&#8217; or &#8216;kl&#8217;) &#8211; Specify distance metric to be used. Possible are Euclidean and
+Kullback-Leibler (KL) divergence. Strictly, KL is not a metric.</li>
+<li><strong>idx</strong> (<a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><em>None</em></a>) &#8211; Used in the multiple MF model. In standard MF <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.pmfcc.Pmfcc.factorize">
+<tt class="descname">factorize</tt><big>(</big><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.pmfcc.Pmfcc.factorize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute matrix factorization.</p>
+<p>Return fitted factorization model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.pmfcc.Pmfcc.fitted">
+<tt class="descname">fitted</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.pmfcc.Pmfcc.fitted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the estimated target matrix according to the MF algorithm model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (<a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><em>None</em></a>) &#8211; Used in the multiple MF model. In standard MF <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.pmfcc.Pmfcc.is_satisfied">
+<tt class="descname">is_satisfied</tt><big>(</big><em>p_obj</em>, <em>c_obj</em>, <em>iter</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.pmfcc.Pmfcc.is_satisfied" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the satisfiability of the stopping criteria based on stopping
+parameters and objective function value.</p>
+<p>Return logical value denoting factorization continuation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>p_obj</strong> (<cite>float</cite>) &#8211; Objective function value from previous iteration.</li>
+<li><strong>c_obj</strong> (<cite>float</cite>) &#8211; Current objective function value.</li>
+<li><strong>iter</strong> (<cite>int</cite>) &#8211; Current iteration number.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.pmfcc.Pmfcc.objective">
+<tt class="descname">objective</tt><big>(</big><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.pmfcc.Pmfcc.objective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute Frobenius distance cost function with penalization term.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.pmfcc.Pmfcc.residuals">
+<tt class="descname">residuals</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.pmfcc.Pmfcc.residuals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return residuals matrix between the target matrix and its MF estimate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (<a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><em>None</em></a>) &#8211; Used in the multiple MF model. In standard MF <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.pmfcc.Pmfcc.target">
+<tt class="descname">target</tt><big>(</big><em>idx=None</em><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.pmfcc.Pmfcc.target" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the target matrix to estimate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> (<a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><em>None</em></a>) &#8211; Used in the multiple MF model. In standard MF <tt class="docutils literal"><span class="pre">idx</span></tt> is always None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nimfa.methods.factorization.pmfcc.Pmfcc.update">
+<tt class="descname">update</tt><big>(</big><big>)</big><a class="headerlink" href="#nimfa.methods.factorization.pmfcc.Pmfcc.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update basis and mixture matrix.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Nimfa</a></h1>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=marinkaz&repo=nimfa&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="nimfa.models.html">Models (<tt class="docutils literal"><span class="pre">models</span></tt>)</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="nimfa.methods.html">Methods (<tt class="docutils literal"><span class="pre">methods</span></tt>)</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="nimfa.methods.factorization.html">Factorization (<tt class="docutils literal"><span class="pre">methods.factorization</span></tt>)</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.bd.html">Bd (<tt class="docutils literal"><span class="pre">methods.factorization.bd</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.bmf.html">Bmf (<tt class="docutils literal"><span class="pre">methods.factorization.bmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.icm.html">Icm (<tt class="docutils literal"><span class="pre">methods.factorization.icm</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.lfnmf.html">Lfnmf (<tt class="docutils literal"><span class="pre">methods.factorization.lfnmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.lsnmf.html">Lsnmf (<tt class="docutils literal"><span class="pre">methods.factorization.lsnmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.nmf.html">Nmf (<tt class="docutils literal"><span class="pre">methods.factorization.nmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.nsnmf.html">Nsnmf (<tt class="docutils literal"><span class="pre">methods.factorization.nsnmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.pmf.html">Pmf (<tt class="docutils literal"><span class="pre">methods.factorization.pmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.psmf.html">Psmf (<tt class="docutils literal"><span class="pre">methods.factorization.psmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.snmf.html">Snmf (<tt class="docutils literal"><span class="pre">methods.factorization.snmf</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.snmnmf.html">Snmnmf (<tt class="docutils literal"><span class="pre">methods.factorization.snmnmf</span></tt>)</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="">Pmfcc (<tt class="docutils literal"><span class="pre">methods.factorization.pmfcc</span></tt>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nimfa.methods.factorization.sepnmf.html">SepNmf (<tt class="docutils literal"><span class="pre">methods.factorization.sepnmf</span></tt>)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="nimfa.methods.seeding.html">Seeding (<tt class="docutils literal"><span class="pre">methods.seeding</span></tt>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.utils.html">Utils (<tt class="docutils literal"><span class="pre">utils</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.examples.html">Examples (<tt class="docutils literal"><span class="pre">examples</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.datasets.html">Datasets (<tt class="docutils literal"><span class="pre">datasets</span></tt>)</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="nimfa.methods.html">Methods (<tt class="docutils literal"><span class="pre">methods</span></tt>)</a><ul>
+  <li><a href="nimfa.methods.factorization.html">Factorization (<tt class="docutils literal"><span class="pre">methods.factorization</span></tt>)</a><ul>
+      <li>Previous: <a href="nimfa.methods.factorization.snmnmf.html" title="previous chapter">Snmnmf (<tt class="docutils literal"><span class="pre">methods.factorization.snmnmf</span></tt>)</a></li>
+      <li>Next: <a href="nimfa.methods.factorization.sepnmf.html" title="next chapter">SepNmf (<tt class="docutils literal"><span class="pre">methods.factorization.sepnmf</span></tt>)</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, The Nimfa developers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/marinkaz/nimfa" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

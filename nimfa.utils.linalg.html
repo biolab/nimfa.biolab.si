@@ -1,0 +1,607 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Linalg (utils.linalg) &mdash; Nimfa 1.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Nimfa 1.3.1 documentation" href="index.html" />
+    <link rel="up" title="Utils (utils)" href="nimfa.utils.html" />
+    <link rel="next" title="Examples (examples)" href="nimfa.examples.html" />
+    <link rel="prev" title="Utils (utils.utils)" href="nimfa.utils.utils.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-nimfa.utils.linalg"></span><div class="section" id="linalg-utils-linalg">
+<h1>Linalg (<tt class="docutils literal"><span class="pre">utils.linalg</span></tt>)<a class="headerlink" href="#linalg-utils-linalg" title="Permalink to this headline">¶</a></h1>
+<p>Linear algebra helper routines and wrapper functions for handling sparse
+matrices and dense matrices representation.</p>
+<dl class="function">
+<dt id="nimfa.utils.linalg.all">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">all</tt><big>(</big><em>X</em>, <em>axis=None</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test whether all elements along a given axis of sparse or dense matrix
+<a href="#id1"><span class="problematic" id="id2">:param:`X`</span></a> are nonzero.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil, dia) &#8211; Target matrix.</td>
+</tr>
+</tbody>
+</table>
+<p>or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>
+:param axis: Specified axis along which nonzero test is performed.
+If <a href="#id3"><span class="problematic" id="id4">:param:`axis`</span></a> not specified, whole matrix is considered.
+:type axis: <cite>int</cite></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.any">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">any</tt><big>(</big><em>X</em>, <em>axis=None</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.any" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test whether any element along a given axis of sparse or dense matrix X is nonzero.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil,) &#8211; Target matrix.</td>
+</tr>
+</tbody>
+</table>
+<p>dia or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>
+:param axis: Specified axis along which nonzero test is performed.
+If <a href="#id5"><span class="problematic" id="id6">:param:`axis`</span></a> not specified, whole matrix is considered.
+:type axis: <cite>int</cite></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.argmax">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">argmax</tt><big>(</big><em>X</em>, <em>axis=None</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.argmax" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return tuple (values, indices) of the maximum entries of matrix
+<a href="#id7"><span class="problematic" id="id8">:param:`X`</span></a> along axis <a href="#id9"><span class="problematic" id="id10">:param:`axis`</span></a>. Row major order.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil,) &#8211; Target matrix.</td>
+</tr>
+</tbody>
+</table>
+<p>dia or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>
+:param axis: Specify axis along which to operate. If not specified,
+whole matrix <a href="#id11"><span class="problematic" id="id12">:param:`X`</span></a> is considered.
+:type axis: <cite>int</cite></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.argmin">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">argmin</tt><big>(</big><em>X</em>, <em>axis=None</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.argmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return tuple (values, indices) of the minimum entries of matrix <a href="#id13"><span class="problematic" id="id14">:param:`X`</span></a>
+along axis <a href="#id15"><span class="problematic" id="id16">:param:`axis`</span></a>. Row major order.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil,) &#8211; Target matrix.</td>
+</tr>
+</tbody>
+</table>
+<p>dia or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>
+:param axis: Specify axis along which to operate. If not specified,
+whole matrix <a href="#id17"><span class="problematic" id="id18">:param:`X`</span></a> is considered.
+:type axis: <cite>int</cite></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.choose">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">choose</tt><big>(</big><em>n</em>, <em>k</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.choose" title="Permalink to this definition">¶</a></dt>
+<dd><p>A fast way to calculate binomial coefficients C(n, k). It is 10 times faster
+than scipy.mis.comb for exact answers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>n</strong> (<cite>int</cite>) &#8211; Index of binomial coefficient.</li>
+<li><strong>k</strong> (<cite>int</cite>) &#8211; Index of binomial coefficient.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.count">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">count</tt><big>(</big><em>X</em>, <em>s</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of occurrences of element <a href="#id19"><span class="problematic" id="id20">:param:`s`</span></a> in sparse or
+dense matrix X.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil, dia) &#8211; The input matrix.</td>
+</tr>
+</tbody>
+</table>
+<p>or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>
+:param s: the input scalar.
+:type s: <cite>float</cite></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.diff">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">diff</tt><big>(</big><em>X</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.diff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute differences between adjacent elements of X.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>) &#8211; Vector for which consecutive differences are computed.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.dot">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">dot</tt><big>(</big><em>X</em>, <em>Y</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.dot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute dot product of matrices <a href="#id21"><span class="problematic" id="id22">:param:`X`</span></a> and <a href="#id23"><span class="problematic" id="id24">:param:`Y`</span></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil, dia) &#8211; First input matrix.</td>
+</tr>
+</tbody>
+</table>
+<p>or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>
+:param Y: Second input matrix.
+:type Y: <tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil, dia
+or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.elop">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">elop</tt><big>(</big><em>X</em>, <em>Y</em>, <em>op</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.elop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute element-wise operation of matrix <a href="#id25"><span class="problematic" id="id26">:param:`X`</span></a> and matrix <a href="#id27"><span class="problematic" id="id28">:param:`Y`</span></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil, dia) &#8211; First input matrix.</td>
+</tr>
+</tbody>
+</table>
+<p>or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>
+:param Y: Second input matrix.
+:type Y: <tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil, dia
+or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>
+:param op: Operation to be performed.
+:type op: <cite>func</cite></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.find">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">find</tt><big>(</big><em>X</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.find" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all nonzero elements indices (linear indices) of sparse or dense
+matrix <a href="#id29"><span class="problematic" id="id30">:param:`X`</span></a>. It is Matlab notation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> &#8211; Target matrix.</td>
+</tr>
+</tbody>
+</table>
+<p>type X: <tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil, dia
+or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.hstack">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">hstack</tt><big>(</big><em>X</em>, <em>format=None</em>, <em>dtype=None</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.hstack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stack sparse or dense matrices horizontally (column wise).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (sequence of <tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr,) &#8211; Sequence of matrices with compatible shapes.</td>
+</tr>
+</tbody>
+</table>
+<p>dok, lil, dia or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.inf_norm">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">inf_norm</tt><big>(</big><em>X</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.inf_norm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Infinity norm of a matrix (maximum absolute row sum).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse.csr_matrix</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse.csc_matrix</span></tt>) &#8211; Input matrix.</td>
+</tr>
+</tbody>
+</table>
+<p>or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.inv_svd">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">inv_svd</tt><big>(</big><em>X</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.inv_svd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute matrix inversion using SVD.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>) &#8211; The input matrix.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.max">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">max</tt><big>(</big><em>X</em>, <em>s</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.max" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute element-wise max(x,s) assignment for sparse or dense matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil, dia) &#8211; The input matrix.</td>
+</tr>
+</tbody>
+</table>
+<p>or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>
+:param s: the input scalar.
+:type s: <cite>float</cite></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.min">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">min</tt><big>(</big><em>X</em>, <em>s</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.min" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute element-wise min(x,s) assignment for sparse or dense matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil, dia) &#8211; The input matrix.</td>
+</tr>
+</tbody>
+</table>
+<p>or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>
+:param s: the input scalar.
+:type s: <cite>float</cite></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.multiply">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">multiply</tt><big>(</big><em>X</em>, <em>Y</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.multiply" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute element-wise multiplication of matrices <a href="#id31"><span class="problematic" id="id32">:param:`X`</span></a> and <a href="#id33"><span class="problematic" id="id34">:param:`Y`</span></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil, dia) &#8211; First input matrix.</td>
+</tr>
+</tbody>
+</table>
+<p>or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>
+:param Y: Second input matrix.
+:type Y: <tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil, dia
+or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.negative">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">negative</tt><big>(</big><em>X</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.negative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if <a href="#id35"><span class="problematic" id="id36">:param:`X`</span></a> contains negative elements.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil,) &#8211; Target matrix.</td>
+</tr>
+</tbody>
+</table>
+<p>dia or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.norm">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">norm</tt><big>(</big><em>X</em>, <em>p='fro'</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.norm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute entry-wise norms (! not induced/operator norms).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil, dia) &#8211; The input matrix.</td>
+</tr>
+</tbody>
+</table>
+<p>or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>
+:param p: Order of the norm.
+:type p: <cite>str</cite> or <cite>float</cite></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.nz_data">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">nz_data</tt><big>(</big><em>X</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.nz_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return list of nonzero elements from X (! data, not indices).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil, dia) &#8211; The input matrix.</td>
+</tr>
+</tbody>
+</table>
+<p>or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.power">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">power</tt><big>(</big><em>X</em>, <em>s</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.power" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute matrix power of matrix <a href="#id37"><span class="problematic" id="id38">:param:`X`</span></a> for power <a href="#id39"><span class="problematic" id="id40">:param:`s`</span></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil, dia) &#8211; Input matrix.</td>
+</tr>
+</tbody>
+</table>
+<p>or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>
+:param s: Power.
+:type s: <cite>int</cite></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.repmat">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">repmat</tt><big>(</big><em>X</em>, <em>m</em>, <em>n</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.repmat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct matrix consisting of an m-by-n tiling of copies of X.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil,) &#8211; The input matrix.</td>
+</tr>
+</tbody>
+</table>
+<p>dia or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>
+:param m,n: The number of repetitions of <a href="#id41"><span class="problematic" id="id42">:param:`X`</span></a> along each axis.
+:type m,n: <cite>int</cite></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.sop">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">sop</tt><big>(</big><em>X</em>, <em>s=None</em>, <em>op=None</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.sop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute scalar element wise operation of matrix <a href="#id43"><span class="problematic" id="id44">:param:`X`</span></a> and
+scalar <a href="#id45"><span class="problematic" id="id46">:param:`s`</span></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil, dia) &#8211; The input matrix.</td>
+</tr>
+</tbody>
+</table>
+<p>or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>
+:param s: Input scalar. If not specified, element wise operation of input
+matrix is computed.
+:type s: <cite>float</cite>
+:param op: Operation to be performed.
+:type op: <cite>func</cite></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.sort">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">sort</tt><big>(</big><em>X</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.sort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return sorted elements of <a href="#id47"><span class="problematic" id="id48">:param:`X`</span></a> and array of corresponding
+sorted indices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil,) &#8211; Target vector.</td>
+</tr>
+</tbody>
+</table>
+<p>dia or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.std">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">std</tt><big>(</big><em>X</em>, <em>axis=None</em>, <em>ddof=0</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.std" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the standard deviation along the specified <a href="#id49"><span class="problematic" id="id50">:param:`axis`</span></a> of
+matrix <a href="#id51"><span class="problematic" id="id52">:param:`X`</span></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil,) &#8211; Target matrix.</td>
+</tr>
+</tbody>
+</table>
+<p>dia or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt>
+:param axis: Axis along which deviation is computed. If not specified,
+whole matrix <a href="#id53"><span class="problematic" id="id54">:param:`X`</span></a> is considered.
+:type axis: <cite>int</cite>
+:param ddof: Means delta degrees of freedom. The divisor used in
+computation is N - <a href="#id55"><span class="problematic" id="id56">:param:`ddof`</span></a>, where N represents the
+number of elements. Default is 0.
+:type ddof: <cite>float</cite></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.sub2ind">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">sub2ind</tt><big>(</big><em>shape</em>, <em>row_sub</em>, <em>col_sub</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.sub2ind" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the linear index equivalents to the row and column subscripts for
+given matrix shape.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>shape</strong> (<cite>tuple</cite>) &#8211; Preferred matrix shape for subscripts conversion.</li>
+<li><strong>row_sub</strong> (<cite>list</cite>) &#8211; Row subscripts.</li>
+<li><strong>col_sub</strong> (<cite>list</cite>) &#8211; Column subscripts.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.svd">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">svd</tt><big>(</big><em>X</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.svd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute standard SVD on matrix X.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil,) &#8211; The input matrix.</td>
+</tr>
+</tbody>
+</table>
+<p>dia or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.trace">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">trace</tt><big>(</big><em>X</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return trace of sparse or dense square matrix X.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr, dok, lil,) &#8211; Target matrix.</td>
+</tr>
+</tbody>
+</table>
+<p>dia or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nimfa.utils.linalg.vstack">
+<tt class="descclassname">nimfa.utils.linalg.</tt><tt class="descname">vstack</tt><big>(</big><em>X</em>, <em>format=None</em>, <em>dtype=None</em><big>)</big><a class="headerlink" href="#nimfa.utils.linalg.vstack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stack sparse or dense matrices vertically (row wise).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (sequence of <tt class="xref py py-class docutils literal"><span class="pre">scipy.sparse</span></tt> of format csr, csc, coo, bsr,) &#8211; Sequence of matrices with compatible shapes.</td>
+</tr>
+</tbody>
+</table>
+<p>dok, lil, dia or <tt class="xref py py-class docutils literal"><span class="pre">numpy.matrix</span></tt></p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Nimfa</a></h1>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=marinkaz&repo=nimfa&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="nimfa.models.html">Models (<tt class="docutils literal"><span class="pre">models</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.methods.html">Methods (<tt class="docutils literal"><span class="pre">methods</span></tt>)</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="nimfa.utils.html">Utils (<tt class="docutils literal"><span class="pre">utils</span></tt>)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nimfa.utils.utils.html">Utils (<tt class="docutils literal"><span class="pre">utils.utils</span></tt>)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Linalg (<tt class="docutils literal"><span class="pre">utils.linalg</span></tt>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.examples.html">Examples (<tt class="docutils literal"><span class="pre">examples</span></tt>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nimfa.datasets.html">Datasets (<tt class="docutils literal"><span class="pre">datasets</span></tt>)</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="nimfa.utils.html">Utils (<tt class="docutils literal"><span class="pre">utils</span></tt>)</a><ul>
+      <li>Previous: <a href="nimfa.utils.utils.html" title="previous chapter">Utils (<tt class="docutils literal"><span class="pre">utils.utils</span></tt>)</a></li>
+      <li>Next: <a href="nimfa.examples.html" title="next chapter">Examples (<tt class="docutils literal"><span class="pre">examples</span></tt>)</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, The Nimfa developers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/marinkaz/nimfa" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
